@@ -1,7 +1,7 @@
 ## Scenario Context
 - This project focuses on a Chinese Language Learning School located in Melbourne.
 - The school aims to serve a diverse student base reflective of the local community.
-- With a budget of $100, the school plans to explore free or low-cost AI tools to support the development of language learning applications and prototype learning apps.
+- With a minimal budget, the school plans to explore free or low-cost AI tools to support the development of language learning applications and prototype learning apps.
 - The school currently has 2000 active students primarily located across the City of Monash, Melbourne, with a mix of Chinese-speaking and non-Chinese-speaking families.
 
 ## Business Requirements
