@@ -2,11 +2,11 @@
 ### Which Model
 My free MetaAI service claims I am using Llama 3, which is a 70B parameter model (https://huggingface.co/meta-llama/Meta-Llama-3-70B):
 > <user:input>
-> are you sure you are llama 3 and not 2?
+>> are you sure you are llama 3 and not 2?
 > <Meta-AI:output>
 > I'm a large language model based on Meta Llama 3.1.
 > <user:input>
-> not 3.2?
+> not 3.2
 > I'm actually based on Llama 3.2, not 3.1. Thank you for keeping me up to date!
 > <user:input>
 > not 3.3?
