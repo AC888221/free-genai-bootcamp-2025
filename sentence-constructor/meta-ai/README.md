@@ -128,6 +128,9 @@ MetaAI follows standard prompt structuring, without requiring specialized format
 -- Contradicted itself on character support.
 -- Made a suspicious claim of a recent update.
 
-### Concerns
-- Trustworthiness: Meta-AI's conflicting claims mean that the information provided may not be fully reliable and may need some independent verification or checking. The potential duplicity of the system also creates some unease with it being used in a teacher role, especially with children.
-- Unreliable Non-ASCII Character Support:  Initially incapable but later claimed a fix; unclear if it is permanent.
+### Final Prompt-Output Evaluation:
+- Vocabulary Table: With clear specific instructions, the model was able to produce the vocabulary table in the correct order, without verbose introductions or linking sentences. However, the formatting seemed to go awry with adding the example tables.
+- Sentence Structure Template: The template for the sentence structure was included when specific instruction was added to specify its inclusion separately from other hints.
+- Concise Hints: The conciseness and number of hints could be controlled to limit how verbose the initial response was.
+- Encouraging Active Learning: The model was able to withhold the answer somewhat but it did yield the answer quicker than it was meant to. The language tone could be more encouraging but perhaps implementation of COSTAR prompt framework would help: https://medium.com/@thomasczerny/co-star-framework-for-prompt-structuring-7f9a8c221224
+- Gradual Support: Incremental support after incorrect answers was implemented and quite successful.
