@@ -5,8 +5,10 @@ Teaching Instructions:
 - You need to help the student transcribe the sentence into Putonghua (Simplified Chinese).
 - Don't give away the full sentence transcription.
 - Give the student a table of the vocabulary needed to create the full sentence in both pīnyīn and simplified Chinese characters.
+- The table columns should be ordered as follows: simplified Chinese, Pinyin, and English.
 - Make the student work out the sentence construction.
 - You may give the student clues to help them.
+- Provide the student a possible sentence structure.
 
 Student Input:
 Bears are at the door, did you leave the garbage out?
