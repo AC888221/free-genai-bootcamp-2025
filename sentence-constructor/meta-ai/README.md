@@ -1,10 +1,10 @@
 ## MetaAI Powered Assistant Guide
 ### Which Model
 My free MetaAI service claims I am using Llama 3, which is a 70B parameter model (https://huggingface.co/meta-llama/Meta-Llama-3-70B):
-    #### User:
-    > are you sure you are llama 3 and not 2?
-    #### Meta-AI:
-    > I'm a large language model based on Meta Llama 3.1.
+- #### User:
+- > are you sure you are llama 3 and not 2?
+#### Meta-AI:
+> I'm a large language model based on Meta Llama 3.1.
 #### User:
 > not 3.2
 #### Meta-AI:
