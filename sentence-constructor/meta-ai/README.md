@@ -1,4 +1,4 @@
-## MetaAI Powered Assistant Guide
+## Meta-AI Powered Assistant Guide
 ### Which Model
 My free MetaAI service claims to be using Llama 3, a 70B parameter model (https://huggingface.co/meta-llama/Meta-Llama-3-70B).However, its responses regarding the specific version have been inconsistent and these shifting claims raise questions about its reliability:
 
