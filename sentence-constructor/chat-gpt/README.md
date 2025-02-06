@@ -1,7 +1,7 @@
 ## ChatGPT Powered Assistant Guide
 
 ### Which Model
-ChatGPT-4 Turbo: https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo
+My free version is ChatGPT-4 Turbo: https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo
 
 ### Prompting Guides
 ChatGPt-4 Turbo follows standard prompt structuring, without requiring specialized formatting for context retention.
