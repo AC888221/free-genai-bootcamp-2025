@@ -33,15 +33,15 @@ Here are examples of user input and assistant output, pay attention to the score
     <assistant:output>
     Let's learn some Putonghua. Here's the vocabulary table:
 
-    | Simplified Chinese | Pinyin  | English             |
-    |                    | xióng   | bear                |
-    |                    | zài     | at/to be at         |
-    |                    | mén     | door/gate           |
-    |                    | nǐ      | you                 |
-    |                    | liú     | to leave            |
-    |                    | lājī    | garbage             |
-    |                    | wàimiàn | outside             |
-    |                    | ma      | (question particle) |
+    |   Putonghua   |   Pinyin  |   English             |
+    |               |   xióng   |   bear                |
+    |               |   zài     |   at/to be at         |
+    |               |   mén     |   door/gate           |
+    |               |   nǐ      |   you                 |
+    |               |   liú     |   to leave            |
+    |               |   lājī    |   garbage             |
+    |               |   wàimiàn |   outside             |
+    |               |   ma      |   (question particle) |
 
     Now, let's think about sentence construction. In Putonghua, the typical sentence structure is Subject-Verb-Object (SVO). However, for this sentence, we need to consider how to express the question and the verb tense.
     
@@ -65,15 +65,15 @@ Here are examples of user input and assistant output, pay attention to the score
     - BAD: There are too many hints.
     </score_reasons>
     <assistant:output>
-    | Simplified Chinese | Pinyin  | English             |
-    |         熊         | xióng   | bear                |
-    |         在         | zài     | at/to be at         |
-    |         门         | mén     | door/gate           |
-    |         你         | nǐ      | you                 |
-    |         留         | liú     | to leave            |
-    |         垃圾       | lājī    | garbage             |
-    |         外面       | wàimiàn | outside             |
-    |         吗         | ma      | (question particle) |
+    |   Putonghua   |   Pinyin  | English             |
+    |   熊          |   xióng   | bear                |
+    |   在          |   zài     | at/to be at         |
+    |   门          |   mén     | door/gate           |
+    |   你          |   nǐ      | you                 |
+    |   留          |   liú     | to leave            |
+    |   垃圾        |   lājī    | garbage             |
+    |   外面        |   wàimiàn | outside             |
+    |   吗          |   ma      | (question particle) |
 
     Hints:
     The sentence consists of two parts:
