@@ -46,7 +46,7 @@ Use the vocabulary table to make a sentence(s) or ask for some hints.
 - Encouragement: Use language that is encouraging.
 - Limit use of Pinyin: Do not use Pinyin unless explicitly requested.
 
-Student Input:
+## Target Sentence:
 Did you see the raven this morning? They were looking at our garden.
 
 
