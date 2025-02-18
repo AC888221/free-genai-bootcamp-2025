@@ -1,0 +1,189 @@
+---
+description: Rules for flask code
+globs: /backend-flask/*
+---
+# 📌 Flask Best Practices for Junior Developers
+
+### Rule 1: Always Use Application Factories
+# ❌ Bad: Instantiating the app globally makes testing and scaling difficult.
+app = Flask(__name__)
+
+# ✅ Good: Use an application factory function for better modularity and testability.
+def create_app():
+    app = Flask(__name__)
+    # Configure app (extensions, blueprints, etc.)
+    return app
+
+### Rule 2: Keep Routes Clean by Separating Concerns
+# ❌ Bad: Mixing validation, database logic, and external calls in a single route.
+@app.route('/users', methods=['POST'])
+def create_user():
+    data = request.json
+    # 20 lines of validation
+    # 15 lines of database operations
+    # 10 lines of email sending
+    return jsonify(user)
+
+# ✅ Good: Delegate responsibilities to services/helpers.
+@app.route('/users', methods=['POST'])
+def create_user():
+    data = request.json
+    validate_user_data(data)  # Handles validation separately
+    user = user_service.create_user(data)  # Database logic is abstracted
+    notify_user(user)  # Decoupled email notification
+    return jsonify(user)
+
+### Rule 3: Use Flask’s Built-in Context Management for Database Access
+# ❌ Bad: Manually handling the database connection.
+def get_db():
+    if not hasattr(g, 'database'):
+        g.database = Database()
+    return g.database
+
+# ✅ Good: Use Flask’s `g` object for automatic connection handling.
+from flask import g
+
+def get_db():
+    if 'database' not in g:
+        g.database = Database()
+    return g.database
+
+@app.teardown_appcontext
+def close_db(error):
+    """Ensure the database connection is properly closed at the end of the request."""
+    db = g.pop('database', None)
+    if db is not None:
+        db.close()
+
+### Rule 4: Use Blueprints for a Modular Application
+# ❌ Bad: All routes in a single large `app.py` file.
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route('/users')
+def users():
+    return "User List"
+
+# ✅ Good: Use Blueprints to organize routes into modules.
+from flask import Blueprint
+
+user_bp = Blueprint('users', __name__)
+
+@user_bp.route('/users')
+def users():
+    return "User List"
+
+def create_app():
+    app = Flask(__name__)
+    app.register_blueprint(user_bp)
+    return app
+
+### Rule 5: Secure Your Application (Input Validation & Avoiding SQL Injection)
+# ❌ Bad: Directly using user input in SQL queries.
+@app.route('/search')
+def search():
+    query = request.args.get('q')
+    results = db.execute(f"SELECT * FROM users WHERE name LIKE '%{query}%'")
+    return jsonify(results)
+
+# ✅ Good: Use parameterized queries to prevent SQL injection.
+@app.route('/search')
+def search():
+    query = request.args.get('q')
+    results = db.execute("SELECT * FROM users WHERE name LIKE ?", (f"%{query}%",))
+    return jsonify(results)
+
+### Rule 6: Use Environment Variables for Configuration
+# ❌ Bad: Hardcoding secrets in the code.
+app.config['SECRET_KEY'] = 'supersecretkey'
+
+# ✅ Good: Use environment variables instead.
+import os
+
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'fallback_default_key')
+
+### Rule 7: Handle Errors Gracefully with Custom Error Handlers
+# ❌ Bad: Letting unhandled errors expose stack traces to users.
+@app.route('/divide')
+def divide():
+    num = int(request.args.get('num'))
+    return str(100 / num)
+
+# ✅ Good: Use error handlers to provide friendly messages.
+@app.errorhandler(ZeroDivisionError)
+def handle_zero_division(error):
+    return jsonify({'error': 'Cannot divide by zero'}), 400
+
+@app.route('/divide')
+def divide():
+    try:
+        num = int(request.args.get('num'))
+        return str(100 / num)
+    except ZeroDivisionError as e:
+        return handle_zero_division(e)
+
+### Rule 8: Use Flask’s Built-in Logging Instead of Print Statements
+# ❌ Bad: Using print statements for debugging.
+@app.route('/')
+def home():
+    print("User accessed home page")  # Not suitable for production
+    return "Welcome!"
+
+# ✅ Good: Use Flask’s logging system.
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
+@app.route('/')
+def home():
+    app.logger.info("User accessed home page")
+    return "Welcome!"
+
+### Rule 9: Use Flask-Migrate for Database Migrations
+# ❌ Bad: Manually altering database tables.
+ALTER TABLE users ADD COLUMN age INTEGER;
+
+# ✅ Good: Use Flask-Migrate for version-controlled schema changes.
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
+
+def create_app():
+    app = Flask(__name__)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+    db.init_app(app)
+    Migrate(app, db)
+    return app
+
+### Rule 10: Use Caching for Performance Optimization
+# ❌ Bad: Fetching data from the database on every request.
+@app.route('/expensive')
+def expensive():
+    data = db.query("SELECT * FROM large_table")
+    return jsonify(data)
+
+# ✅ Good: Use Flask-Caching for better performance.
+from flask_caching import Cache
+
+cache = Cache(config={'CACHE_TYPE': 'simple'})
+
+@app.route('/expensive')
+@cache.cached(timeout=60)
+def expensive():
+    data = db.query("SELECT * FROM large_table")
+    return jsonify(data)
+
+### Summary of Best Practices:
+- ✅ Use an **application factory** for scalability.  
+- ✅ Keep **routes clean** by separating concerns.  
+- ✅ Use Flask’s **`g` object** for database connection management.  
+- ✅ Organize routes with **Blueprints**.  
+- ✅ Use **parameterized queries** to prevent SQL injection.  
+- ✅ Store **secrets and configuration** in environment variables.  
+- ✅ Implement **custom error handling** for better UX.  
+- ✅ Use **Flask’s logging system** instead of print statements.  
+- ✅ Use **Flask-Migrate** for database schema changes.  
+- ✅ Cache expensive queries with **Flask-Caching**.
+
