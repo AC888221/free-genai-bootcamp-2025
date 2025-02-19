@@ -155,7 +155,28 @@ def load(app):
     except Exception as e:
       return jsonify({"error": str(e)}), 500
 
-  # todo GET /groups/:id/words/raw
+  # Fix API for Bootcamp Week 1: Add raw words endpoint for direct word access
+  @app.route('/api/groups/<int:id>/words/raw', methods=['GET'])
+  @cross_origin()
+  def get_group_words_raw(id):
+    try:
+      cursor = app.db.cursor()
+      cursor.execute('''
+          SELECT w.*
+          FROM words w
+          JOIN word_groups wg ON w.id = wg.word_id
+          WHERE wg.group_id = ?
+          ORDER BY w.kanji
+      ''', (id,))
+      words = cursor.fetchall()
+      return jsonify([{
+          "id": word["id"],
+          "kanji": word["kanji"],
+          "romaji": word["romaji"],
+          "english": word["english"]
+      } for word in words])
+    except Exception as e:
+      return jsonify({"error": str(e)}), 500
 
   @app.route('/groups/<int:id>/study_sessions', methods=['GET'])
   @cross_origin()

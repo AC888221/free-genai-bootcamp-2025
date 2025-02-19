@@ -196,3 +196,21 @@ def load(app):
       return jsonify({"message": "Study history cleared successfully"}), 200
     except Exception as e:
       return jsonify({"error": str(e)}), 500
+
+  # Fix API for Bootcamp Week 1: Add review endpoint for recording study results
+  @app.route('/api/study-sessions/<id>/review', methods=['POST'])
+  @cross_origin()
+  def create_study_session_review(id):
+    try:
+      data = request.get_json()
+      if not data or not all(key in data for key in ('word_id', 'correct')):
+        return jsonify({"error": "Missing required fields"}), 400
+      cursor = app.db.cursor()
+      cursor.execute('''
+          INSERT INTO word_review_items (word_id, study_session_id, correct, created_at)
+          VALUES (?, ?, ?, datetime('now'))
+      ''', (data['word_id'], id, data['correct']))
+      app.db.commit()
+      return jsonify({"message": "Review recorded successfully"}), 201
+    except Exception as e:
+      return jsonify({"error": str(e)}), 500
