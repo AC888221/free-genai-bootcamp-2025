@@ -85,3 +85,51 @@ Testing executed in Cursor Composer:
 > Review endpoint properly records study results
 > Error handling works correctly
 > Database updates are being made properly
+
+### Adapting the Lang-Portal to Mandarin Chinese
+
+Overview of the Lang-Portal Adaptation Plan
+This plan outlines the steps to adapt the Lang-Portal app from Japanese to Mandarin Chinese (using simplified Chinese characters, or "jiantizi"). Here's a summary of what each section is doing:
+
+Database Schema Changes:
+
+Rename columns in the words table from kanji to jiantizi and from romaji to pinyin.
+Backend Changes (backend-flask):
+
+Update the backend routes to reflect the new column names (jiantizi and pinyin).
+Modify SQL queries to use the new column names.
+Ensure the response structure matches the new schema.
+Frontend Changes (frontend-react):
+
+Update API interfaces to use jiantizi and pinyin.
+Modify components that display words to use the new column names.
+Font and Display Updates:
+
+Update font configurations to use fonts optimized for simplified Chinese characters.
+Ensure proper display of jiantizi and pinyin.
+Testing Plan:
+
+Perform database testing to ensure correct insertion and retrieval of simplified Chinese characters.
+Conduct API testing to verify word creation and retrieval.
+Test frontend components to ensure they render simplified Chinese characters correctly.
+Pinyin Support:
+
+Add support for pinyin tone marks.
+Implement a pinyin input helper to convert numbered pinyin to tone marks.
+Documentation Updates:
+
+Update API documentation to reflect the changes.
+Add guidelines for using pinyin and simplified Chinese characters.
+Final Verification:
+
+Verify character encoding, API responses, and UI rendering.
+Ensure search functionality works with both characters and pinyin.
+Test pinyin input conversion and sorting.
+Deployment Checklist:
+
+Prepare for deployment by backing up data and updating migration scripts.
+Perform post-deployment verification to ensure everything works correctly.
+Unit Tests:
+
+Add specific tests for handling Chinese characters and pinyin.
+Ensure API endpoints are tested for correct functionality.
