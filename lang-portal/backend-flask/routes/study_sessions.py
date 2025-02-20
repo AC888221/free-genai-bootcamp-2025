@@ -163,8 +163,8 @@ def load(app):
         },
         'words': [{
           'id': word['id'],
-          'kanji': word['kanji'],
-          'romaji': word['romaji'],
+          'jiantizi': word['jiantizi'],  # Previously kanji
+          'pinyin': word['pinyin'],      # Previously romaji
           'english': word['english'],
           'correct_count': word['session_correct_count'],
           'wrong_count': word['session_wrong_count']

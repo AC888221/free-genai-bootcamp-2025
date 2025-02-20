@@ -18,19 +18,19 @@ def load(app):
       offset = (page - 1) * words_per_page
 
       # Get sorting parameters from the query string
-      sort_by = request.args.get('sort_by', 'kanji')  # Default to sorting by 'kanji'
+      sort_by = request.args.get('sort_by', 'jiantizi')  # Default to sorting by 'jiantizi'
       order = request.args.get('order', 'asc')  # Default to ascending order
 
       # Validate sort_by and order
-      valid_columns = ['kanji', 'romaji', 'english', 'correct_count', 'wrong_count']
+      valid_columns = ['jiantizi', 'pinyin', 'english', 'correct_count', 'wrong_count']
       if sort_by not in valid_columns:
-        sort_by = 'kanji'
+        sort_by = 'jiantizi'
       if order not in ['asc', 'desc']:
         order = 'asc'
 
       # Query to fetch words with sorting
       cursor.execute(f'''
-        SELECT w.id, w.kanji, w.romaji, w.english, 
+        SELECT w.id, w.jiantizi, w.pinyin, w.english, 
             COALESCE(r.correct_count, 0) AS correct_count,
             COALESCE(r.wrong_count, 0) AS wrong_count
         FROM words w
@@ -51,8 +51,8 @@ def load(app):
       for word in words:
         words_data.append({
           "id": word["id"],
-          "kanji": word["kanji"],
-          "romaji": word["romaji"],
+          "jiantizi": word["jiantizi"],
+          "pinyin": word["pinyin"],
           "english": word["english"],
           "correct_count": word["correct_count"],
           "wrong_count": word["wrong_count"]
@@ -79,7 +79,7 @@ def load(app):
       
       # Query to fetch the word and its details
       cursor.execute('''
-        SELECT w.id, w.kanji, w.romaji, w.english,
+        SELECT w.id, w.jiantizi, w.pinyin, w.english,
                COALESCE(r.correct_count, 0) AS correct_count,
                COALESCE(r.wrong_count, 0) AS wrong_count,
                GROUP_CONCAT(DISTINCT g.id || '::' || g.name) as groups
@@ -109,8 +109,8 @@ def load(app):
       return jsonify({
         "word": {
           "id": word["id"],
-          "kanji": word["kanji"],
-          "romaji": word["romaji"],
+          "jiantizi": word["jiantizi"],
+          "pinyin": word["pinyin"],
           "english": word["english"],
           "correct_count": word["correct_count"],
           "wrong_count": word["wrong_count"],

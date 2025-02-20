@@ -1,0 +1,11 @@
+/* Jiantizi adaption for Bootcamp Week 1:
+   Configure fonts optimized for Chinese characters */
+.chinese-character {
+  font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 2em;
+}
+
+.pinyin {
+  font-family: "Source Sans Pro", sans-serif;
+  font-size: 1.2em;
+} 

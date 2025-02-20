@@ -95,13 +95,13 @@ def load(app):
       offset = (page - 1) * words_per_page
 
       # Get sorting parameters
-      sort_by = request.args.get('sort_by', 'kanji')
+      sort_by = request.args.get('sort_by', 'jiantizi')
       order = request.args.get('order', 'asc')
 
       # Validate sort parameters
-      valid_columns = ['kanji', 'romaji', 'english', 'correct_count', 'wrong_count']
+      valid_columns = ['jiantizi', 'pinyin', 'english', 'correct_count', 'wrong_count']
       if sort_by not in valid_columns:
-        sort_by = 'kanji'
+        sort_by = 'jiantizi'
       if order not in ['asc', 'desc']:
         order = 'asc'
 
@@ -140,8 +140,8 @@ def load(app):
       for word in words:
         words_data.append({
           "id": word["id"],
-          "kanji": word["kanji"],
-          "romaji": word["romaji"],
+          "jiantizi": word["jiantizi"],
+          "pinyin": word["pinyin"],
           "english": word["english"],
           "correct_count": word["correct_count"],
           "wrong_count": word["wrong_count"]
@@ -166,13 +166,13 @@ def load(app):
           FROM words w
           JOIN word_groups wg ON w.id = wg.word_id
           WHERE wg.group_id = ?
-          ORDER BY w.kanji
+          ORDER BY w.jiantizi
       ''', (id,))
       words = cursor.fetchall()
       return jsonify([{
           "id": word["id"],
-          "kanji": word["kanji"],
-          "romaji": word["romaji"],
+          "jiantizi": word["jiantizi"],
+          "pinyin": word["pinyin"],
           "english": word["english"]
       } for word in words])
     except Exception as e:
