@@ -1,0 +1,27 @@
+/* Jiantizi adaption for Bootcamp Week 1:
+   Add styles for Chinese word display */
+
+.chinese-word {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.chinese-character {
+  font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 2.5em;
+  line-height: 1.2;
+}
+
+.pinyin {
+  font-family: "Source Sans Pro", sans-serif;
+  font-size: 1.2em;
+  color: #666;
+  margin: 0.3em 0;
+}
+
+.english {
+  font-size: 1em;
+  color: #888;
+} 
