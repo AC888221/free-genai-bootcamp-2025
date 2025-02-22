@@ -1,3 +1,12 @@
+For the frontend implementation, I modified the existing user interface to adapt from Japanese to Putonghua. Key changes included:
+Language Adaptation: Updated all text elements in the UI to reflect Putonghua, ensuring a seamless user experience.
+API Adjustments: Modified API calls to align with the updated backend, ensuring that the frontend correctly interacts with the revised endpoints.
+User Interface Updates: Made necessary adjustments to the layout and design, such as font changes and component updates, to accommodate any changes in text length or formatting due to the language switch.
+These changes allowed the frontend to effectively communicate with the updated backend while providing a user-friendly experience for Putonghua speakers.
+
+
+
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
