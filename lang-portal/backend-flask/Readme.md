@@ -1,5 +1,5 @@
 
-[Jump to Bootcamp Week 1: Backend Implementation Report](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps/Readme.md#bootcamp-week-1-opea-implementation-report)
+[Jump to Bootcamp Week 1: Backend Implementation Report](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/lang-portal/backend-flask/Readme.md#bootcamp-week-1-backend-implementation-report)
 
 ## Setting up the database
 
