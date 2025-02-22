@@ -1,0 +1,2 @@
+[console_scripts]
+opea = comps.cores.mega.cli:opea_execute
