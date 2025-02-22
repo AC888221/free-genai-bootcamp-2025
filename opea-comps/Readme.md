@@ -1,5 +1,18 @@
 # Running Ollama Third-Party Service
 
+Jump to Implementation Report
+
+## Choosing a Model
+- Get the model_id from the Ollama Library.
+
+## Getting the Host IP
+- **Linux**: 
+  ```bash
+  sudo apt install net-tools
+  ifconfig
+
+# Running Ollama Third-Party Service
+
 ### Choosing a Model
 
 You can get the model_id that ollama will launch from the [Ollama Library](https://ollama.com/library).
