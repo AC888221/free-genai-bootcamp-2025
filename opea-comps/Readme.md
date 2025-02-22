@@ -1,6 +1,6 @@
 # Implementing OPEA Comps (Generative AI Components)
 
-[Jump to Bootcampt Week 1: OPEA Implementation Report](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps/Readme.md#opea-implementation-report)
+[Jump to Bootcampt Week 1: OPEA Implementation Report](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps/Readme.md#bootcampt-week-1-opea-implementation-report)
 
 ## Running Ollama Third-Party Services
 
