@@ -133,3 +133,6 @@ Unit Tests:
 
 Add specific tests for handling Chinese characters and pinyin.
 Ensure API endpoints are tested for correct functionality.
+
+Week 1 OPEA
+https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps/Readme.md
