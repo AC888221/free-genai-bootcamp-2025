@@ -1,6 +1,6 @@
 # Running Ollama Third-Party Service
 
-Jump to Implementation Report
+[Jump to Bootcampt Week 1: OPEA Implementation Report](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps/Readme.md#opea-implementation-report)
 
 ## Choosing a Model
 - Get the model_id from the Ollama Library.
