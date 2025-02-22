@@ -126,7 +126,7 @@ curl http://localhost:9000/api/generate -d '{
     "prompt": "Why is the sky blue?"
 }'
 
-OPEA Implementation Report
+# OPEA Implementation Report
 
 Installation and Setup:
 
