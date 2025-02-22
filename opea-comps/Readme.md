@@ -146,3 +146,21 @@ Implemented proper separation of concerns between service layers
 Set up environment-based configuration for flexibility
 Created a scalable foundation for future enhancements
 Overall, implementing this service provided valuable experience in working with Large Language Models, API design, Docker deployment, and system integration. The resulting system demonstrates practical application of modern AI services while maintaining code quality and system reliability.
+
+I implemented OPEA in two stages:
+
+- Infrastructure Setup:
+1. Deployed Ollama LLM service using Docker Compose on port 8008.
+2. Integrated the llama3.2:1b model within the Docker container.
+3. Configured environment variables for proper service operation.
+
+- Service Development:
+1. Developed a FastAPI service with a /v1/example-service endpoint for chat completion requests.
+2. Implemented message formatting and response handling for communication with Ollama.
+3. Included error handling and logging for reliability.
+
+Testing and Verification
+1. Direct API Testing: Verified Ollama functionality through direct API calls.
+Service Integration: Tested FastAPI service endpoints for correct interaction with Ollama.
+2. Response Handling: Ensured proper handling of streaming responses and error conditions.
+(https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps/Readme.md)
