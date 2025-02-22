@@ -134,6 +134,10 @@ Unit Tests:
 Add specific tests for handling Chinese characters and pinyin.
 Ensure API endpoints are tested for correct functionality.
 
+Pre-week:
+[GenAI Architecting](https://github.com/AC888221/free-genai-bootcamp-2025/tree/main/genai-architecting)
+[Sentence Constructor](https://github.com/AC888221/free-genai-bootcamp-2025/tree/main/sentence-constructor)
+
 Week 1:
 [Backend](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/lang-portal/backend-flask/README.md#bootcamp-week-1-backend-implementation-report)
 [Frontend](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/lang-portal/frontend-react/README.md#bootcamp-week-1-frontend-implementation-report)
