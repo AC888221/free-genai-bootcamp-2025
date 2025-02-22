@@ -1,70 +1,78 @@
+# Lang Portal Frontend Documentation
+
 [Jump to Bootcamp Week 1: Frontend Implementation Report](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/lang-portal/frontend-react/README.md#bootcamp-week-1-frontend-implementation-report)
 
+## Overview
+The Lang Portal frontend is built using React and Vite, providing a user-friendly interface for language learning resources. This documentation outlines the setup, implementation, and usage of the frontend application.
 
-# React + TypeScript + Vite
+## Getting Started
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### Prerequisites
+- Node.js (version 14 or higher)
+- npm or yarn
 
-Currently, two official plugins are available:
+### Installation
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/AC888221/free-genai-bootcamp-2025.git
+   cd lang-portal/frontend-react
+   ```
 
-## Expanding the ESLint configuration
+2. **Install Dependencies**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+3. **Run the Development Server**
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+   The application will be available at `http://localhost:3000`.
 
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### Building for Production
+To build the application for production, run:
+```bash
+npm run build
+# or
+yarn build
 ```
+The production files will be generated in the `dist` directory.
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Key Features
+- **Language Adaptation**: The UI has been adapted from Japanese to Putonghua, ensuring a seamless user experience.
+- **API Integration**: The frontend interacts with the backend API, allowing for dynamic data retrieval and submission.
+- **Responsive Design**: The application is designed to be responsive, providing a consistent experience across devices.
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+## Bootcamp Week 1: Frontend Implementation Report
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+The frontend was modified to adapt the user interface from Japanese to Putonghua, ensuring effective communication with the updated backend.
 
+### Key Changes
 
-# Bootcamp Week 1: Frontend Implementation Report
+1. **Language Adaptation**: All text elements were updated to Putonghua, including buttons, labels, and instructional text.
 
-For the frontend implementation, I modified the existing user interface to adapt from Japanese to Putonghua. Key changes included:
-Language Adaptation: Updated all text elements in the UI to reflect Putonghua, ensuring a seamless user experience.
-API Adjustments: Modified API calls to align with the updated backend, ensuring that the frontend correctly interacts with the revised endpoints.
-User Interface Updates: Made necessary adjustments to the layout and design, such as font changes and component updates, to accommodate any changes in text length or formatting due to the language switch.
-These changes allowed the frontend to effectively communicate with the updated backend while providing a user-friendly experience for Putonghua speakers.
+2. **API Adjustments**: API calls were modified to align with updated backend endpoints as specified in `api_Fix.md`, including the addition of the `/api` prefix.
 
-I adapted the user interface from Japanese to Putonghua by:
+3. **User Interface Updates**: Layout and design adjustments were made to accommodate changes in text length and formatting:
+   - Font changes for Putonghua characters to enhance readability.
+   - Component updates to handle varying text lengths and prevent layout issues.
 
-1. Language Adaptation: Updated all text elements to Putonghua.
-2. API Adjustments: Modified API calls to align with the updated backend.
-3. UI Updates: Adjusted layout, fonts, and components for the language switch.
-4. Testing: Verified text updates, API interactions, and UI rendering for Putonghua.
-(https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/lang-portal/frontend-react/README.md)
+4. **Testing**: Comprehensive testing verified:
+   - Text updates for accurate Putonghua translations.
+   - API interactions for successful data retrieval and submission.
+   - UI rendering across different devices and screen sizes.
+
+### Challenges Faced
+Several key challenges were encountered during the frontend implementation:
+- **Translation Accuracy**: Achieving precise translations to ensure that the intended meaning and context were maintained throughout the user interface.
+- **API Integration**: Modifying API calls to align with the updated backend endpoints necessitated thorough testing to confirm that all interactions functioned correctly.
+- **UI Adaptation**: Adjusting the user interface to accommodate varying text lengths and formatting
+- **Cross-Device Compatibility**: Ensuring that the application rendered correctly across various devices and screen sizes.
+
+## Conclusion
+The adaptation of the user interface and API interactions effectively meets user needs while enhancing usability and performance.
