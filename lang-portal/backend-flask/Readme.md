@@ -1,3 +1,12 @@
+I modified the existing backend API in two stages:
+API Fixes: Initially, I addressed issues with the existing API by:
+Removing Unused APIs: Identified and removed APIs that were no longer necessary for the application.
+Enhancing Functionality: Improved the remaining endpoints, including fixing route paths and ensuring correct response structures to enhance overall API reliability.
+Language Adaptation: After fixing the API, I transitioned the system from supporting Japanese to Putonghua by:
+Updating Data Handling: Adjusted the database schema, renaming columns to accommodate Putonghua language requirements, ensuring that all text fields were compatible with the new language.
+Localization: Implemented localization strategies to support Putonghua, including changes to hardcoded strings and ensuring that API responses were appropriately translated.
+These modifications ensured that the backend could effectively serve a Putonghua-speaking user base while maintaining data integrity and functionality.
+
 ## Setting up the database
 
 ```sh
