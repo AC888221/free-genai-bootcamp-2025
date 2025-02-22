@@ -1,27 +1,16 @@
-# Running Ollama Third-Party Service
+# Implementing OPEA Comps (Generative AI Components)
 
 [Jump to Bootcampt Week 1: OPEA Implementation Report](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps/Readme.md#opea-implementation-report)
 
-## Choosing a Model
-- Get the model_id from the Ollama Library.
-
-## Getting the Host IP
-- **Linux**: 
-  ```bash
-  sudo apt install net-tools
-  ifconfig
-
-# Running Ollama Third-Party Service
+## Running Ollama Third-Party Services
 
 ### Choosing a Model
 
-You can get the model_id that ollama will launch from the [Ollama Library](https://ollama.com/library).
+Get the model_id that Ollama will launch from the [Ollama Library](https://ollama.com/library).
 
-https://ollama.com/library/1lama3.2
+Example: [llama3.2](https://ollama.com/library/1lama3.2)
 
-eg. https://ollama.com/library/llama3.2
-
-### Getting the Host Ip
+### Getting the Host IP
 
 #### Linux
 
@@ -35,22 +24,35 @@ Or you can try this
 
 HOST_IP=$(hostname -I | awk '{print $1}') NO_PROXY=localhost LLM_ENDPOINT_PORT=8008 LLM_MODEL_ID="1lama3.2:1b" dockercompose up
 
-## Ollama API
+## Using the Ollama API
 
-Once the Ollama server is running we can make API calls to the Ollama API.
+Once the Ollama server is running, make API calls to the [Ollama API](https://github.com/ollama/ollama/blob/main/docs/api.md).
 
-https://github.com/ollama/ollama/blob/main/docs/api.md
-
-
-## Download (pull) a model
+### Download (pull) a model
 
 curl http://localhost:8008/api/pull -d '{
     "model": "llama3.2:1b"
 }'
 
-## Generate a Request
+### Generate a Request
 
 curl http://localhost:8008/api/generate -d '{
+    "model": "llama3.2:1b",
+    "prompt": "Why is the sky blue?"
+}'
+
+## Port change for Megaservice
+HOST_IP=$(hostname -I | awk '{print $1}') NO_PROXY=localhost LLM_ENDPOINT_PORT=9000 LLM_MODEL_ID="1lama3.2:1b" dockercompose up
+
+### Download (pull) a model
+
+curl http://localhost:9000/api/pull -d '{
+    "model": "llama3.2:1b"
+}'
+
+### Generate a Request
+
+curl http://localhost:9000/api/generate -d '{
     "model": "llama3.2:1b",
     "prompt": "Why is the sky blue?"
 }'
@@ -111,69 +113,54 @@ curl -X POST http://localhost:8000/v1/example-service \
 **Q:** For LLM services that support text generation, OPEA documentation suggests they will only work with TGI/vLLM and all I have to do is have it running. Do TGI and vLLM have a standardized API, or is there code to detect which one is running? Do I really have to use a Xeon or Gaudi processor?
 **A:** TGI and vLLM do not have a standardized API, but they are designed to be compatible with common frameworks and tools. While it is recommended that these tasks are run on a Xeon or Gaudi processor, my results suggest that it is possible to run them on standard CPUs. The performance will be lower on CPUs compared to GPUs, but it is possible to run them without specialized hardware.
 
-# Port change for Megaservice
-HOST_IP=$(hostname -I | awk '{print $1}') NO_PROXY=localhost LLM_ENDPOINT_PORT=9000 LLM_MODEL_ID="1lama3.2:1b" dockercompose up
-## Download (pull) a model
+## OPEA Implementation Report
 
-curl http://localhost:9000/api/pull -d '{
-    "model": "llama3.2:1b"
-}'
+### Installation and Setup
+- **Deployed Ollama using Docker Compose**: Configured to run on port 8008.
+- **Set up a FastAPI service**: Middleware layer to handle API requests.
+- **Integrated the comps library**: For standardized protocol definitions.
+- **Configured environment variables**: For flexible deployment settings.
 
-## Generate a Request
+### Feature Implementation
+- **Developed a chat completion endpoint**: `/v1/example-service` to process user queries.
+- **Implemented streaming response handling**: Managed responses from the LLM.
+- **Integrated error handling and logging**: Facilitated debugging and reliability.
+- **Loaded and utilized the llama3.2:1b model**: Successfully used the 1.2B parameter model.
 
-curl http://localhost:9000/api/generate -d '{
-    "model": "llama3.2:1b",
-    "prompt": "Why is the sky blue?"
-}'
+### System Integration
+- **Seamless integration between FastAPI and Ollama's API**: Ensured smooth communication.
+- **Message formatting and response handling**: Managed interactions with the LLM.
+- **Request/response protocols**: Set up using the comps library.
+- **Docker-based deployment strategy**: Ensured consistency and scalability.
 
-# OPEA Implementation Report
+### Technical Challenges Overcome
+- **Handled streaming responses**: Successfully managed responses from the LLM.
+- **Implemented error handling**: Ensured robust API communication.
+- **Managed Docker container deployment**: Configured and deployed containers effectively.
+- **Integrated complex message formatting**: Handled response processing efficiently.
 
-Installation and Setup:
+### Architecture Implementation
+- **Three-tier architecture**: Client → FastAPI Service → Ollama (LLM).
+- **Separation of concerns**: Maintained clear boundaries between service layers.
+- **Environment-based configuration**: Ensured flexibility and adaptability.
+- **Scalable foundation**: Created a robust base for future enhancements.
 
-Successfully deployed Ollama using Docker Compose, configuring it to run on port 8008
-Set up a FastAPI service as a middleware layer to handle API requests
-Integrated the comps library for standardized protocol definitions
-Configured environment variables for flexible deployment settings
-Feature Implementation:
+### Overall Experience
+Implementing this service provided valuable experience in working with Large Language Models, API design, Docker deployment, and system integration. The resulting system demonstrates the practical application of modern AI services while maintaining code quality and system reliability.
 
-Developed a chat completion endpoint /v1/example-service that processes user queries
-Implemented streaming response handling from the LLM
-Integrated error handling and comprehensive logging for debugging
-Successfully loaded and utilized the llama3.2:1b model (1.2B parameters)
-System Integration:
+### Implementation Stages
 
-Created a seamless integration between FastAPI and Ollama's API
-Implemented message formatting and response handling for LLM interactions
-Set up proper request/response protocols using the comps library
-Established a Docker-based deployment strategy for consistency
-Technical Challenges Overcome:
+#### Infrastructure Setup
+1. **Deployed Ollama LLM service**: Using Docker Compose on port 8008.
+2. **Integrated the llama3.2:1b model**: Within the Docker container.
+3. **Configured environment variables**: For proper service operation.
 
-Successfully handled streaming responses from the LLM
-Implemented proper error handling for API communication
-Managed Docker container deployment and configuration
-Integrated complex message formatting and response processing
-Architecture Implementation:
+#### Service Development
+1. **Developed a FastAPI service**: With a `/v1/example-service` endpoint for chat completion requests.
+2. **Implemented message formatting and response handling**: For communication with Ollama.
+3. **Included error handling and logging**: To ensure reliability.
 
-Designed a three-tier architecture: Client → FastAPI Service → Ollama (LLM)
-Implemented proper separation of concerns between service layers
-Set up environment-based configuration for flexibility
-Created a scalable foundation for future enhancements
-Overall, implementing this service provided valuable experience in working with Large Language Models, API design, Docker deployment, and system integration. The resulting system demonstrates practical application of modern AI services while maintaining code quality and system reliability.
-
-I implemented OPEA in two stages:
-
-- Infrastructure Setup:
-1. Deployed Ollama LLM service using Docker Compose on port 8008.
-2. Integrated the llama3.2:1b model within the Docker container.
-3. Configured environment variables for proper service operation.
-
-- Service Development:
-1. Developed a FastAPI service with a /v1/example-service endpoint for chat completion requests.
-2. Implemented message formatting and response handling for communication with Ollama.
-3. Included error handling and logging for reliability.
-
-Testing and Verification
-1. Direct API Testing: Verified Ollama functionality through direct API calls.
-Service Integration: Tested FastAPI service endpoints for correct interaction with Ollama.
-2. Response Handling: Ensured proper handling of streaming responses and error conditions.
-(https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps/Readme.md)
+### Testing and Verification
+1. **Direct API Testing**: Verified Ollama functionality through direct API calls.
+2. **Service Integration**: Tested FastAPI service endpoints for correct interaction with Ollama.
+3. **Response Handling**: Ensured proper handling of streaming responses and error conditions.
