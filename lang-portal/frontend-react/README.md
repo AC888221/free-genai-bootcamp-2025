@@ -1,4 +1,4 @@
-
+[Jump to Bootcamp Week 1: Frontend Implementation Report](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/lang-portal/frontend-react/README.md#bootcamp-week-1-frontend-implementation-report)
 
 
 # React + TypeScript + Vite
