@@ -113,40 +113,37 @@ curl -X POST http://localhost:8000/v1/example-service \
 **Q:** For LLM services that support text generation, OPEA documentation suggests they will only work with TGI/vLLM and all I have to do is have it running. Do TGI and vLLM have a standardized API, or is there code to detect which one is running? Do I really have to use a Xeon or Gaudi processor?
 **A:** TGI and vLLM do not have a standardized API, but they are designed to be compatible with common frameworks and tools. While it is recommended that these tasks are run on a Xeon or Gaudi processor, my results suggest that it is possible to run them on standard CPUs. The performance will be lower on CPUs compared to GPUs, but it is possible to run them without specialized hardware.
 
-## OPEA Implementation Report
+## Bootcampt Week 1: OPEA Implementation Report
 
-### Installation and Setup
+#### Installation and Setup
 - **Deployed Ollama using Docker Compose**: Configured to run on port 8008.
 - **Set up a FastAPI service**: Middleware layer to handle API requests.
 - **Integrated the comps library**: For standardized protocol definitions.
 - **Configured environment variables**: For flexible deployment settings.
 
-### Feature Implementation
+#### Feature Implementation
 - **Developed a chat completion endpoint**: `/v1/example-service` to process user queries.
 - **Implemented streaming response handling**: Managed responses from the LLM.
 - **Integrated error handling and logging**: Facilitated debugging and reliability.
 - **Loaded and utilized the llama3.2:1b model**: Successfully used the 1.2B parameter model.
 
-### System Integration
+#### System Integration
 - **Seamless integration between FastAPI and Ollama's API**: Ensured smooth communication.
 - **Message formatting and response handling**: Managed interactions with the LLM.
 - **Request/response protocols**: Set up using the comps library.
 - **Docker-based deployment strategy**: Ensured consistency and scalability.
 
-### Technical Challenges Overcome
+#### Technical Challenges Overcome
 - **Handled streaming responses**: Successfully managed responses from the LLM.
 - **Implemented error handling**: Ensured robust API communication.
 - **Managed Docker container deployment**: Configured and deployed containers effectively.
 - **Integrated complex message formatting**: Handled response processing efficiently.
 
-### Architecture Implementation
+#### Architecture Implementation
 - **Three-tier architecture**: Client → FastAPI Service → Ollama (LLM).
 - **Separation of concerns**: Maintained clear boundaries between service layers.
 - **Environment-based configuration**: Ensured flexibility and adaptability.
 - **Scalable foundation**: Created a robust base for future enhancements.
-
-### Overall Experience
-Implementing this service provided valuable experience in working with Large Language Models, API design, Docker deployment, and system integration. The resulting system demonstrates the practical application of modern AI services while maintaining code quality and system reliability.
 
 ### Implementation Stages
 
