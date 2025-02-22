@@ -4,7 +4,13 @@ API Adjustments: Modified API calls to align with the updated backend, ensuring 
 User Interface Updates: Made necessary adjustments to the layout and design, such as font changes and component updates, to accommodate any changes in text length or formatting due to the language switch.
 These changes allowed the frontend to effectively communicate with the updated backend while providing a user-friendly experience for Putonghua speakers.
 
+I adapted the user interface from Japanese to Putonghua by:
 
+1. Language Adaptation: Updated all text elements to Putonghua.
+2. API Adjustments: Modified API calls to align with the updated backend.
+3. UI Updates: Adjusted layout, fonts, and components for the language switch.
+4. Testing: Verified text updates, API interactions, and UI rendering for Putonghua.
+(https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/lang-portal/frontend-react/README.md)
 
 
 # React + TypeScript + Vite
