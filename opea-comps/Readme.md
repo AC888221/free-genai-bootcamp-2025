@@ -1,6 +1,6 @@
 # Implementing OPEA Comps (Generative AI Components)
 
-[Jump to Bootcampt Week 1: OPEA Implementation Report](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps/Readme.md#bootcampt-week-1-opea-implementation-report)
+[Jump to Bootcampt Week 1: OPEA Implementation Report](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps/Readme.md#bootcamp-week-1-opea-implementation-report)
 
 ## Running Ollama Third-Party Services
 
@@ -113,7 +113,7 @@ curl -X POST http://localhost:8000/v1/example-service \
 **Q:** For LLM services that support text generation, OPEA documentation suggests they will only work with TGI/vLLM and all I have to do is have it running. Do TGI and vLLM have a standardized API, or is there code to detect which one is running? Do I really have to use a Xeon or Gaudi processor?
 **A:** TGI and vLLM do not have a standardized API, but they are designed to be compatible with common frameworks and tools. While it is recommended that these tasks are run on a Xeon or Gaudi processor, my results suggest that it is possible to run them on standard CPUs. The performance will be lower on CPUs compared to GPUs, but it is possible to run them without specialized hardware.
 
-## Bootcampt Week 1: OPEA Implementation Report
+## Bootcamp Week 1: OPEA Implementation Report
 
 #### Installation and Setup
 - **Deployed Ollama using Docker Compose**: Configured to run on port 8008.
