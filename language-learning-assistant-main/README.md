@@ -1,5 +1,7 @@
-# language-learning-assistant
+# Language Learning Assistant (LLA)
 This is for the generative AI bootcamp
+
+[Jump to Bootcamp Week 2: LLA Implementation Report](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/language-learning-assistant-main/README.md#bootcamp-week-2-lla-implementation-report)
 
 **Difficulty:** Level 200 *(Due to RAG implementation and multiple AWS services integration)*
 
@@ -42,3 +44,42 @@ This structure:
 ## Knowledgebase
 
 https://github.com/chroma-core/chroma
+
+
+## Bootcamp Week 2: LLA Implementation Report
+
+### Technical Uncertainties
+1. Language Processing and Localization
+Translation Accuracy: Ensuring that all user-facing text, including prompts, messages, and UI elements, is accurately translated into Putonghua. This may require collaboration with language experts to maintain context and meaning.
+Handling Bilingual Content: The application currently processes bilingual (Japanese/English) content. Adapting it to handle Putonghua alongside or instead of Japanese will require adjustments in how content is structured and processed.
+2. Speech Recognition and Synthesis
+ASR (Automatic Speech Recognition): The application may need to integrate or switch to an ASR service that supports Putonghua. This includes evaluating the effectiveness of existing services and potentially finding alternatives that provide accurate transcription for Putonghua.
+TTS (Text-to-Speech): Similar to ASR, the application will need to ensure that the TTS service used (e.g., Amazon Polly) supports Putonghua and provides natural-sounding speech.
+3. YouTube Transcript Handling
+YouTube Transcript API: The current implementation uses the YouTube Transcript API to download transcripts. It is essential to verify whether transcripts are available in Putonghua for the target videos and how to handle cases where transcripts may not exist or are of low quality.
+4. Data Storage and Retrieval
+SQLite Vector Storage: The application uses SQLite for vector storage. Ensure that the database schema can accommodate Putonghua content and that any text processing (e.g., embeddings) is compatible with the new language.
+RAG Implementation: The Retrieval-Augmented Generation (RAG) system must be adapted to retrieve and generate responses based on Putonghua content. This may involve re-evaluating how data is structured and queried.
+5. User Interface Adjustments
+UI Adaptation: The user interface will need to be adjusted to accommodate Putonghua text, which may have different lengths and formatting compared to Japanese. This includes ensuring that the layout remains user-friendly and visually appealing.
+Interactive Features: Any interactive learning features must be tested to ensure they function correctly with Putonghua content, including quizzes and practice scenarios.
+6. Error Handling and Debugging
+Error Handling for Language Processing: Implement robust error handling for cases where Putonghua text processing fails, ensuring that users receive clear feedback.
+Debugging Tools: Ensure that debugging information is relevant for Putonghua, including any metrics or logs that help track the performance of language processing tasks.
+7. Technical Restrictions and Compliance
+AWS Services: Verify that all AWS services used (e.g., Amazon Bedrock, Transcribe, Polly) support Putonghua and comply with any technical restrictions outlined in the project guidelines.
+Free Tier Limits: Ensure that the implementation remains within the free tier limits of the services used, especially when scaling for additional language support.
+
+Summary of Technical Uncertainties
+- How to effectively translate and localize the application for Putonghua.
+- Availability and quality of ASR and TTS services for Putonghua.
+- Handling of YouTube transcripts in Putonghua.
+- Adaptation of the database schema and retrieval mechanisms for Putonghua content.
+- UI adjustments to accommodate Putonghua text and ensure usability.
+- Robust error handling for language processing tasks.
+
+
+
+
+
+

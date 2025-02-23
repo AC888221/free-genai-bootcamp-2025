@@ -1,5 +1,7 @@
 # Streamlit Kana app with AWS deployment
 
+[Jump to Bootcamp Week 2: Kana App Implementation/Adaption Report](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/kana--streamlit-app-main/README.md#bootcamp-week-2-kana-app-implementation-adaption-report)
+
 Learn Japanese kana (Katakana, Hiragana) with the help of a Streamlit app deployed on AWS!
 
 ![Streamlit kana app deployment architecture](images/simple-deploy-streamlit-app.png)
@@ -383,3 +385,36 @@ $ cdk destroy
 - The current app version supports simple Katakana and Hiragana, without dakuten and handakuten. Kanji are not included as well. To include all mentioned characters, more accurate model is required. Potentially, the [DaKanji-Single-Kanji-Recognition](https://github.com/CaptainDario/DaKanji-Single-Kanji-Recognition) repo can be used to achieve the goal.
 - You can enhance security by adding user authentication with [Amazon Cognito](https://aws.amazon.com/pm/cognito/).
 - AWS provides various services that can improve the security of this application. You could use AWS Shield for DDoS protection and Amazon GuardDuty for threats detection. Amazon Inspector performs security assessments. There are many more AWS services and best practices that can enhance security - refer to the [AWS Shared Responsibility Model](https://aws.amazon.com/compliance/shared-responsibility-model/) and security best practices guidance for additional recommendations.
+
+## Bootcamp Week 2: Kana App Implementation/Adaption Report
+
+### Technical Uncertainties
+1. Language Processing and Localization
+Translation Accuracy: The application currently supports Japanese kana (Hiragana and Katakana). To switch to Putonghua, all user-facing text, including prompts, messages, and UI elements, will need to be accurately translated. This may require collaboration with language experts to ensure that the intended meaning and context are maintained.
+Handling Bilingual Content: The application processes Japanese characters. Adapting it to handle Putonghua will require adjustments in how content is structured and processed, including the addition of Pinyin for pronunciation.
+2. Character Recognition and Input
+OCR for Putonghua: The application uses the Manga OCR model for recognizing Japanese characters. You will need to evaluate whether a similar OCR model exists for Putonghua or if the current model can be adapted to recognize Chinese characters effectively.
+Input Method: The current implementation allows users to draw kana characters. You may need to consider how users will input Putonghua characters, which may involve different input methods or interfaces.
+3. Data Storage and Retrieval
+Database Schema: If the application uses a database to store user progress or character mappings, ensure that the schema can accommodate Putonghua content. This includes adding fields for Pinyin and ensuring that any text processing (e.g., embeddings) is compatible with the new language.
+Character Mapping: The config.py file contains mappings for Romaji to Hiragana and Katakana. You will need to create similar mappings for Putonghua characters and their corresponding Pinyin.
+4. User Interface Adjustments
+UI Adaptation: The user interface will need to be adjusted to accommodate Putonghua text, which may have different lengths and formatting compared to Japanese. This includes ensuring that the layout remains user-friendly and visually appealing.
+Interactive Features: Any interactive learning features must be tested to ensure they function correctly with Putonghua content, including quizzes and practice scenarios.
+5. Error Handling and Debugging
+Error Handling for Language Processing: Implement robust error handling for cases where Putonghua text processing fails, ensuring that users receive clear feedback.
+Debugging Tools: Ensure that debugging information is relevant for Putonghua, including any metrics or logs that help track the performance of language processing tasks.
+6. Technical Restrictions and Compliance
+AWS Services: Verify that all AWS services used (e.g., Amazon Transcribe, Polly) support Putonghua and comply with any technical restrictions outlined in the project guidelines.
+Free Tier Limits: Ensure that the implementation remains within the free tier limits of the services used, especially when scaling for additional language support.
+7. Testing and Validation
+Testing for Putonghua: Develop a comprehensive testing strategy to validate the functionality of the application with Putonghua content. This includes unit tests, integration tests, and user acceptance testing to ensure that the application meets user needs.
+
+Summary of Technical Uncertainties
+- Based on the analysis, the following technical uncertainties may need to be addressed:
+- How to effectively translate and localize the application for Putonghua.
+- Availability and quality of OCR services for Putonghua.
+- Handling of character input and recognition for Putonghua.
+- Adaptation of the database schema and retrieval mechanisms for Putonghua content.
+- UI adjustments to accommodate Putonghua text and ensure usability.
+- Robust error handling for language processing tasks.
