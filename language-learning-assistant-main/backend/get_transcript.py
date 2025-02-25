@@ -1,9 +1,9 @@
 from youtube_transcript_api import YouTubeTranscriptApi
 from typing import Optional, List, Dict
-
+import os  # Bootcamp Week 2: Import os module
 
 class YouTubeTranscriptDownloader:
-    def __init__(self, languages: List[str] = ["ja", "en"]):
+    def __init__(self, languages: List[str] = ["zh-Hans"]):  # Bootcamp Week 2: Changed default language to Simplified Chinese
         self.languages = languages
 
     def extract_video_id(self, url: str) -> Optional[str]:
@@ -59,7 +59,11 @@ class YouTubeTranscriptDownloader:
         Returns:
             bool: True if successful, False otherwise
         """
-        filename = f"./transcripts/{filename}.txt"
+        directory = './transcripts'  # Bootcamp Week 2: Ensure the directory exists
+        if not os.path.exists(directory):
+            os.makedirs(directory)  # Bootcamp Week 2: Create the directory if it doesn't exist
+
+        filename = f"{directory}/{filename}.txt"
         
         try:
             with open(filename, 'w', encoding='utf-8') as f:
@@ -82,18 +86,15 @@ def main(video_url, print_transcript=False):
         video_id = downloader.extract_video_id(video_url)
         if downloader.save_transcript(transcript, video_id):
             print(f"Transcript saved successfully to {video_id}.txt")
-            #Print transcript if True
+            # Print transcript if True
             if print_transcript:
-                # Print transcript
                 for entry in transcript:
                     print(f"{entry['text']}")
         else:
             print("Failed to save transcript")
-        
     else:
         print("Failed to get transcript")
 
 if __name__ == "__main__":
-    video_id = "https://www.youtube.com/watch?v=sY7L5cfCWno&list=PLkGU7DnOLgRMl-h4NxxrGbK-UdZHIXzKQ"  # Extract from URL: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    transcript = main(video_id, print_transcript=True)
-        
+    video_url = "https://www.youtube.com/watch?v=PO3sdqBbXEo"
+    main(video_url, print_transcript=True)
