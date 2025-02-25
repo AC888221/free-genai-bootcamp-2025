@@ -3,7 +3,7 @@ import chromadb
 client = chromadb.Client()
 
 # Create collection. get_collection, get_or_create_collection, delete_collection also available!
-collection = client.create_collection("jlptn5-listening-comphresion")
+collection = client.create_collection("hsk2-listening-comprehension")
 
 # Add docs to the collection. Can also update and delete. Row-based API coming soon!
 # Read documents from local text files
@@ -14,8 +14,8 @@ with open('path/to/doc1.txt', 'r') as f1, open('path/to/doc2.txt', 'r') as f2:
 collection.add(
     documents=[doc1,doc2],
     metadatas=[
-        {"source": "doc1.txt"},
-        {"source": "doc2.txt"} 
+        {"source": "doc1.txt"}, # optional metadata e.g., notion
+        {"source": "doc2.txt"}  # optional metadata e.g., Google-docs
     ],
     ids=["doc1","doc2"],
 )
