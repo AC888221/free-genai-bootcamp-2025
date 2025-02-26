@@ -8,13 +8,13 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from backend.get_transcript import YouTubeTranscriptDownloader
 from backend.chat import BedrockChat
-
 
 # Page config
 st.set_page_config(
-    page_title="Japanese Learning Assistant",
-    page_icon="🎌",
+    page_title="Putonghua Learning Assistant", # Bootcamp Week 2: Adapt to Putonghua
+    page_icon="assets/china_flag.png", # Bootcamp Week 2: Use image instead of emoji
     layout="wide"
 )
 
@@ -26,16 +26,16 @@ if 'messages' not in st.session_state:
 
 def render_header():
     """Render the header section"""
-    st.title("🎌 Japanese Learning Assistant")
+    st.title("🇨🇳 Putonghua Learning Assistant") # Bootcamp Week 2: Adapt to Putonghua
     st.markdown("""
-    Transform YouTube transcripts into interactive Japanese learning experiences.
+    Transform YouTube transcripts into interactive Putonghua learning experiences.
     
     This tool demonstrates:
     - Base LLM Capabilities
     - RAG (Retrieval Augmented Generation)
     - Amazon Bedrock Integration
     - Agent-based Learning Systems
-    """)
+    """) # Bootcamp Week 2: Adapt to Putonghua
 
 def render_sidebar():
     """Render the sidebar with component selection"""
@@ -58,7 +58,7 @@ def render_sidebar():
         stage_info = {
             "1. Chat with Nova": """
             **Current Focus:**
-            - Basic Japanese learning
+            - Basic Putonghua learning
             - Understanding LLM capabilities
             - Identifying limitations
             """,
@@ -90,7 +90,7 @@ def render_sidebar():
             - Audio synthesis
             - Interactive practice
             """
-        }
+        } # Bootcamp Week 2: Adapt to Putonghua
         
         st.markdown("---")
         st.markdown(stage_info[selected_stage])
@@ -107,9 +107,9 @@ def render_chat_stage():
 
     # Introduction text
     st.markdown("""
-    Start by exploring Nova's base Japanese language capabilities. Try asking questions about Japanese grammar, 
+    Start by exploring Nova's base Putonghua capabilities. Try asking questions about Chinese grammar, 
     vocabulary, or cultural aspects.
-    """)
+    """) # Bootcamp Week 2: Adapt to Putonghua
 
     # Initialize chat history if not exists
     if "messages" not in st.session_state:
@@ -121,7 +121,7 @@ def render_chat_stage():
             st.markdown(message["content"])
 
     # Chat input area
-    if prompt := st.chat_input("Ask about Japanese language..."):
+    if prompt := st.chat_input("Ask about the Putonghua language ..."): # Bootcamp Week 2: Adapt to Putonghua
         # Process the user input
         process_message(prompt)
 
@@ -163,10 +163,25 @@ def process_message(message: str):
             st.markdown(response)
             st.session_state.messages.append({"role": "assistant", "content": response})
 
-
+# Bootcamp Week 2: Moved and adapted function to download the transcript of a YouTube video in Simplified Chinese and store it in the session state
+def download_transcript(video_url):
+    """Download the transcript for the given video URL."""
+    # Initialize the downloader with Simplified Chinese as the target language
+    downloader = YouTubeTranscriptDownloader(languages=["zh-Hans"])
+    
+    # Retrieve the transcript for the specified video URL
+    transcript = downloader.get_transcript(video_url)
+    
+    if transcript:
+        # Store the transcript in the session state and display a success message
+        st.session_state.transcript = "\n".join([entry['text'] for entry in transcript])
+        st.success("Transcript downloaded successfully!")
+    else:
+        # Display an error message if the transcript download fails
+        st.error("Failed to download transcript.")
 
 def count_characters(text):
-    """Count Japanese and total characters in text"""
+    """Count Putonghua-specific and total characters in text""" # Bootcamp Week 2: Adapt to Putonghua
     if not text:
         return 0, 0
         
@@ -187,24 +202,13 @@ def render_transcript_stage():
     # URL input
     url = st.text_input(
         "YouTube URL",
-        placeholder="Enter a Japanese lesson YouTube URL"
+        placeholder="Enter a Putonghua lesson YouTube URL" # Bootcamp Week 2: Adapt to Putonghua
     )
     
     # Download button and processing
     if url:
         if st.button("Download Transcript"):
-            try:
-                downloader = YouTubeTranscriptDownloader()
-                transcript = downloader.get_transcript(url)
-                if transcript:
-                    # Store the raw transcript text in session state
-                    transcript_text = "\n".join([entry['text'] for entry in transcript])
-                    st.session_state.transcript = transcript_text
-                    st.success("Transcript downloaded successfully!")
-                else:
-                    st.error("No transcript found for this video.")
-            except Exception as e:
-                st.error(f"Error downloading transcript: {str(e)}")
+            download_transcript(url)
 
     col1, col2 = st.columns(2)
     

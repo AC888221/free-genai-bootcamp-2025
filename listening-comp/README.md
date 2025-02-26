@@ -45,6 +45,21 @@ This structure:
 
 https://github.com/chroma-core/chroma
 
+## Technical Uncertainty
+
+**Q:** How did I address the unavailability of Amazon Nova models in AWS regions near Australia?
+**A:** I discovered that Amazon Nova models are not available in the Asia Pacific (Sydney) or Asia Pacific (Melbourne) regions. To overcome this, I selected the US West (Oregon) region as the nearest alternative to manage latency and performance considerations.
+Review vid 2: 46:00
+https://www.youtube.com/watch?v=A_f0PvCzdJo&list=PL1ZfsqhT9vP4Zxb6MePHeKhBu8OSX8FwK
+Video that gets no transcript
+
+Simplified Chinese Scripts
+https://www.youtube.com/watch?v=PO3sdqBbXEo
+
+English Subs
+https://www.youtube.com/watch?v=xlMBzIwAOlI
+https://www.youtube.com/watch?v=SiE6nz7FQt8
+
 
 ## Bootcamp Week 2: LLA Implementation Report
 
@@ -80,6 +95,9 @@ Summary of Technical Uncertainties
 
 
 
+
+python rag.py
+pip install -r requirements.txt
 
 
 
