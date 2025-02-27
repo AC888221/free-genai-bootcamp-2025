@@ -54,11 +54,20 @@ https://www.youtube.com/watch?v=A_f0PvCzdJo&list=PL1ZfsqhT9vP4Zxb6MePHeKhBu8OSX8
 Video that gets no transcript
 
 Simplified Chinese Scripts
+Actual HSK2 example
 https://www.youtube.com/watch?v=PO3sdqBbXEo
+
+https://www.youtube.com/watch?v=nWXvJBupwos
+https://www.youtube.com/watch?v=KQpXjP0jSsY
+https://www.youtube.com/watch?v=_ZZAYcxyAe8
 
 English Subs
 https://www.youtube.com/watch?v=xlMBzIwAOlI
 https://www.youtube.com/watch?v=SiE6nz7FQt8
+
+No Subs
+https://www.youtube.com/watch?v=1WR63ZKmVws&list=PLfj_wyLODBz-TKEfp7N8j5c0pBbKav08B
+https://www.youtube.com/watch?v=A_f0PvCzdJo&list=PL1ZfsqhT9vP4Zxb6MePHeKhBu8OSX8FwK
 
 
 ## Bootcamp Week 2: LLA Implementation Report
