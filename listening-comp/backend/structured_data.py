@@ -62,13 +62,25 @@ class HSK2TranscriptProcessor:
             processed_text = self._process_with_bedrock(prompt)
             
             if processed_text:
-                output_filename = f"{Path(transcript_path).stem}_qs.txt"
-                output_path = os.path.join(output_dir, output_filename)
+                # Split the processed text into sections
+                lines = processed_text.split('\n')
+                section3 = '\n'.join(lines[20:30])  # Questions 二十一 to 三十
+                section4 = '\n'.join(lines[30:35])  # Questions 三十一 to 三十五
                 
-                with open(output_path, 'w', encoding='utf-8') as f:
-                    f.write(processed_text)
+                # Save section 3
+                output_filename_sec3 = f"{Path(transcript_path).stem}_Qsec3.txt"
+                output_path_sec3 = os.path.join(output_dir, output_filename_sec3)
+                with open(output_path_sec3, 'w', encoding='utf-8') as f:
+                    f.write(section3)
+                print(f"Processed section 3 saved to {output_path_sec3}")
                 
-                print(f"Processed transcript saved to {output_path}")
+                # Save section 4
+                output_filename_sec4 = f"{Path(transcript_path).stem}_Qsec4.txt"
+                output_path_sec4 = os.path.join(output_dir, output_filename_sec4)
+                with open(output_path_sec4, 'w', encoding='utf-8') as f:
+                    f.write(section4)
+                print(f"Processed section 4 saved to {output_path_sec4}")
+                
                 return processed_text
             else:
                 print(f"Failed to process transcript {transcript_path}")
