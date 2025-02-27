@@ -154,5 +154,5 @@ def main(video_url, print_transcript=False):
         print("Failed to get transcript")
 
 if __name__ == "__main__":
-    video_url = "https://www.youtube.com/watch?v=SiE6nz7FQt8"
+    video_url = "https://www.youtube.com/watch?v=KQpXjP0jSsY"
     main(video_url, print_transcript=True)
