@@ -17,6 +17,7 @@ class HSK2TranscriptProcessor:
         Remove any consecutively repeated lines.
         Make sure each question is numbered and that the number is in simplified Chinese, e.g., "一：", "二：", "三：", "四：", etc.
         Make sure there is no text before the first question.
+        Remove any empty lines.
         Here is the transcript:
 
         {transcript}
@@ -51,26 +52,38 @@ class HSK2TranscriptProcessor:
             print(f"Error processing with Bedrock: {str(e)}")
             return None
 
-    def process_transcript(self, transcript_path: str) -> Optional[str]:
-        """Process a single transcript file"""
+    def process_transcript(self, transcript_path: str, output_dir: str) -> Optional[str]:
+        """Process a single transcript file and save the processed text"""
         try:
             with open(transcript_path, 'r', encoding='utf-8') as f:
                 transcript = f.read()
             
             prompt = self._generate_prompt(transcript)
             processed_text = self._process_with_bedrock(prompt)
-            return processed_text
+            
+            if processed_text:
+                output_filename = f"{Path(transcript_path).stem}_qs.txt"
+                output_path = os.path.join(output_dir, output_filename)
+                
+                with open(output_path, 'w', encoding='utf-8') as f:
+                    f.write(processed_text)
+                
+                print(f"Processed transcript saved to {output_path}")
+                return processed_text
+            else:
+                print(f"Failed to process transcript {transcript_path}")
+                return None
         except Exception as e:
             print(f"Error processing transcript {transcript_path}: {str(e)}")
             return None
 
-    def process_directory(self, directory_path: str) -> Dict[str, Optional[str]]:
+    def process_directory(self, input_dir: str, output_dir: str) -> Dict[str, Optional[str]]:
         """Process all transcript files in a directory"""
         results = {}
-        directory = Path(directory_path)
+        input_directory = Path(input_dir)
         
-        for file_path in directory.glob('*.txt'):
-            results[file_path.name] = self.process_transcript(str(file_path))
+        for file_path in input_directory.glob('*.txt'):
+            results[file_path.name] = self.process_transcript(str(file_path), output_dir)
             
         return results
 
@@ -78,7 +91,12 @@ if __name__ == "__main__":
     # Example usage
     processor = HSK2TranscriptProcessor()
     transcripts_dir = os.path.join(os.path.dirname(__file__), 'data', 'transcripts')
-    results = processor.process_directory(transcripts_dir)
+    questions_dir = os.path.join(os.path.dirname(__file__), 'data', 'questions')
+    
+    if not os.path.exists(questions_dir):
+        os.makedirs(questions_dir)
+    
+    results = processor.process_directory(transcripts_dir, questions_dir)
     
     for filename, processed_text in results.items():
         if processed_text:
