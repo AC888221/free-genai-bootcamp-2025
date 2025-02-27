@@ -1,10 +1,12 @@
 from youtube_transcript_api import YouTubeTranscriptApi
 from typing import Optional, List, Dict
 import os  # Bootcamp Week 2: Import os module
+from googletrans import Translator  # Bootcamp Week 2: Import Google Translate API
 
 class YouTubeTranscriptDownloader:
-    def __init__(self, languages: List[str] = ["zh-Hans"]):  # Bootcamp Week 2: Changed default language to Simplified Chinese
+    def __init__(self, languages: List[str] = ["zh-Hans", "en"]):  # Bootcamp Week 2: Added English as a fallback language
         self.languages = languages
+        self.translator = Translator()  # Bootcamp Week 2: Initialize the Google Translator
 
     def extract_video_id(self, url: str) -> Optional[str]:
         """
@@ -42,11 +44,42 @@ class YouTubeTranscriptDownloader:
 
         print(f"Downloading transcript for video ID: {video_id}")
         
+        # Attempt to download the Simplified Chinese transcript
         try:
-            return YouTubeTranscriptApi.get_transcript(video_id, languages=self.languages)
+            return YouTubeTranscriptApi.get_transcript(video_id, languages=["zh-Hans"])
         except Exception as e:
-            print(f"An error occurred: {str(e)}")
-            return None
+            print(f"Simplified Chinese transcript not available: {str(e)}")
+            # Bootcamp Week 2: Attempt to download the English transcript as a fallback
+            try:
+                english_transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=["en"])
+                # Bootcamp Week 2: Translate the English transcript to Simplified Chinese
+                return self.translate_transcript(english_transcript, target_language="zh-Hans")
+            except Exception as e:
+                print(f"Failed to download English transcript: {str(e)}")
+                return None
+
+    def translate_transcript(self, english_transcript: List[Dict], target_language: str) -> List[Dict]:
+        """
+        Translate English transcript to the target language.
+        
+        Args:
+            english_transcript (List[Dict]): The English transcript to translate.
+            target_language (str): The target language code (e.g., 'zh-Hans').
+            
+        Returns:
+            List[Dict]: Translated transcript.
+        """
+        # Bootcamp Week 2: Create a new list to hold the translated transcript
+        translated = []
+        for entry in english_transcript:
+            # Bootcamp Week 2: Use Google Translate to translate the text
+            translated_text = self.translator.translate(entry['text'], dest=target_language).text
+            translated.append({
+                'text': translated_text,  # Bootcamp Week 2: Store the translated text
+                'start': entry['start'],
+                'duration': entry['duration']
+            })
+        return translated
 
     def save_transcript(self, transcript: List[Dict], filename: str) -> bool:
         """

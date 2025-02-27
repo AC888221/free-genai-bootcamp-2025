@@ -64,6 +64,10 @@ https://www.youtube.com/watch?v=SiE6nz7FQt8
 ## Bootcamp Week 2: LLA Implementation Report
 
 ### Technical Uncertainties
+
+Q: Many HSK2 practice tests on youtube seem not to have chinese subtitles, how to work aroudn this issue.
+A: Use YouTube api to implement translation of other subtitles, e.g., English.
+
 1. Language Processing and Localization
 Translation Accuracy: Ensuring that all user-facing text, including prompts, messages, and UI elements, is accurately translated into Putonghua. This may require collaboration with language experts to maintain context and meaning.
 Handling Bilingual Content: The application currently processes bilingual (Japanese/English) content. Adapting it to handle Putonghua alongside or instead of Japanese will require adjustments in how content is structured and processed.

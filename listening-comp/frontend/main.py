@@ -225,7 +225,7 @@ def render_transcript_stage():
             )
     
         else:
-            st.info("No transcript loaded yet")
+            st.info("No transcript loaded")
     
     with col2:
         st.subheader("Transcript Stats")
