@@ -129,16 +129,17 @@ def render_chat_stage():
     with st.sidebar:
         st.markdown("### Try These Examples")
         example_questions = [
-            "How do I say 'Where is the train station?' in Japanese?",
-            "Explain the difference between は and が",
-            "What's the polite form of 食べる?",
-            "How do I count objects in Japanese?",
-            "What's the difference between こんにちは and こんばんは?",
+            "How do I say 'Where is the train station?' in Putonghua?",
+            "Explain the difference between 吗 and 呢",
+            "What's the polite form of 吃?",
+            "How do I count objects in Putonghua?",
+            "What's the difference between 你好 and 您好?",
             "How do I ask for directions politely?"
         ]
         
         for q in example_questions:
-            if st.button(q, use_container_width=True, type="secondary"):
+            st.markdown(f'<a href="javascript:void(0)" style="color: blue; text-decoration: underline;">{q}</a>', unsafe_allow_html=True)
+            if st.button("Ask", key=q, use_container_width=True, type="secondary"):
                 # Process the example question
                 process_message(q)
                 st.rerun()
@@ -177,7 +178,8 @@ def download_transcript(video_url):
         st.session_state.transcript = "\n".join([entry['text'] for entry in transcript])
         st.success("Transcript downloaded successfully!")
     else:
-        # Display an error message if the transcript download fails
+        # Bootcamp Week 2: Clear the transcript in case of failure
+        st.session_state.transcript = None  # Clear the transcript
         st.error("Failed to download transcript.")
 
 def count_characters(text):
