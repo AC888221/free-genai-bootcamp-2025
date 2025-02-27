@@ -97,15 +97,19 @@ class HSK2TranscriptProcessor:
                     "question_number": i + 31
                 } for i in range(len(section4_questions))]
                 
-                # Save to files as before
+                # Save to files in the questions directory
+                questions_dir = os.path.join(output_dir, 'questions')
+                if not os.path.exists(questions_dir):
+                    os.makedirs(questions_dir)
+                
                 output_filename_sec3 = f"{Path(transcript_path).stem}_Qsec3.txt"
-                output_path_sec3 = os.path.join(output_dir, output_filename_sec3)
+                output_path_sec3 = os.path.join(questions_dir, output_filename_sec3)
                 with open(output_path_sec3, 'w', encoding='utf-8') as f:
                     f.write(section3)
                 print(f"Processed section 3 saved to {output_path_sec3}")
                 
                 output_filename_sec4 = f"{Path(transcript_path).stem}_Qsec4.txt"
-                output_path_sec4 = os.path.join(output_dir, output_filename_sec4)
+                output_path_sec4 = os.path.join(questions_dir, output_filename_sec4)
                 with open(output_path_sec4, 'w', encoding='utf-8') as f:
                     f.write(section4)
                 print(f"Processed section 4 saved to {output_path_sec4}")
@@ -194,7 +198,7 @@ if __name__ == "__main__":
     # Example usage
     processor = HSK2TranscriptProcessor()
     transcripts_dir = os.path.join(os.path.dirname(__file__), 'data', 'transcripts')
-    questions_dir = os.path.join(os.path.dirname(__file__), 'data')
+    questions_dir = os.path.join(os.path.dirname(__file__), 'data', 'questions')
     
     if not os.path.exists(questions_dir):
         os.makedirs(questions_dir)
