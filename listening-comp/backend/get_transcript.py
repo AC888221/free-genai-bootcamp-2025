@@ -117,7 +117,7 @@ class YouTubeTranscriptDownloader:
         Returns:
             bool: True if successful, False otherwise
         """
-        directory = './transcripts'  # Bootcamp Week 2: Ensure the directory exists
+        directory = os.path.join(os.path.dirname(__file__), 'data', 'transcripts') # Bootcamp Week 2: Ensure the directory exists
         if not os.path.exists(directory):
             os.makedirs(directory)  # Bootcamp Week 2: Create the directory if it doesn't exist
 
