@@ -43,22 +43,43 @@ class YouTubeTranscriptDownloader:
             return None
 
         print(f"Downloading transcript for video ID: {video_id}")
-        
+        try:
+            available_transcripts = YouTubeTranscriptApi.list_transcripts(video_id)
+            print(f"Available transcripts: {available_transcripts}")
+        except Exception as e:
+            print(f"Failed to list transcripts: {str(e)}")
+            return None        
+
+        # list all available transcripts
+        try:
+            available_transcripts = YouTubeTranscriptApi.list_transcripts(video_id)
+            print(f"Available transcripts: {available_transcripts}")
+        except Exception as e:
+            print(f"Failed to list transcripts: {str(e)}")
+            return None
+
         # Attempt to download the Simplified Chinese transcript
         try:
-            return YouTubeTranscriptApi.get_transcript(video_id, languages=["zh-Hans"])
+            print("Trying to download Simplified Chinese transcript...") # Bootcamp Week 2: logging and debugging
+            transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=["zh-Hans"])
+            print("Simplified Chinese transcript downloaded successfully.") # Bootcamp Week 2: logging and debugging
+            return transcript
         except Exception as e:
             print(f"Simplified Chinese transcript not available: {str(e)}")
             # Bootcamp Week 2: Attempt to download the English transcript as a fallback
             try:
+                print("Trying to download English transcript as fallback...") # Bootcamp Week 2: logging and debugging
                 english_transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=["en"])
-                # Bootcamp Week 2: Translate the English transcript to Simplified Chinese
-                return self.translate_transcript(english_transcript, target_language="zh-Hans")
+                print("English transcript downloaded successfully.")
+                print("Translating English transcript to Simplified Chinese...") # Bootcamp Week 2: logging and debugging
+                translated_transcript = self.translate_transcript(english_transcript, target_language="zh-CN")
+                print("Translation completed successfully.") # Bootcamp Week 2: logging and debugging
+                return translated_transcript
             except Exception as e:
-                print(f"Failed to download English transcript: {str(e)}")
+                print(f"Failed to download English transcript: {str(e)}") 
                 return None
 
-    def translate_transcript(self, english_transcript: List[Dict], target_language: str) -> List[Dict]:
+    def translate_transcript(self, english_transcript: List[Dict], target_language: str = "zh-CN") -> List[Dict]:
         """
         Translate English transcript to the target language.
         
@@ -73,12 +94,16 @@ class YouTubeTranscriptDownloader:
         translated = []
         for entry in english_transcript:
             # Bootcamp Week 2: Use Google Translate to translate the text
-            translated_text = self.translator.translate(entry['text'], dest=target_language).text
-            translated.append({
-                'text': translated_text,  # Bootcamp Week 2: Store the translated text
-                'start': entry['start'],
-                'duration': entry['duration']
-            })
+            try:
+                print(f"Translating text: {entry['text']} to {target_language}")
+                translated_text = self.translator.translate(entry['text'], dest=target_language).text
+                translated.append({
+                    'text': translated_text,
+                    'start': entry['start'],
+                    'duration': entry['duration']
+                })
+            except Exception as e:
+                print(f"Translation error for text '{entry['text']}': {str(e)}")
         return translated
 
     def save_transcript(self, transcript: List[Dict], filename: str) -> bool:
@@ -129,5 +154,5 @@ def main(video_url, print_transcript=False):
         print("Failed to get transcript")
 
 if __name__ == "__main__":
-    video_url = "https://www.youtube.com/watch?v=PO3sdqBbXEo"
+    video_url = "https://www.youtube.com/watch?v=SiE6nz7FQt8"
     main(video_url, print_transcript=True)
