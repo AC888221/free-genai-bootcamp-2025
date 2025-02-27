@@ -77,7 +77,7 @@ class HSK2TranscriptProcessor:
 if __name__ == "__main__":
     # Example usage
     processor = HSK2TranscriptProcessor()
-    transcripts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'transcripts')
+    transcripts_dir = os.path.join(os.path.dirname(__file__), 'data', 'transcripts')
     results = processor.process_directory(transcripts_dir)
     
     for filename, processed_text in results.items():
