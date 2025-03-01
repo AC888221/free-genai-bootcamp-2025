@@ -319,25 +319,20 @@ def render_structured_stage():
             # Print the shape of the embeddings to debug
             print("Embeddings shape:", embeddings.shape)
             
-            # Save embeddings
-            for section in ['qsec3', 'qsec4']:
-                section_questions = [q for q in session_questions if q['section'] == section]
-                section_embeddings = embeddings[[i for i, q in enumerate(session_questions) if q['section'] == section]]
-                
-                # Print section_embeddings to debug
-                print(f"Section: {section}, Section Embeddings Shape: {section_embeddings.shape}")
-                
-                embeddings_dir = os.path.join(output_dir, 'embeddings', f'embed_{section}')
-                if not os.path.exists(embeddings_dir):
-                    os.makedirs(embeddings_dir)
-                
-                # Debugging: Print the directory where embeddings will be saved
-                print(f"Saving embeddings to directory: {embeddings_dir}")
-                
-                # Check each embedding before saving
-                for q, emb in zip(section_questions, section_embeddings):
-                    print(f"Question ID: {q['question_id']}, Embedding Shape: {emb.shape}")
-                    save_embeddings({q['question_id']: emb}, embeddings_dir)
+            # Prepare embeddings and metadata for saving
+            embeddings_dict = {}
+            for q, emb in zip(session_questions, embeddings):
+                if q['section'] not in embeddings_dict:
+                    embeddings_dict[q['section']] = {
+                        'section': q['section'],
+                        'questions': [],
+                        'embeddings': []
+                    }
+                embeddings_dict[q['section']]['questions'].append(q['question'])
+                embeddings_dict[q['section']]['embeddings'].append(emb)
+            
+            # Save embeddings using the save_embeddings function from vector_store.py
+            save_embeddings(embeddings_dict, output_dir)
             
             st.success("Questions embedded and saved successfully!")
         else:
