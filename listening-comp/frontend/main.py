@@ -29,13 +29,9 @@ def render_header():
     st.title("🇨🇳 Putonghua Learning Assistant") # Bootcamp Week 2: Adapt to Putonghua
     st.markdown("""
     Transform YouTube transcripts into interactive Putonghua learning experiences.
-    
-    This tool demonstrates:
-    - Base LLM Capabilities
-    - RAG (Retrieval Augmented Generation)
-    - Amazon Bedrock Integration
-    - Agent-based Learning Systems
-    """) # Bootcamp Week 2: Adapt to Putonghua
+<br>
+    [Featuring: **Base LLM Capabilities**, **RAG (Retrieval Augmented Generation)**, **Amazon Bedrock Integration**, and **Agent-based Learning Systems**.]
+    """) # Bootcamp Week 2: Takes up less space
 
 def render_sidebar():
     """Render the sidebar with component selection"""
