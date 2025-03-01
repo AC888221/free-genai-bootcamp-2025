@@ -17,7 +17,7 @@ from backend.get_transcript import YouTubeTranscriptDownloader
 from backend.chat import BedrockChat
 from backend.structured_data import HSK2TranscriptProcessor
 from backend.vector_store import embed_questions, process_question_files, save_embeddings
-from backend.rag import load_embeddings, find_top_n_similar
+from backend.rag import load_embeddings_with_hsk2_data, find_top_n_similar, read_hsk2_data
 
 # Page config
 st.set_page_config(
@@ -348,7 +348,8 @@ def process_rag_message(message: str):
     
     st.session_state.messages.append({"role": "user", "content": message})
 
-    embeddings_transcripts = load_embeddings('backend/data')
+    hsk2_data = read_hsk2_data('backend/data/HSK2_data.md')
+    embeddings_transcripts = load_embeddings_with_hsk2_data('backend/data', hsk2_data)
 
     query_embedding = np.random.rand(384)  # Replace with actual model output
 
@@ -363,7 +364,8 @@ def render_rag_stage():
     st.header("RAG System")
     
     if 'bedrock_chat' not in st.session_state:
-        st.session_state.bedrock_chat = BedrockChat()
+        system_prompt = "You are an expert in HSK (Hanyu Shuiping Kaoshi) listening tests. Provide detailed and helpful responses to questions about HSK listening exams, in particular provide sample listening questions. You will be given examples of sections 3 and 4 of the HSK 2 listening test audio transcripts, you must craft variation audio transcript examples and suitable Multiple Choice Question answer choices with only one of them fitting very well the respective transcript. Reply in only simplified Chinese."
+        st.session_state.bedrock_chat = BedrockChat(system_prompt=system_prompt)
 
     query = st.text_input(
         "Test Query",
