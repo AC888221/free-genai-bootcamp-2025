@@ -81,27 +81,27 @@ class HSK2TranscriptProcessor:
                     os.makedirs(questions_dir)
                 
                 # Create sub-folders for sections 3 and 4
-                sec3_dir = os.path.join(questions_dir, 'sec3')
-                sec4_dir = os.path.join(questions_dir, 'sec4')
+                qsec3_dir = os.path.join(questions_dir, 'qsec3')
+                qsec4_dir = os.path.join(questions_dir, 'qsec4')
                 
-                if not os.path.exists(sec3_dir):
-                    os.makedirs(sec3_dir)
-                if not os.path.exists(sec4_dir):
-                    os.makedirs(sec4_dir)
+                if not os.path.exists(qsec3_dir):
+                    os.makedirs(qsec3_dir)
+                if not os.path.exists(qsec4_dir):
+                    os.makedirs(qsec4_dir)
                 
                 # Save section 3 questions
-                output_filename_sec3 = f"{Path(transcript_path).stem}_Qsec3.txt"
-                output_path_sec3 = os.path.join(sec3_dir, output_filename_sec3)
-                with open(output_path_sec3, 'w', encoding='utf-8') as f:
+                output_filename_qsec3 = f"{Path(transcript_path).stem}_Qsec3.txt"
+                output_path_qsec3 = os.path.join(qsec3_dir, output_filename_qsec3)
+                with open(output_path_qsec3, 'w', encoding='utf-8') as f:
                     f.write(section3)
-                print(f"Processed section 3 saved to {output_path_sec3}")
+                print(f"Processed section 3 saved to {output_path_qsec3}")
                 
                 # Save section 4 questions
-                output_filename_sec4 = f"{Path(transcript_path).stem}_Qsec4.txt"
-                output_path_sec4 = os.path.join(sec4_dir, output_filename_sec4)
-                with open(output_path_sec4, 'w', encoding='utf-8') as f:
+                output_filename_qsec4 = f"{Path(transcript_path).stem}_Qsec4.txt"
+                output_path_qsec4 = os.path.join(qsec4_dir, output_filename_qsec4)
+                with open(output_path_qsec4, 'w', encoding='utf-8') as f:
                     f.write(section4)
-                print(f"Processed section 4 saved to {output_path_sec4}")
+                print(f"Processed section 4 saved to {output_path_qsec4}")
                 
                 return processed_text
             else:
