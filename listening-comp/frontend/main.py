@@ -10,6 +10,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend.get_transcript import YouTubeTranscriptDownloader
 from backend.chat import BedrockChat
+from backend.structured_data import HSK2TranscriptProcessor
+from backend.vector_store import embed_questions, process_question_files, save_embeddings
 
 # Page config
 st.set_page_config(
@@ -174,15 +176,17 @@ def download_transcript(video_url):
         
         # Save the transcript to the backend/data/transcripts/ directory
         if downloader.save_transcript(transcript, video_id):
-            # Store the transcript in the session state and display a success message
-            st.session_state.transcript = "\n".join([entry['text'] for entry in transcript])
+            # Store the video ID and transcript in the session state, overwriting any existing data
+            st.session_state.transcript_data = {
+                'video_id': video_id,
+                'transcript': "\n".join([entry['text'] for entry in transcript])
+            }
             st.success("Transcript downloaded and saved successfully!")
         else:
-            st.session_state.transcript = None  # Clear the transcript
             st.error("Failed to save transcript.")
     else:
         # Bootcamp Week 2: Clear the transcript in case of failure
-        st.session_state.transcript = None  # Clear the transcript
+        st.session_state.transcript_data = None  # Clear the transcript data
         st.error("Failed to download transcript.")
 
 def count_characters(text):
@@ -259,6 +263,77 @@ def render_structured_stage():
         st.subheader("Data Structure")
         # Placeholder for structured data view
         st.info("Structured data view will be implemented here")
+        
+        # Check if transcript data is available in session state
+        if 'transcript_data' in st.session_state:
+            transcript_data = st.session_state.transcript_data
+            transcript = transcript_data['transcript']
+            video_id = transcript_data['video_id']
+            
+            # Initialize the processor
+            processor = HSK2TranscriptProcessor()
+            
+            # Generate prompt
+            prompt = processor._generate_prompt(transcript)
+            
+            # Process with Bedrock
+            processed_text = processor._process_with_bedrock(prompt)
+            
+            if processed_text:
+                st.success("Transcript processed successfully!")
+                st.text_area("Processed Transcript", processed_text, height=300)
+                
+                # Save each question individually in their respective section folders
+                lines = processed_text.split('\n')
+                questions = [line for line in lines if line.strip() and "：" in line]
+                
+                output_dir = "backend/data"
+                session_questions = []
+                for i, question in enumerate(questions, start=1):
+                    # Skip sections 1 and 2
+                    if i <= 20:
+                        continue
+                    
+                    section = 'qsec3' if 21 <= i <= 30 else 'qsec4'
+                    section_dir = os.path.join(output_dir, 'questions', section)
+                    if not os.path.exists(section_dir):
+                        os.makedirs(section_dir)
+                    
+                    question_id = processor._generate_id(video_id, i)
+                    question_path = os.path.join(section_dir, f"{question_id}.txt")
+                    with open(question_path, 'w', encoding='utf-8') as f:
+                        f.write(question)
+                    st.info(f"Saved question to {question_path}")
+                    
+                    # Store question in session state
+                    session_questions.append({
+                        'question_id': question_id,
+                        'question': question,
+                        'section': section
+                    })
+                
+                # Save questions to session state
+                st.session_state.processed_questions = session_questions
+                
+                # Embed questions
+                embeddings = embed_questions(session_questions)
+                
+                # Process question files
+                processed_files = process_question_files(session_questions)
+                
+                # Save embeddings
+                for section in ['qsec3', 'qsec4']:
+                    embeddings_dir = os.path.join(output_dir, 'embeddings', f'embed_{section}')
+                    if not os.path.exists(embeddings_dir):
+                        os.makedirs(embeddings_dir)
+                    section_embeddings = [emb for emb in embeddings if emb['section'] == section]
+                    save_embeddings(section_embeddings, embeddings_dir)
+                
+                st.success("Questions embedded and saved successfully!")
+            else:
+                st.error("Failed to process transcript.")
+        else:
+            st.warning("No transcript data available. Please download a transcript first.")
 
 def render_rag_stage():
     """Render the RAG implementation stage"""
