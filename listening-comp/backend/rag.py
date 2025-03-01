@@ -10,19 +10,22 @@ from typing import Optional, Dict, Any
 MODEL_ID = "amazon.nova-micro-v1:0"
 
 class BedrockChat:
-    def __init__(self, model_id: str = MODEL_ID):
-        """Initialize Bedrock chat client"""
+    def __init__(self, model_id: str = MODEL_ID, system_prompt: str = ""):
+        """Initialize Bedrock chat client with an optional system prompt"""
         self.bedrock_client = boto3.client('bedrock-runtime', region_name="us-east-1")
         self.model_id = model_id
+        self.system_prompt = system_prompt
 
     def generate_response(self, message: str, inference_config: Optional[Dict[str, Any]] = None) -> Optional[str]:
         """Generate a response using Amazon Bedrock"""
         if inference_config is None:
             inference_config = {"temperature": 0.7}
 
+        combined_message = self.system_prompt + "\n\n" + message
+
         messages = [{
             "role": "user",
-            "content": [{"text": message}]
+            "content": [{"text": combined_message}]
         }]
 
         try:
@@ -61,6 +64,18 @@ def replace_nan_with_mean(embedding, default_value=0.0):
             embedding[nan_mask] = unnormalized_mean
             print(f"Replaced NaN values with mean: {unnormalized_mean}")
     return embedding
+
+def read_hsk2_data(file_path):
+    """Read the HSK2 data from the markdown file"""
+    with open(file_path, 'r', encoding='utf-8') as file:
+        return file.read()
+
+def load_embeddings_with_hsk2_data(folder_path, hsk2_data):
+    """Load embeddings from the specified folder and include HSK2 data"""
+    embeddings = load_embeddings(folder_path)
+    hsk2_embedding = np.random.rand(384)  # Example: random embedding, replace with actual embedding for HSK2 data
+    embeddings['HSK2_data'] = hsk2_embedding
+    return embeddings
 
 def load_embeddings(folder_path):
     """Load embeddings from the specified folder"""
@@ -121,8 +136,10 @@ def process_rag_message(message, embeddings, chat):
     return retrieved_contexts, response
 
 def main():
-    embeddings_transcripts = load_embeddings('backend/data')
-    chat = BedrockChat()
+    hsk2_data = read_hsk2_data('backend/data/HSK2_data.md')
+    embeddings_transcripts = load_embeddings_with_hsk2_data('backend/data', hsk2_data)
+    system_prompt = "You are an expert in HSK (Hanyu Shuiping Kaoshi) listening tests. Provide detailed and helpful responses to questions about HSK listening exams, in particular provide sample listening questions. You will be given examples of sections 3 and 4 of the HSK 2 listening test audio transcripts, you must craft variation audio transcript examples and suitable Multiple Choice Question answer choices with only one of them fitting very well the respective transcript. Reply in only simplified Chinese."
+    chat = BedrockChat(system_prompt=system_prompt)
 
     while True:
         user_input = input("You: ")
