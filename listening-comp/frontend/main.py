@@ -3,9 +3,12 @@ from typing import Dict
 import json
 from collections import Counter
 import re
-
 import sys
 import os
+import boto3
+import numpy as np
+import faiss
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend.get_transcript import YouTubeTranscriptDownloader
@@ -211,7 +214,7 @@ def render_transcript_stage():
     # URL input
     url = st.text_input(
         "YouTube URL",
-        placeholder="Enter a Putonghua lesson YouTube URL" # Bootcamp Week 2: Adapt to Putonghua
+        placeholder="Enter a Putonghua HSK 2 Practice Test YouTube URL" # Bootcamp Week 2: Adapt to Putonghua
     )
     
     # Download button and processing
@@ -252,88 +255,98 @@ def render_structured_stage():
     """Render the structured data stage"""
     st.header("Structured Data Processing")
     
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.subheader("Dialogue Extraction")
-        # Placeholder for dialogue processing
-        st.info("Dialogue extraction will be implemented here")
+    st.subheader("Question Extraction")
+    st.info("Question extraction will be implemented here")
+  
+    # Check if transcript data is available in session state
+    if 'transcript_data' in st.session_state:
+        transcript_data = st.session_state.transcript_data
+        transcript = transcript_data['transcript']
+        video_id = transcript_data['video_id']
         
-    with col2:
-        st.subheader("Data Structure")
-        # Placeholder for structured data view
-        st.info("Structured data view will be implemented here")
+        # Initialize the processor
+        processor = HSK2TranscriptProcessor()
         
-        # Check if transcript data is available in session state
-        if 'transcript_data' in st.session_state:
-            transcript_data = st.session_state.transcript_data
-            transcript = transcript_data['transcript']
-            video_id = transcript_data['video_id']
+        # Generate prompt
+        prompt = processor._generate_prompt(transcript)
+        
+        # Process with Bedrock
+        processed_text = processor._process_with_bedrock(prompt)
+        
+        if processed_text:
+            st.success("Transcript processed successfully!")
+            st.text_area("Processed Transcript", processed_text, height=300)
             
-            # Initialize the processor
-            processor = HSK2TranscriptProcessor()
+            # Save each question individually in their respective section folders
+            lines = processed_text.split('\n')
+            questions = [line for line in lines if line.strip() and "：" in line]
             
-            # Generate prompt
-            prompt = processor._generate_prompt(transcript)
+            output_dir = os.path.join(os.path.dirname(__file__), '..', 'backend', 'data')
+            session_questions = []
+            for i, question in enumerate(questions, start=1):
+                # Skip sections 1 and 2
+                if i <= 20:
+                    continue
+                
+                section = 'qsec3' if 21 <= i <= 30 else 'qsec4'
+                section_dir = os.path.join(output_dir, 'questions', section)
+                if not os.path.exists(section_dir):
+                    os.makedirs(section_dir)
+                
+                question_id = processor._generate_id(video_id, i)
+                question_path = os.path.join(section_dir, f"{question_id}.txt")
+                with open(question_path, 'w', encoding='utf-8') as f:
+                    f.write(question)
+                st.info(f"Saved question to {question_path}")
+                
+                # Store question in session state
+                session_questions.append({
+                    'question_id': question_id,
+                    'question': question,
+                    'section': section
+                })
             
-            # Process with Bedrock
-            processed_text = processor._process_with_bedrock(prompt)
+            # Save questions to session state
+            st.session_state.processed_questions = session_questions
             
-            if processed_text:
-                st.success("Transcript processed successfully!")
-                st.text_area("Processed Transcript", processed_text, height=300)
+            # Embed questions
+            embedding_model_id = "amazon.titan-embed-image-v1"  # Use the embedding model ID from vector_store.py
+            question_texts = [q['question'] for q in session_questions]
+            embeddings = embed_questions(question_texts, embedding_model_id)
+            
+            # Ensure embeddings are correctly generated
+            if embeddings.size == 0:
+                st.error("Failed to generate embeddings.")
+                return
+            
+            # Print the shape of the embeddings to debug
+            print("Embeddings shape:", embeddings.shape)
+            
+            # Save embeddings
+            for section in ['qsec3', 'qsec4']:
+                section_questions = [q for q in session_questions if q['section'] == section]
+                section_embeddings = embeddings[[i for i, q in enumerate(session_questions) if q['section'] == section]]
                 
-                # Save each question individually in their respective section folders
-                lines = processed_text.split('\n')
-                questions = [line for line in lines if line.strip() and "：" in line]
+                # Print section_embeddings to debug
+                print(f"Section: {section}, Section Embeddings Shape: {section_embeddings.shape}")
                 
-                output_dir = "backend/data"
-                session_questions = []
-                for i, question in enumerate(questions, start=1):
-                    # Skip sections 1 and 2
-                    if i <= 20:
-                        continue
-                    
-                    section = 'qsec3' if 21 <= i <= 30 else 'qsec4'
-                    section_dir = os.path.join(output_dir, 'questions', section)
-                    if not os.path.exists(section_dir):
-                        os.makedirs(section_dir)
-                    
-                    question_id = processor._generate_id(video_id, i)
-                    question_path = os.path.join(section_dir, f"{question_id}.txt")
-                    with open(question_path, 'w', encoding='utf-8') as f:
-                        f.write(question)
-                    st.info(f"Saved question to {question_path}")
-                    
-                    # Store question in session state
-                    session_questions.append({
-                        'question_id': question_id,
-                        'question': question,
-                        'section': section
-                    })
+                embeddings_dir = os.path.join(output_dir, 'embeddings', f'embed_{section}')
+                if not os.path.exists(embeddings_dir):
+                    os.makedirs(embeddings_dir)
                 
-                # Save questions to session state
-                st.session_state.processed_questions = session_questions
+                # Debugging: Print the directory where embeddings will be saved
+                print(f"Saving embeddings to directory: {embeddings_dir}")
                 
-                # Embed questions
-                embeddings = embed_questions(session_questions)
-                
-                # Process question files
-                processed_files = process_question_files(session_questions)
-                
-                # Save embeddings
-                for section in ['qsec3', 'qsec4']:
-                    embeddings_dir = os.path.join(output_dir, 'embeddings', f'embed_{section}')
-                    if not os.path.exists(embeddings_dir):
-                        os.makedirs(embeddings_dir)
-                    section_embeddings = [emb for emb in embeddings if emb['section'] == section]
-                    save_embeddings(section_embeddings, embeddings_dir)
-                
-                st.success("Questions embedded and saved successfully!")
-            else:
-                st.error("Failed to process transcript.")
+                # Check each embedding before saving
+                for q, emb in zip(section_questions, section_embeddings):
+                    print(f"Question ID: {q['question_id']}, Embedding Shape: {emb.shape}")
+                    save_embeddings({q['question_id']: emb}, embeddings_dir)
+            
+            st.success("Questions embedded and saved successfully!")
         else:
-            st.warning("No transcript data available. Please download a transcript first.")
+            st.error("Failed to process transcript.")
+    else:
+        st.warning("No transcript data available. Please download a transcript first.")
 
 def render_rag_stage():
     """Render the RAG implementation stage"""
