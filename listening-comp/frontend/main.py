@@ -343,58 +343,80 @@ def render_structured_stage():
     else:
         st.warning("No transcript data available. Please download a transcript first.")
 
+def load_embeddings(folder_path):
+    """Load embeddings from the specified folder"""
+    embeddings = {}
+    try:
+        for filename in os.listdir(folder_path):
+            if filename.endswith(".pkl"):
+                with open(os.path.join(folder_path, filename), 'rb') as file:
+                    embeddings[filename] = pickle.load(file)
+    except FileNotFoundError:
+        st.error(f"Directory not found: {folder_path}")
+    return embeddings
+
+def process_rag_message(message: str):
+    """Process a message and generate a response for the RAG stage"""
+    # Add user message to state and display
+    st.session_state.messages.append({"role": "user", "content": message})
+
+    # Load embeddings from both folders
+    embeddings_qsec3 = load_embeddings('/data/embeddings/embed_qsec3')
+    embeddings_qsec4 = load_embeddings('/data/embeddings/embed_qsec4')
+
+    # Placeholder for context retrieval logic
+    retrieved_contexts = []  # Assume no context is retrieved for now
+    st.session_state.retrieved_contexts = retrieved_contexts
+
+    # Generate response using BedrockChat
+    response = st.session_state.bedrock_chat.generate_response(message)
+    st.session_state.generated_response = response
+
 def render_rag_stage():
     """Render the RAG implementation stage"""
     st.header("RAG System")
     
-    # Query input
+    # Initialize BedrockChat instance if not in session state
+    if 'bedrock_chat' not in st.session_state:
+        st.session_state.bedrock_chat = BedrockChat()
+
+    # Query input field
     query = st.text_input(
         "Test Query",
-        placeholder="Enter a question about Japanese..."
+        placeholder="Enter a question about Japanese...",
+        key="query_input"
     )
     
+    # Process the user input if any
+    if query:
+        process_rag_message(query)
+
     col1, col2 = st.columns(2)
     
     with col1:
         st.subheader("Retrieved Context")
-        # Placeholder for retrieved contexts
-        st.info("Retrieved contexts will appear here")
+        # Display retrieved contexts or indicate none found
+        if 'retrieved_contexts' in st.session_state and st.session_state.retrieved_contexts:
+            for context in st.session_state.retrieved_contexts:
+                st.info(context)
+        else:
+            st.info("No additional context found.")
         
     with col2:
         st.subheader("Generated Response")
-        # Placeholder for LLM response
-        st.info("Generated response will appear here")
+        # Display generated response with blue background
+        if 'generated_response' in st.session_state:
+            st.markdown(
+                f"<div style='background-color: #e0f7fa; padding: 10px; border-radius: 5px;'>{st.session_state.generated_response}</div>",
+                unsafe_allow_html=True
+            )
+        else:
+            st.markdown(
+                "<div style='background-color: #e0f7fa; padding: 10px; border-radius: 5px;'>Generated response will appear here</div>",
+                unsafe_allow_html=True
+            )
 
-def render_interactive_stage():
-    """Render the interactive learning stage"""
-    st.header("Interactive Learning")
-    
-    # Practice type selection
-    practice_type = st.selectbox(
-        "Select Practice Type",
-        ["Dialogue Practice", "Vocabulary Quiz", "Listening Exercise"]
-    )
-    
-    col1, col2 = st.columns([2, 1])
-    
-    with col1:
-        st.subheader("Practice Scenario")
-        # Placeholder for scenario
-        st.info("Practice scenario will appear here")
-        
-        # Placeholder for multiple choice
-        options = ["Option 1", "Option 2", "Option 3", "Option 4"]
-        selected = st.radio("Choose your answer:", options)
-        
-    with col2:
-        st.subheader("Audio")
-        # Placeholder for audio player
-        st.info("Audio will appear here")
-        
-        st.subheader("Feedback")
-        # Placeholder for feedback
-        st.info("Feedback will appear here")
-
+# Example usage
 def main():
     render_header()
     selected_stage = render_sidebar()
