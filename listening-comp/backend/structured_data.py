@@ -3,7 +3,6 @@ from typing import Optional, List, Dict
 import os
 from pathlib import Path
 import hashlib
-import pickle
 
 class HSK2TranscriptProcessor:
     def __init__(self, model_id: str = "amazon.nova-micro-v1:0"):
@@ -14,21 +13,21 @@ class HSK2TranscriptProcessor:
     def _generate_prompt(self, transcript: str) -> str:
         """Generate prompt for the Bedrock model"""
         return f"""This HSK 2 listening test transcript has 4 sections.
-        Section 1 has 10 questions, Section 2 has 10 questions. Section 3 has 10 questions. Section 4 has 5 questions.
+        Section 1 has 10 questions, Section 2 has 10 questions, Section 3 has 10 questions, and Section 4 has 5 questions.
         Remove any introductory text from the start of the test and each section.
         Remove any consecutively repeated lines.
-        Make sure each question is numbered and that the number is in simplified Chinese, e.g., "一：", "二：", "三：", "四：", etc.
-        Make sure there is no text before the first question.
-        Remove any empty lines.
+        Make sure each question is numbered in simplified Chinese characters followed by a colon and a space, e.g., "一： ", "二： ", "三： ", "四： ", etc.
+        Ensure there is no text before the first question.
+        Remove any empty lines and extra spaces before or after the questions.
         Here is the transcript:
 
         {transcript}
 
         Return only the processed text without any JSON formatting."""
 
-    def _generate_id(self, text: str) -> str:
-        """Generate a consistent ID for a question"""
-        return hashlib.md5(text.encode()).hexdigest()
+    def _generate_id(self, filename: str, question_number: int) -> str:
+        """Generate a consistent ID for a question based on the filename and question number"""
+        return f"{filename}_q{question_number}"
 
     def _process_with_bedrock(self, prompt: str) -> Optional[str]:
         """Process text using Amazon Bedrock"""
@@ -61,6 +60,18 @@ class HSK2TranscriptProcessor:
     def process_transcript(self, transcript_path: str, output_dir: str) -> Optional[str]:
         """Process a single transcript file and save the processed text"""
         try:
+            filename = Path(transcript_path).stem
+            output_path_qsec3 = os.path.join(output_dir, 'qsec3', f"{filename}_q21.txt")
+            output_path_qsec4 = os.path.join(output_dir, 'qsec4', f"{filename}_q31.txt")
+            
+            # Check if the output files already exist
+            section3_exists = os.path.exists(output_path_qsec3)
+            section4_exists = os.path.exists(output_path_qsec4)
+            
+            if section3_exists and section4_exists:
+                print(f"Transcript {transcript_path} has already been processed.")
+                return None
+            
             with open(transcript_path, 'r', encoding='utf-8') as f:
                 transcript = f.read()
             
@@ -68,40 +79,26 @@ class HSK2TranscriptProcessor:
             processed_text = self._process_with_bedrock(prompt)
             
             if processed_text:
-                # Split the processed text into sections
+                # Split the processed text into individual questions
                 lines = processed_text.split('\n')
-                section3 = '\n'.join(lines[20:30])  # Questions 二十一 to 三十
-                section4 = '\n'.join(lines[30:35])  # Questions 三十一 to 三十五
+                questions = [line for line in lines if line.strip() and "：" in line]
                 
-                # Save to files in /data/questions/ directory
-                questions_dir = os.path.join(output_dir, 'questions')  # Path to 'questions'
-                
-                # Create the main questions directory if it doesn't exist
-                if not os.path.exists(questions_dir):
-                    os.makedirs(questions_dir)
-                
-                # Create sub-folders for sections 3 and 4
-                qsec3_dir = os.path.join(questions_dir, 'qsec3')
-                qsec4_dir = os.path.join(questions_dir, 'qsec4')
-                
-                if not os.path.exists(qsec3_dir):
-                    os.makedirs(qsec3_dir)
-                if not os.path.exists(qsec4_dir):
-                    os.makedirs(qsec4_dir)
-                
-                # Save section 3 questions
-                output_filename_qsec3 = f"{Path(transcript_path).stem}_Qsec3.txt"
-                output_path_qsec3 = os.path.join(qsec3_dir, output_filename_qsec3)
-                with open(output_path_qsec3, 'w', encoding='utf-8') as f:
-                    f.write(section3)
-                print(f"Processed section 3 saved to {output_path_qsec3}")
-                
-                # Save section 4 questions
-                output_filename_qsec4 = f"{Path(transcript_path).stem}_Qsec4.txt"
-                output_path_qsec4 = os.path.join(qsec4_dir, output_filename_qsec4)
-                with open(output_path_qsec4, 'w', encoding='utf-8') as f:
-                    f.write(section4)
-                print(f"Processed section 4 saved to {output_path_qsec4}")
+                # Save each question individually in their respective section folders
+                for i, question in enumerate(questions, start=1):
+                    # Skip sections 1 and 2
+                    if i <= 20:
+                        continue
+                    
+                    section = 'qsec3' if 21 <= i <= 30 else 'qsec4'
+                    section_dir = os.path.join(output_dir, section)
+                    if not os.path.exists(section_dir):
+                        os.makedirs(section_dir)
+                    
+                    question_id = self._generate_id(filename, i)
+                    question_path = os.path.join(section_dir, f"{question_id}.txt")
+                    with open(question_path, 'w', encoding='utf-8') as f:
+                        f.write(question)
+                    print(f"Saved question to {question_path}")
                 
                 return processed_text
             else:
