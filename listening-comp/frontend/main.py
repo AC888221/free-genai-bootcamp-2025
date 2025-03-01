@@ -28,8 +28,7 @@ def render_header():
     """Render the header section"""
     st.title("🇨🇳 Putonghua Learning Assistant") # Bootcamp Week 2: Adapt to Putonghua
     st.markdown("""
-    Transform YouTube transcripts into interactive Putonghua learning experiences.
-<br>
+    Transform YouTube transcripts into interactive Putonghua learning experiences.  
     [Featuring: **Base LLM Capabilities**, **RAG (Retrieval Augmented Generation)**, **Amazon Bedrock Integration**, and **Agent-based Learning Systems**.]
     """) # Bootcamp Week 2: Takes up less space
 
@@ -170,9 +169,17 @@ def download_transcript(video_url):
     transcript = downloader.get_transcript(video_url)
     
     if transcript:
-        # Store the transcript in the session state and display a success message
-        st.session_state.transcript = "\n".join([entry['text'] for entry in transcript])
-        st.success("Transcript downloaded successfully!")
+        # Extract video ID
+        video_id = downloader.extract_video_id(video_url)
+        
+        # Save the transcript to the backend/data/transcripts/ directory
+        if downloader.save_transcript(transcript, video_id):
+            # Store the transcript in the session state and display a success message
+            st.session_state.transcript = "\n".join([entry['text'] for entry in transcript])
+            st.success("Transcript downloaded and saved successfully!")
+        else:
+            st.session_state.transcript = None  # Clear the transcript
+            st.error("Failed to save transcript.")
     else:
         # Bootcamp Week 2: Clear the transcript in case of failure
         st.session_state.transcript = None  # Clear the transcript

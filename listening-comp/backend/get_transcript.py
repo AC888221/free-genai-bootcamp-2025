@@ -43,13 +43,7 @@ class YouTubeTranscriptDownloader:
             return None
 
         print(f"Downloading transcript for video ID: {video_id}")
-        try:
-            available_transcripts = YouTubeTranscriptApi.list_transcripts(video_id)
-            print(f"Available transcripts: {available_transcripts}")
-        except Exception as e:
-            print(f"Failed to list transcripts: {str(e)}")
-            return None        
-
+  
         # list all available transcripts
         try:
             available_transcripts = YouTubeTranscriptApi.list_transcripts(video_id)
