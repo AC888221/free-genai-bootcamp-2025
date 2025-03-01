@@ -16,6 +16,7 @@ from backend.get_transcript import YouTubeTranscriptDownloader
 from backend.chat import BedrockChat
 from backend.structured_data import HSK2TranscriptProcessor
 from backend.vector_store import embed_questions, process_question_files, save_embeddings
+from sklearn.metrics.pairwise import cosine_similarity
 
 # Page config
 st.set_page_config(
@@ -358,10 +359,30 @@ def load_embeddings(folder_path):
         for filename in os.listdir(full_path):
             if filename.endswith(".pkl"):
                 with open(os.path.join(full_path, filename), 'rb') as file:
-                    embeddings[filename] = pickle.load(file)
+                    try:
+                        embeddings[filename] = pickle.load(file)
+                    except pickle.UnpicklingError:
+                        st.error(f"Error unpickling file: {filename}")
     except FileNotFoundError:
         st.error(f"Directory not found: {full_path}")
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
+    
     return embeddings
+
+def find_top_n_similar(query_embedding, embeddings, n=3):
+    """Find the top n most similar embeddings to the query"""
+    similarities = []
+    
+    for context, embedding in embeddings.items():
+        similarity = cosine_similarity([query_embedding], [embedding])[0][0]
+        similarities.append((context, similarity))
+    
+    # Sort by similarity and return the top n
+    similarities.sort(key=lambda x: x[1], reverse=True)
+    top_n_similar = [context for context, _ in similarities[:n]]
+    
+    return top_n_similar
 
 def process_rag_message(message: str):
     """Process a message and generate a response for the RAG stage"""
@@ -372,8 +393,13 @@ def process_rag_message(message: str):
     embeddings_qsec3 = load_embeddings('backend/data/embeddings/embed_qsec3')
     embeddings_qsec4 = load_embeddings('backend/data/embeddings/embed_qsec4')
 
-    # Placeholder for context retrieval logic
-    retrieved_contexts = []  # Assume no context is retrieved for now
+    # Generate query embedding (this is a placeholder, replace with actual embedding generation)
+    query_embedding = np.random.rand(768)  # Example: random embedding, replace with actual model output
+
+    # Retrieve the top 3 most similar contexts
+    retrieved_contexts_qsec3 = find_top_n_similar(query_embedding, embeddings_qsec3, n=3)
+    retrieved_contexts_qsec4 = find_top_n_similar(query_embedding, embeddings_qsec4, n=3)
+    retrieved_contexts = retrieved_contexts_qsec3 + retrieved_contexts_qsec4
     st.session_state.retrieved_contexts = retrieved_contexts
 
     # Generate response using BedrockChat
