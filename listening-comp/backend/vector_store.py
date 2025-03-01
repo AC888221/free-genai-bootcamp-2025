@@ -48,6 +48,12 @@ def process_question_files(input_dir: str, embedding_model_id: str) -> Dict[str,
     input_directory = Path(input_dir)
     
     for file_path in input_directory.glob('*.txt'):
+        output_file = file_path.with_suffix('.faiss')
+        print(f"Checking if {output_file} exists...")
+        if output_file.exists():
+            print(f"Embeddings for {file_path.stem} already exist at {output_file}, skipping processing.")
+            continue
+        
         with open(file_path, 'r', encoding='utf-8') as f:
             questions = f.read().split('\n')
             questions = [q for q in questions if q.strip()]  # Remove empty lines

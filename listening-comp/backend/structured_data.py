@@ -61,8 +61,8 @@ class HSK2TranscriptProcessor:
         """Process a single transcript file and save the processed text"""
         try:
             filename = Path(transcript_path).stem
-            output_path_qsec3 = os.path.join(output_dir, 'qsec3', f"{filename}_q21.txt")
-            output_path_qsec4 = os.path.join(output_dir, 'qsec4', f"{filename}_q31.txt")
+            output_path_qsec3 = os.path.join(output_dir, 'questions', 'qsec3', f"{filename}_q21.txt")
+            output_path_qsec4 = os.path.join(output_dir, 'questions', 'qsec4', f"{filename}_q31.txt")
             
             # Check if the output files already exist
             section3_exists = os.path.exists(output_path_qsec3)
@@ -90,7 +90,7 @@ class HSK2TranscriptProcessor:
                         continue
                     
                     section = 'qsec3' if 21 <= i <= 30 else 'qsec4'
-                    section_dir = os.path.join(output_dir, section)
+                    section_dir = os.path.join(output_dir, 'questions', section)
                     if not os.path.exists(section_dir):
                         os.makedirs(section_dir)
                     
