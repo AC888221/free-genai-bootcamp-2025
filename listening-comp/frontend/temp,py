@@ -70,10 +70,11 @@ def render_structured_stage():
                 embeddings = embed_questions(session_questions, embedding_model_id)
                 
                 # Process question files
-                processed_files = process_question_files(session_questions, embedding_model_id)
-                
-                # Save embeddings
                 for section in ['qsec3', 'qsec4']:
+                    section_dir = os.path.join(output_dir, 'questions', section)
+                    processed_files = process_question_files(section_dir, embedding_model_id)
+                    
+                    # Save embeddings
                     embeddings_dir = os.path.join(output_dir, 'embeddings', f'embed_{section}')
                     if not os.path.exists(embeddings_dir):
                         os.makedirs(embeddings_dir)
