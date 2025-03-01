@@ -49,7 +49,7 @@ https://github.com/chroma-core/chroma
 
 **Q:** How did I address the unavailability of Amazon Nova models in AWS regions near Australia?
 **A:** I discovered that Amazon Nova models are not available in the Asia Pacific (Sydney) or Asia Pacific (Melbourne) regions. To overcome this, I selected the US West (Oregon) region as the nearest alternative to manage latency and performance considerations.
-Review vid 2: 46:00
+Review vid 2: 1:18:50
 https://www.youtube.com/watch?v=A_f0PvCzdJo&list=PL1ZfsqhT9vP4Zxb6MePHeKhBu8OSX8FwK
 Video that gets no transcript
 
