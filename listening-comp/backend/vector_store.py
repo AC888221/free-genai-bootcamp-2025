@@ -6,6 +6,11 @@ import pickle
 import os
 from pathlib import Path
 from typing import List, Dict
+import hashlib
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def embed_questions(questions: List[str], embedding_model_id: str) -> np.ndarray:
     """Embed questions into vectors using Amazon Bedrock"""
@@ -30,63 +35,105 @@ def embed_questions(questions: List[str], embedding_model_id: str) -> np.ndarray
             if len(embedding) == 384:
                 embeddings.append(embedding)
             else:
-                print(f"Unexpected embedding dimension: {len(embedding)}")
+                logging.warning(f"Unexpected embedding dimension: {len(embedding)}")
                 embeddings.append(np.zeros(384, dtype='float32'))
         except Exception as e:
-            print(f"Error calling Bedrock API: {str(e)}")
+            logging.error(f"Error calling Bedrock API: {str(e)}")
             embeddings.append(np.zeros(384, dtype='float32'))
     
     if not embeddings:
-        print("Warning: No embeddings generated, returning zero matrix")
+        logging.warning("No embeddings generated, returning zero matrix")
         return np.zeros((len(questions), 384), dtype='float32')
     
     return np.array(embeddings)
 
-def process_question_files(input_dir: str, embedding_model_id: str) -> Dict[str, np.ndarray]:
-    """Process question files in the specified directory and return their embeddings"""
+def process_question_files(input_dir: str, embedding_model_id: str, section: str) -> Dict[str, Dict[str, np.ndarray]]:
+    """Process question files in the specified directory and return their embeddings with metadata"""
     embeddings = {}
     input_directory = Path(input_dir)
     
     for file_path in input_directory.glob('*.txt'):
-        output_file = file_path.with_suffix('.faiss')
-        print(f"Checking if {output_file} exists...")
-        if output_file.exists():
-            print(f"Embeddings for {file_path.stem} already exist at {output_file}, skipping processing.")
-            continue
-        
         with open(file_path, 'r', encoding='utf-8') as f:
             questions = f.read().split('\n')
             questions = [q for q in questions if q.strip()]  # Remove empty lines
-            embeddings[file_path.stem] = embed_questions(questions, embedding_model_id)
+            embeddings[file_path.stem] = {
+                "section": section,
+                "questions": questions,
+                "embeddings": embed_questions(questions, embedding_model_id)
+            }
     
     return embeddings
 
-def save_embeddings(embeddings: Dict[str, np.ndarray], output_dir: str):
+def save_embeddings(embeddings: Dict[str, Dict[str, np.ndarray]], output_dir: str):
     """Save embeddings to disk using FAISS and pickle"""
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     
-    for name, embedding in embeddings.items():
-        index = faiss.IndexFlatL2(embedding.shape[1])
-        index.add(embedding)
-        faiss.write_index(index, os.path.join(output_dir, f'{name}.faiss'))
+    combined_embeddings = []
+    combined_metadata = []
+    existing_hashes = set()
+    
+    # Load existing metadata if it exists
+    metadata_path = os.path.join(output_dir, 'vectors_metadata.pkl')
+    if os.path.exists(metadata_path):
+        with open(metadata_path, 'rb') as f:
+            existing_metadata = pickle.load(f)
+            for meta in existing_metadata:
+                try:
+                    question_hash = hashlib.md5(meta["question"].encode()).hexdigest()
+                    existing_hashes.add(question_hash)
+                except KeyError as e:
+                    logging.error(f"KeyError: {e} in existing metadata: {meta}")
+            combined_metadata.extend(existing_metadata)
+    
+    for name, data in embeddings.items():
+        section = data["section"]
+        questions = data["questions"]
+        embedding = data["embeddings"]
         
-        with open(os.path.join(output_dir, f'{name}_metadata.pkl'), 'wb') as f:
-            pickle.dump(embedding, f)
-        print(f"Embeddings for {name} saved to {output_dir}")
+        for i, question in enumerate(questions):
+            question_hash = hashlib.md5(question.encode()).hexdigest()
+            if question_hash not in existing_hashes:
+                combined_embeddings.append(embedding[i])
+                combined_metadata.append({"name": name, "section": section, "question": question})
+                existing_hashes.add(question_hash)
+    
+    if combined_embeddings:
+        combined_embeddings = np.vstack(combined_embeddings)
+        
+        index = faiss.IndexFlatL2(combined_embeddings.shape[1])
+        index.add(combined_embeddings)
+        faiss.write_index(index, os.path.join(output_dir, 'vectors.faiss'))
+        
+        with open(metadata_path, 'wb') as f:
+            pickle.dump(combined_metadata, f)
+        
+        logging.info(f"Combined embeddings saved to {output_dir}")
+    else:
+        logging.info("No new embeddings to save.")
 
-def load_embeddings(input_dir: str) -> Dict[str, np.ndarray]:
+def load_embeddings(input_dir: str) -> Dict[str, Dict[str, np.ndarray]]:
     """Load embeddings from disk using FAISS and pickle"""
     embeddings = {}
-    input_directory = Path(input_dir)
+    index = faiss.read_index(os.path.join(input_dir, 'vectors.faiss'))
     
-    for file_path in input_directory.glob('*.faiss'):
-        name = file_path.stem
-        index = faiss.read_index(str(file_path))
-        with open(input_directory / f'{name}_metadata.pkl', 'rb') as f:
-            metadata = pickle.load(f)
-        embeddings[name] = metadata
-        print(f"Embeddings for {name} loaded from {input_dir}")
+    with open(os.path.join(input_dir, 'vectors_metadata.pkl'), 'rb') as f:
+        metadata = pickle.load(f)
+    
+    for i, meta in enumerate(metadata):
+        name = meta["name"]
+        section = meta["section"]
+        question = meta["question"]
+        embedding = index.reconstruct(i)
+        if name not in embeddings:
+            embeddings[name] = {"section": section, "questions": [], "embeddings": []}
+        embeddings[name]["questions"].append(question)
+        embeddings[name]["embeddings"].append(embedding)
+    
+    for name in embeddings:
+        embeddings[name]["embeddings"] = np.array(embeddings[name]["embeddings"])
+    
+    logging.info(f"Combined embeddings loaded from {input_dir}")
     
     return embeddings
 
@@ -94,17 +141,15 @@ if __name__ == "__main__":
     embedding_model_id = "amazon.titan-embed-image-v1"
     qsec3_dir = os.path.join(os.path.dirname(__file__), 'data', 'questions', 'qsec3')
     qsec4_dir = os.path.join(os.path.dirname(__file__), 'data', 'questions', 'qsec4')
-    output_dir_qsec3 = os.path.join(os.path.dirname(__file__), 'data', 'embeddings', 'embed_qsec3')
-    output_dir_qsec4 = os.path.join(os.path.dirname(__file__), 'data', 'embeddings', 'embed_qsec4')
+    output_dir = os.path.join(os.path.dirname(__file__), 'data')
     
     # Process and save embeddings for section 3
-    qsec3_embeddings = process_question_files(qsec3_dir, embedding_model_id)
-    save_embeddings(qsec3_embeddings, output_dir_qsec3)
+    qsec3_embeddings = process_question_files(qsec3_dir, embedding_model_id, "HSK 2 Section 3")
+    save_embeddings(qsec3_embeddings, output_dir)
     
     # Process and save embeddings for section 4
-    qsec4_embeddings = process_question_files(qsec4_dir, embedding_model_id)
-    save_embeddings(qsec4_embeddings, output_dir_qsec4)
+    qsec4_embeddings = process_question_files(qsec4_dir, embedding_model_id, "HSK 2 Section 4")
+    save_embeddings(qsec4_embeddings, output_dir)
     
     # Example of loading embeddings
-    loaded_embeddings_qsec3 = load_embeddings(output_dir_qsec3)
-    loaded_embeddings_qsec4 = load_embeddings(output_dir_qsec4)
+    loaded_embeddings = load_embeddings(output_dir)
