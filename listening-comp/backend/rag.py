@@ -37,6 +37,31 @@ class BedrockChat:
             print(f"Error generating response: {str(e)}")
             return None
 
+def replace_nan_with_mean(embedding, default_value=0.0):
+    """Replace NaN values in the embedding with the mean of non-NaN values or a default value if mean is problematic"""
+    if np.isnan(embedding).any():
+        nan_mask = np.isnan(embedding)
+        
+        # Normalize the values
+        max_value = np.nanmax(np.abs(embedding))
+        if max_value == 0 or np.isnan(max_value):
+            max_value = 1  # Prevent division by zero
+        normalized_embedding = embedding / max_value
+        
+        # Calculate the mean of the normalized values
+        normalized_mean = np.nanmean(normalized_embedding.astype(np.float64))
+        
+        # Recalculate the unnormalized mean
+        unnormalized_mean = normalized_mean * max_value
+        
+        if np.isinf(unnormalized_mean) or np.isnan(unnormalized_mean):
+            print(f"Mean value is problematic (inf or NaN), replacing NaN with default value: {default_value}")
+            embedding[nan_mask] = default_value
+        else:
+            embedding[nan_mask] = unnormalized_mean
+            print(f"Replaced NaN values with mean: {unnormalized_mean}")
+    return embedding
+
 def load_embeddings(folder_path):
     """Load embeddings from the specified folder"""
     embeddings = {}
@@ -57,10 +82,8 @@ def load_embeddings(folder_path):
                     for i, item in enumerate(metadata):
                         if isinstance(item, dict) and 'name' in item:
                             embedding = index.reconstruct(i)
-                            if np.isnan(embedding).any():
-                                print(f"NaN values found in embedding for item {i}")
-                            else:
-                                embeddings[item['name']] = embedding
+                            embedding = replace_nan_with_mean(embedding)  # Replace NaN values with mean
+                            embeddings[item['name']] = embedding
                         else:
                             print(f"Unexpected data format for item {i} in vectors_metadata.pkl")
                 else:

@@ -9,6 +9,7 @@ import boto3
 import numpy as np
 import pickle
 import faiss
+from sklearn.metrics.pairwise import cosine_similarity
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -16,7 +17,7 @@ from backend.get_transcript import YouTubeTranscriptDownloader
 from backend.chat import BedrockChat
 from backend.structured_data import HSK2TranscriptProcessor
 from backend.vector_store import embed_questions, process_question_files, save_embeddings
-from sklearn.metrics.pairwise import cosine_similarity
+from backend.rag import load_embeddings, find_top_n_similar
 
 # Page config
 st.set_page_config(
@@ -340,88 +341,20 @@ def render_structured_stage():
     else:
         st.warning("No transcript data available. Please download a transcript first.")
 
-def load_embeddings(folder_path):
-    """Load embeddings from the specified folder"""
-    embeddings = {}
-    current_dir = os.getcwd()
-    full_path = os.path.abspath(os.path.join(current_dir, folder_path))
-    
-    # Debugging: Print the current directory and full path
-    st.write(f"Current directory: {current_dir}")
-    st.write(f"Full path: {full_path}")
-    
-    if not os.path.exists(full_path):
-        st.error(f"Directory not found: {full_path}")
-        return embeddings
-    
-    try:
-        # Load vectors.faiss
-        index = faiss.read_index(os.path.join(full_path, 'vectors.faiss'))
-        # Load vectors_metadata.pkl
-        with open(os.path.join(full_path, 'vectors_metadata.pkl'), 'rb') as file:
-            try:
-                metadata = pickle.load(file)
-                # Debugging: Print the type and content of metadata
-                st.write(f"Type of metadata: {type(metadata)}")
-                st.write(f"Content of metadata: {metadata}")
-                
-                # Check if metadata is a list
-                if isinstance(metadata, list):
-                    for i, item in enumerate(metadata):
-                        # Debugging: Print the type and content of each item
-                        st.write(f"Item {i}: {item}")
-                        
-                        # Ensure item is a dictionary with necessary keys
-                        if isinstance(item, dict) and 'name' in item:
-                            embedding = index.reconstruct(i)
-                            # Check for NaN values and handle them
-                            if np.isnan(embedding).any():
-                                st.error(f"NaN values found in embedding for item {i}")
-                            else:
-                                embeddings[item['name']] = embedding
-                        else:
-                            st.error(f"Unexpected data format for item {i} in vectors_metadata.pkl")
-                else:
-                    st.error(f"Unexpected data format in vectors_metadata.pkl")
-            except pickle.UnpicklingError:
-                st.error(f"Error unpickling file: vectors_metadata.pkl")
-    except FileNotFoundError:
-        st.error(f"File not found: vectors.faiss")
-    except Exception as e:
-        st.error(f"An error occurred: {e}")
-    
-    return embeddings
-
-def find_top_n_similar(query_embedding, embeddings, n=3):
-    """Find the top n most similar embeddings to the query"""
-    similarities = []
-    
-    for context, embedding in embeddings.items():
-        similarity = cosine_similarity([query_embedding], [embedding])[0][0]
-        similarities.append((context, similarity))
-    
-    # Sort by similarity and return the top n
-    similarities.sort(key=lambda x: x[1], reverse=True)
-    top_n_similar = [context for context, _ in similarities[:n]]
-    
-    return top_n_similar
-
 def process_rag_message(message: str):
     """Process a message and generate a response for the RAG stage"""
-    # Add user message to state and display
+    if 'messages' not in st.session_state:
+        st.session_state.messages = []
+    
     st.session_state.messages.append({"role": "user", "content": message})
 
-    # Load embeddings from the correct folder
     embeddings_transcripts = load_embeddings('backend/data')
 
-    # Generate query embedding with the correct dimension (384)
-    query_embedding = np.random.rand(384)  # Example: random embedding, replace with actual model output
+    query_embedding = np.random.rand(384)  # Replace with actual model output
 
-    # Retrieve the top 3 most similar contexts
     retrieved_contexts = find_top_n_similar(query_embedding, embeddings_transcripts, n=3)
     st.session_state.retrieved_contexts = retrieved_contexts
 
-    # Generate response using BedrockChat
     response = st.session_state.bedrock_chat.generate_response(message)
     st.session_state.generated_response = response
 
@@ -429,18 +362,15 @@ def render_rag_stage():
     """Render the RAG implementation stage"""
     st.header("RAG System")
     
-    # Initialize BedrockChat instance if not in session state
     if 'bedrock_chat' not in st.session_state:
         st.session_state.bedrock_chat = BedrockChat()
 
-    # Query input field
     query = st.text_input(
         "Test Query",
         placeholder="Ask about Section 3 and 4 of the HSK 2 Putonghua Exam.",
         key="query_input"
     )
     
-    # Process the user input if any
     if query:
         process_rag_message(query)
 
@@ -448,7 +378,6 @@ def render_rag_stage():
     
     with col1:
         st.subheader("Retrieved Context")
-        # Display retrieved contexts or indicate none found
         if 'retrieved_contexts' in st.session_state and st.session_state.retrieved_contexts:
             for context in st.session_state.retrieved_contexts:
                 st.info(context)
@@ -457,7 +386,6 @@ def render_rag_stage():
         
     with col2:
         st.subheader("Generated Response")
-        # Display generated response with blue background
         if 'generated_response' in st.session_state:
             st.markdown(
                 f"<div style='background-color: #e0f7fa; padding: 10px; border-radius: 5px;'>{st.session_state.generated_response}</div>",
@@ -469,12 +397,10 @@ def render_rag_stage():
                 unsafe_allow_html=True
             )
 
-# Example usage
 def main():
     render_header()
     selected_stage = render_sidebar()
     
-    # Render appropriate stage
     if selected_stage == "1. Chat with Nova":
         render_chat_stage()
     elif selected_stage == "2. Raw Transcript":
@@ -486,7 +412,6 @@ def main():
     elif selected_stage == "5. Interactive Learning":
         render_interactive_stage()
     
-    # Debug section at the bottom
     with st.expander("Debug Information"):
         st.json({
             "selected_stage": selected_stage,
