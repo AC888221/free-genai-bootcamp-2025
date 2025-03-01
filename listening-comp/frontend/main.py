@@ -193,19 +193,15 @@ def download_transcript(video_url):
         st.error("Failed to download transcript.")
 
 def count_characters(text):
-    """Count Putonghua-specific and total characters in text""" # Bootcamp Week 2: Adapt to Putonghua
+    """Count Simplified Chinese-specific and total characters in text"""
     if not text:
         return 0, 0
         
-    def is_japanese(char):
-        return any([
-            '\u4e00' <= char <= '\u9fff',  # Kanji
-            '\u3040' <= char <= '\u309f',  # Hiragana
-            '\u30a0' <= char <= '\u30ff',  # Katakana
-        ])
+    def is_chinese(char):
+        return '\u4e00' <= char <= '\u9fff'  # Simplified Chinese characters range
     
-    jp_chars = sum(1 for char in text if is_japanese(char))
-    return jp_chars, len(text)
+    cn_chars = sum(1 for char in text if is_chinese(char))
+    return cn_chars, len(text)
 
 def render_transcript_stage():
     """Render the raw transcript stage"""
@@ -226,27 +222,26 @@ def render_transcript_stage():
     
     with col1:
         st.subheader("Raw Transcript")
-        if st.session_state.transcript:
+        if 'transcript_data' in st.session_state and st.session_state.transcript_data:
             st.text_area(
                 label="Raw text",
-                value=st.session_state.transcript,
+                value=st.session_state.transcript_data['transcript'],
                 height=400,
                 disabled=True
             )
-    
         else:
             st.info("No transcript loaded")
     
     with col2:
         st.subheader("Transcript Stats")
-        if st.session_state.transcript:
+        if 'transcript_data' in st.session_state and st.session_state.transcript_data:
             # Calculate stats
-            jp_chars, total_chars = count_characters(st.session_state.transcript)
-            total_lines = len(st.session_state.transcript.split('\n'))
+            cn_chars, total_chars = count_characters(st.session_state.transcript_data['transcript'])
+            total_lines = len(st.session_state.transcript_data['transcript'].split('\n'))
             
             # Display stats
             st.metric("Total Characters", total_chars)
-            st.metric("Japanese Characters", jp_chars)
+            st.metric("Simplified Chinese Characters", cn_chars)
             st.metric("Total Lines", total_lines)
         else:
             st.info("Load a transcript to see statistics")
