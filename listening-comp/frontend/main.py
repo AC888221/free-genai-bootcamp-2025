@@ -346,20 +346,47 @@ def load_embeddings(folder_path):
     current_dir = os.getcwd()
     full_path = os.path.abspath(os.path.join(current_dir, folder_path))
     
+    # Debugging: Print the current directory and full path
+    st.write(f"Current directory: {current_dir}")
+    st.write(f"Full path: {full_path}")
+    
     if not os.path.exists(full_path):
         st.error(f"Directory not found: {full_path}")
         return embeddings
     
     try:
-        for filename in os.listdir(full_path):
-            if filename.endswith(".pkl"):
-                with open(os.path.join(full_path, filename), 'rb') as file:
-                    try:
-                        embeddings[filename] = pickle.load(file)
-                    except pickle.UnpicklingError:
-                        st.error(f"Error unpickling file: {filename}")
+        # Load vectors.faiss
+        index = faiss.read_index(os.path.join(full_path, 'vectors.faiss'))
+        # Load vectors_metadata.pkl
+        with open(os.path.join(full_path, 'vectors_metadata.pkl'), 'rb') as file:
+            try:
+                metadata = pickle.load(file)
+                # Debugging: Print the type and content of metadata
+                st.write(f"Type of metadata: {type(metadata)}")
+                st.write(f"Content of metadata: {metadata}")
+                
+                # Check if metadata is a list
+                if isinstance(metadata, list):
+                    for i, item in enumerate(metadata):
+                        # Debugging: Print the type and content of each item
+                        st.write(f"Item {i}: {item}")
+                        
+                        # Ensure item is a dictionary with necessary keys
+                        if isinstance(item, dict) and 'name' in item:
+                            embedding = index.reconstruct(i)
+                            # Check for NaN values and handle them
+                            if np.isnan(embedding).any():
+                                st.error(f"NaN values found in embedding for item {i}")
+                            else:
+                                embeddings[item['name']] = embedding
+                        else:
+                            st.error(f"Unexpected data format for item {i} in vectors_metadata.pkl")
+                else:
+                    st.error(f"Unexpected data format in vectors_metadata.pkl")
+            except pickle.UnpicklingError:
+                st.error(f"Error unpickling file: vectors_metadata.pkl")
     except FileNotFoundError:
-        st.error(f"Directory not found: {full_path}")
+        st.error(f"File not found: vectors.faiss")
     except Exception as e:
         st.error(f"An error occurred: {e}")
     
@@ -384,17 +411,14 @@ def process_rag_message(message: str):
     # Add user message to state and display
     st.session_state.messages.append({"role": "user", "content": message})
 
-    # Load embeddings from both folders
-    embeddings_qsec3 = load_embeddings('backend/data/embeddings/embed_qsec3')
-    embeddings_qsec4 = load_embeddings('backend/data/embeddings/embed_qsec4')
+    # Load embeddings from the correct folder
+    embeddings_transcripts = load_embeddings('backend/data')
 
-    # Generate query embedding (this is a placeholder, replace with actual embedding generation)
-    query_embedding = np.random.rand(768)  # Example: random embedding, replace with actual model output
+    # Generate query embedding with the correct dimension (384)
+    query_embedding = np.random.rand(384)  # Example: random embedding, replace with actual model output
 
     # Retrieve the top 3 most similar contexts
-    retrieved_contexts_qsec3 = find_top_n_similar(query_embedding, embeddings_qsec3, n=3)
-    retrieved_contexts_qsec4 = find_top_n_similar(query_embedding, embeddings_qsec4, n=3)
-    retrieved_contexts = retrieved_contexts_qsec3 + retrieved_contexts_qsec4
+    retrieved_contexts = find_top_n_similar(query_embedding, embeddings_transcripts, n=3)
     st.session_state.retrieved_contexts = retrieved_contexts
 
     # Generate response using BedrockChat
@@ -412,7 +436,7 @@ def render_rag_stage():
     # Query input field
     query = st.text_input(
         "Test Query",
-        placeholder="Enter a question about Japanese...",
+        placeholder="Ask about Section 3 and 4 of the HSK 2 Putonghua Exam.",
         key="query_input"
     )
     
