@@ -1,63 +1,119 @@
-import faiss
-import numpy as np
 import os
 import pickle
-from typing import List, Dict
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+import faiss
+import boto3
+from typing import Optional, Dict, Any
 
-# Function to load embeddings from disk using FAISS and pickle
-def load_embeddings(input_dir: str) -> Dict[str, np.ndarray]:
+# Model ID
+MODEL_ID = "amazon.nova-micro-v1:0"
+
+class BedrockChat:
+    def __init__(self, model_id: str = MODEL_ID):
+        """Initialize Bedrock chat client"""
+        self.bedrock_client = boto3.client('bedrock-runtime', region_name="us-east-1")
+        self.model_id = model_id
+
+    def generate_response(self, message: str, inference_config: Optional[Dict[str, Any]] = None) -> Optional[str]:
+        """Generate a response using Amazon Bedrock"""
+        if inference_config is None:
+            inference_config = {"temperature": 0.7}
+
+        messages = [{
+            "role": "user",
+            "content": [{"text": message}]
+        }]
+
+        try:
+            response = self.bedrock_client.converse(
+                modelId=self.model_id,
+                messages=messages,
+                inferenceConfig=inference_config
+            )
+            return response['output']['message']['content'][0]['text']
+            
+        except Exception as e:
+            print(f"Error generating response: {str(e)}")
+            return None
+
+def load_embeddings(folder_path):
+    """Load embeddings from the specified folder"""
     embeddings = {}
-    for file_name in os.listdir(input_dir):
-        if file_name.endswith('.faiss'):
-            name = file_name.split('.')[0]
-            index = faiss.read_index(os.path.join(input_dir, file_name))
-            with open(os.path.join(input_dir, f'{name}_metadata.pkl'), 'rb') as f:
-                metadata = pickle.load(f)
-            embeddings[name] = (index, metadata)
-            print(f"Embeddings for {name} loaded from {input_dir}")
+    current_dir = os.getcwd()
+    full_path = os.path.abspath(os.path.join(current_dir, folder_path))
+    
+    if not os.path.exists(full_path):
+        print(f"Directory not found: {full_path}")
+        return embeddings
+    
+    try:
+        index = faiss.read_index(os.path.join(full_path, 'vectors.faiss'))
+        with open(os.path.join(full_path, 'vectors_metadata.pkl'), 'rb') as file:
+            try:
+                metadata = pickle.load(file)
+                
+                if isinstance(metadata, list):
+                    for i, item in enumerate(metadata):
+                        if isinstance(item, dict) and 'name' in item:
+                            embedding = index.reconstruct(i)
+                            if np.isnan(embedding).any():
+                                print(f"NaN values found in embedding for item {i}")
+                            else:
+                                embeddings[item['name']] = embedding
+                        else:
+                            print(f"Unexpected data format for item {i} in vectors_metadata.pkl")
+                else:
+                    print(f"Unexpected data format in vectors_metadata.pkl")
+            except pickle.UnpicklingError:
+                print(f"Error unpickling file: vectors_metadata.pkl")
+    except FileNotFoundError:
+        print(f"File not found: vectors.faiss")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    
     return embeddings
 
-# Function to embed query text using Amazon Bedrock
-def embed_query(query_text: str, embedding_model_id: str) -> np.ndarray:
-    """Embed query text into a vector using Amazon Bedrock"""
-    bedrock_client = boto3.client('bedrock-runtime', region_name="us-east-1")
-    request_body = {
-        "inputText": query_text,
-        "embeddingConfig": {
-            "outputEmbeddingLength": 384  # Specify desired embedding length
-        }
-    }
-    response = bedrock_client.invoke_model(
-        modelId=embedding_model_id,
-        contentType="application/json",
-        accept="application/json",
-        body=json.dumps(request_body)
-    )
-    response_body = json.loads(response.get('body').read().decode())
-    embedding = np.array(response_body.get('embedding', []), dtype='float32')
-    return embedding
-
-# Function to query the embeddings
-def query_embeddings(query_text: str, embeddings: Dict[str, np.ndarray], embedding_model_id: str, n_results=2) -> Dict[str, List[str]]:
-    # Convert query text to embedding
-    query_embedding = embed_query(query_text, embedding_model_id)
+def find_top_n_similar(query_embedding, embeddings, n=3):
+    """Find the top n most similar embeddings to the query"""
+    similarities = []
     
-    results = {}
-    for name, (index, metadata) in embeddings.items():
-        D, I = index.search(np.array([query_embedding]), n_results)
-        results[name] = [metadata[i] for i in I[0]]
+    for context, embedding in embeddings.items():
+        similarity = cosine_similarity([query_embedding], [embedding])[0][0]
+        similarities.append((context, similarity))
     
-    return results
+    similarities.sort(key=lambda x: x[1], reverse=True)
+    top_n_similar = [context for context, _ in similarities[:n]]
+    
+    return top_n_similar
 
-# Example usage
+def process_rag_message(message, embeddings, chat):
+    """Process a message and generate a response for the RAG stage"""
+    query_embedding = np.random.rand(384)  # Example: random embedding, replace with actual model output
+
+    retrieved_contexts = find_top_n_similar(query_embedding, embeddings, n=3)
+    
+    response = chat.generate_response(message)
+    
+    return retrieved_contexts, response
+
+def main():
+    embeddings_transcripts = load_embeddings('backend/data')
+    chat = BedrockChat()
+
+    while True:
+        user_input = input("You: ")
+        if user_input.lower() == '/exit':
+            break
+        
+        retrieved_contexts, response = process_rag_message(user_input, embeddings_transcripts, chat)
+        
+        print("Retrieved Contexts:")
+        for context in retrieved_contexts:
+            print(context)
+        
+        print("\nGenerated Response:")
+        print(response)
+
 if __name__ == "__main__":
-    embedding_model_id = "amazon.titan-embed-image-v1"
-    embeddings_dir = os.path.join(os.path.dirname(__file__), 'data', 'embeddings', 'embed_qsec3')
-    
-    # Load embeddings
-    embeddings = load_embeddings(embeddings_dir)
-    
-    # Query the embeddings
-    query_text = "This is a query document"
-    results = query_embeddings(query_text, embeddings, embedding_model_id)
-    print(results)
+    main()
