@@ -7,6 +7,7 @@ import sys
 import os
 import boto3
 import numpy as np
+import pickle
 import faiss
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -346,13 +347,20 @@ def render_structured_stage():
 def load_embeddings(folder_path):
     """Load embeddings from the specified folder"""
     embeddings = {}
+    current_dir = os.getcwd()
+    full_path = os.path.abspath(os.path.join(current_dir, folder_path))
+    
+    if not os.path.exists(full_path):
+        st.error(f"Directory not found: {full_path}")
+        return embeddings
+    
     try:
-        for filename in os.listdir(folder_path):
+        for filename in os.listdir(full_path):
             if filename.endswith(".pkl"):
-                with open(os.path.join(folder_path, filename), 'rb') as file:
+                with open(os.path.join(full_path, filename), 'rb') as file:
                     embeddings[filename] = pickle.load(file)
     except FileNotFoundError:
-        st.error(f"Directory not found: {folder_path}")
+        st.error(f"Directory not found: {full_path}")
     return embeddings
 
 def process_rag_message(message: str):
@@ -361,8 +369,8 @@ def process_rag_message(message: str):
     st.session_state.messages.append({"role": "user", "content": message})
 
     # Load embeddings from both folders
-    embeddings_qsec3 = load_embeddings('/data/embeddings/embed_qsec3')
-    embeddings_qsec4 = load_embeddings('/data/embeddings/embed_qsec4')
+    embeddings_qsec3 = load_embeddings('backend/data/embeddings/embed_qsec3')
+    embeddings_qsec4 = load_embeddings('backend/data/embeddings/embed_qsec4')
 
     # Placeholder for context retrieval logic
     retrieved_contexts = []  # Assume no context is retrieved for now
