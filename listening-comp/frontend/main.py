@@ -9,6 +9,7 @@ import boto3
 import numpy as np
 import pickle
 import faiss
+from datetime import datetime
 import faulthandler
 faulthandler.enable()
 from sklearn.metrics.pairwise import cosine_similarity
@@ -21,6 +22,8 @@ from backend.structured_data import HSK2TranscriptProcessor
 from backend.vector_store import embed_questions, process_question_files, save_embeddings
 from backend.rag import load_embeddings_with_hsk2_data, find_top_n_similar, read_hsk2_data
 from backend.interactive import replace_nan_with_mean, process_rag_message
+from backend.tts import process_text_files
+
 
 # Page config
 st.set_page_config(
@@ -57,6 +60,7 @@ def render_sidebar():
                 "3. Structured Data",
                 "4. RAG Implementation",
                 "5. Interactive Learning"
+                "6. Interactive Response Audio"  # New stage added
             ]
         )
         
@@ -396,31 +400,26 @@ def render_interactive_stage():
     if 'bedrock_chat' not in st.session_state:
         st.session_state.bedrock_chat = BedrockChat()
     
-    col1, col2, col3, col4 = st.columns(4)
-    
+    col1, col2, col3 = st.columns(3)
+   
     with col1:
-        # Selectbox for Practice Type
-        practice_types = ["Listening", "Reading"]
-        selected_practice_type = st.selectbox("Practice Type", practice_types)
-    
-    with col2:
         # Selectbox for Topic
         topics = ["Shopping", "Travel", "Food and Drink", "Health", "Education", "Work", "Hobbies", "Weather", "Family and Friends"]
         selected_topic = st.selectbox("Topic", topics)
     
-    with col3:
+    with col2:
         # Selectbox for Question Type
         question_types = ["Multiple Choice", "True/False"]
         selected_question_type = st.selectbox("Question Type", question_types)
     
-    with col4:
+    with col3:
         # Selectbox for Difficulty Level
         difficulty_levels = ["HSK 2", "Over HSK 2", "Under HSK 2"]
         selected_difficulty_level = st.selectbox("Difficulty Level", difficulty_levels)
     
     query = st.text_input(
-        "Interactive Query",
-        placeholder="Ask about interactive learning scenarios for HSK 2.",
+        "Custom Input",
+        placeholder="Optional customized input (otherwise click here and press enter).",
         key="interactive_query_input"
     )
     
@@ -430,7 +429,6 @@ def render_interactive_stage():
         # Concatenate system prompt, selected keywords, and user query
         combined_query = (
             system_prompt + "\n\n" +
-            "Practice Type: " + selected_practice_type + "\n" +
             "Topic: " + selected_topic + "\n" +
             "Question Type: " + selected_question_type + "\n" +
             "Difficulty Level: " + selected_difficulty_level + "\n\n" +
@@ -442,6 +440,16 @@ def render_interactive_stage():
         retrieved_contexts, response = process_rag_message(combined_query, embeddings_transcripts, st.session_state.bedrock_chat)
         st.session_state.retrieved_contexts = retrieved_contexts
         st.session_state.generated_response = response
+
+        # Save the generated response to a text file with timestamp
+        output_dir = 'backend/data/int_resp/'
+        os.makedirs(output_dir, exist_ok=True)
+        
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_file_path = os.path.join(output_dir, f'int_resp_{timestamp}.txt')
+        
+        with open(output_file_path, 'w', encoding='utf-8') as f:
+            f.write(st.session_state.generated_response)
 
     col1, col2 = st.columns(2)
     
@@ -466,8 +474,25 @@ def render_interactive_stage():
                 unsafe_allow_html=True
             )
 
+def render_interactive_response_audio():
+    """Render the interactive response audio stage"""
+    st.header("Interactive Response Audio")
+    audio_dir = '/listening-comp/backend/data/audio/'
+    audio_files = [f for f in os.listdir(audio_dir) if f.endswith('.mp3')]
+    selected_file = st.selectbox("Select a response to play", audio_files)
+    if selected_file:
+        st.audio(os.path.join(audio_dir, selected_file))
+    
+    # Add a button to trigger the audio processing
+    if st.button("Process Audio"):
+        input_dir = '/listening-comp/backend/data/int_resp/'
+        output_dir = '/listening-comp/backend/data/audio/'
+        process_text_files(input_dir, output_dir)
+        st.success("Audio processing completed!")
+
 def main():
-    render_header()
+    # Ensure to define or remove render_header if not needed
+    # render_header()
     selected_stage = render_sidebar()
     
     if selected_stage == "1. Chat with Nova":
@@ -480,6 +505,8 @@ def main():
         render_rag_stage()
     elif selected_stage == "5. Interactive Learning":
         render_interactive_stage()
+    elif selected_stage == "6. Interactive Response Audio":
+        render_interactive_response_audio()  # Ensure proper indentation
     
     with st.expander("Debug Information"):
         st.json({
