@@ -138,7 +138,7 @@ def process_rag_message(message, embeddings, chat):
 def main():
     hsk2_data = read_hsk2_data('backend/data/HSK2_data.md')
     embeddings_transcripts = load_embeddings_with_hsk2_data('backend/data', hsk2_data)
-    system_prompt = "You are an expert in HSK (Hanyu Shuiping Kaoshi) listening tests. Provide detailed and helpful responses to questions about HSK listening exams, in particular provide sample listening questions. You will be given examples of sections 3 and 4 of the HSK 2 listening test audio transcripts, you must craft variation audio transcript examples and suitable Multiple Choice Question answer choices with only one of them fitting very well the respective transcript. Reply in only simplified Chinese."
+    system_prompt = "You are an expert in HSK (Hanyu Shuiping Kaoshi) listening tests. Provide detailed and helpful responses to questions about HSK listening exams. You will be given the examples of HSK 2 listening test audio transcripts from sections 3 and 4 that best match the user's own input. You must produce a new HSK 2 listen test audio transcript. You must add 4 suitable Multiple Choice Question answer choices, one of which will be a good match for the context of the listening test audio transcript you produce. You must only reply in simplified Chinese."
     chat = BedrockChat(system_prompt=system_prompt)
 
     while True:
