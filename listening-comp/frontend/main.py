@@ -358,7 +358,7 @@ def render_rag_stage():
     )
     
     if query:
-        system_prompt = "You are an expert in HSK (Hanyu Shuiping Kaoshi) listening tests. Provide detailed and helpful responses to questions about HSK listening exams. You will be given the examples of HSK 2 listening test audio transcripts from sections 3 and 4 that best match the user's own input. You must produce a new HSK 2 listen test audio transcript. You must add 4 suitable Multiple Choice Question answer choices, one of which will be a good match for the context of the listening test audio transcript you produce. You must only reply in simplified Chinese."
+        system_prompt = "You are an expert in HSK (Hanyu Shuiping Kaoshi) listening tests. Provide detailed and helpful responses to questions about HSK listening exams. You will be given the examples of HSK 2 listening test audio transcripts from sections 3 and 4 that best match the user's own input. You must produce a new HSK 2 listen test audio transcript. You must add 4 suitable Multiple Choice Question answer choices, one of which must be a noticeably better match than the others for the context of the listening test audio transcript you produce. You must only reply in simplified Chinese."
         hsk2_data = read_hsk2_data('backend/data/HSK2_data.md')
         embeddings_transcripts = load_embeddings_with_hsk2_data('backend/data', hsk2_data)
         combined_message = system_prompt + "\n\n" + query
@@ -396,26 +396,50 @@ def render_interactive_stage():
     if 'bedrock_chat' not in st.session_state:
         st.session_state.bedrock_chat = BedrockChat()
     
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        # Selectbox for Practice Type
+        practice_types = ["Listening", "Reading"]
+        selected_practice_type = st.selectbox("Practice Type", practice_types)
+    
+    with col2:
+        # Selectbox for Topic
+        topics = ["Shopping", "Travel", "Food and Drink", "Health", "Education", "Work", "Hobbies", "Weather", "Family and Friends"]
+        selected_topic = st.selectbox("Topic", topics)
+    
+    with col3:
+        # Selectbox for Question Type
+        question_types = ["Multiple Choice", "True/False"]
+        selected_question_type = st.selectbox("Question Type", question_types)
+    
+    with col4:
+        # Selectbox for Difficulty Level
+        difficulty_levels = ["HSK 2", "Over HSK 2", "Under HSK 2"]
+        selected_difficulty_level = st.selectbox("Difficulty Level", difficulty_levels)
+    
     query = st.text_input(
         "Interactive Query",
         placeholder="Ask about interactive learning scenarios for HSK 2.",
         key="interactive_query_input"
     )
     
-    # Dropdown lists for key words
-    keywords = ["Listening", "Speaking", "Reading", "Writing"]
-    selected_keywords = st.multiselect("Select Keywords", keywords)
-    
     if query:
-        system_prompt = "You are an expert in HSK (Hanyu Shuiping Kaoshi) listening tests. Provide detailed and helpful responses to questions about HSK listening exams. You will be given the examples of HSK 2 listening test audio transcripts from sections 3 and 4 that best match the user's own input. You must produce a new HSK 2 listen test audio transcript. You must add 4 suitable Multiple Choice Question answer choices, one of which will be a good match for the context of the listening test audio transcript you produce. You must only reply in simplified Chinese."
+        system_prompt = "You are an expert in HSK (Hanyu Shuiping Kaoshi) listening tests. You will be given the examples of HSK 2 listening test audio transcripts from sections 3 and 4 that best match the user's option selections and their own input. You must produce a new HSK test script and answer choices that fit the categories and options the user has selected and input. One of the answer choices must be noticeably better match than the others for the context of the script you produce. Do not give the answer to the user. You must only reply in simplified Chinese."
         
-        # Concatenate selected keywords to the query
-        combined_query = query + " " + " ".join(selected_keywords)
+        # Concatenate system prompt, selected keywords, and user query
+        combined_query = (
+            system_prompt + "\n\n" +
+            "Practice Type: " + selected_practice_type + "\n" +
+            "Topic: " + selected_topic + "\n" +
+            "Question Type: " + selected_question_type + "\n" +
+            "Difficulty Level: " + selected_difficulty_level + "\n\n" +
+            query
+        )
         
         hsk2_data = read_hsk2_data('backend/data/HSK2_data.md')
         embeddings_transcripts = load_embeddings_with_hsk2_data('backend/data', hsk2_data)
-        combined_message = system_prompt + "\n\n" + combined_query
-        retrieved_contexts, response = process_rag_message(combined_message, embeddings_transcripts, st.session_state.bedrock_chat)
+        retrieved_contexts, response = process_rag_message(combined_query, embeddings_transcripts, st.session_state.bedrock_chat)
         st.session_state.retrieved_contexts = retrieved_contexts
         st.session_state.generated_response = response
 
