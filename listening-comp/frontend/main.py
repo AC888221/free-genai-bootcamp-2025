@@ -9,6 +9,8 @@ import boto3
 import numpy as np
 import pickle
 import faiss
+import faulthandler
+faulthandler.enable()
 from sklearn.metrics.pairwise import cosine_similarity
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -18,6 +20,7 @@ from backend.chat import BedrockChat
 from backend.structured_data import HSK2TranscriptProcessor
 from backend.vector_store import embed_questions, process_question_files, save_embeddings
 from backend.rag import load_embeddings_with_hsk2_data, find_top_n_similar, read_hsk2_data
+from backend.interactive import replace_nan_with_mean, process_rag_message
 
 # Page config
 st.set_page_config(
@@ -346,9 +349,8 @@ def render_rag_stage():
     st.header("RAG System")
     
     if 'bedrock_chat' not in st.session_state:
-        system_prompt = "You are an expert in HSK (Hanyu Shuiping Kaoshi) listening tests. Provide detailed and helpful responses to questions about HSK listening exams. You will be given the examples of HSK 2 listening test audio transcripts from sections 3 and 4 that best match the user's own input. You must produce a new HSK 2 listen test audio transcript. You must add 4 suitable Multiple Choice Question answer choices, one of which will be a good match for the context of the listening test audio transcript you produce. You must only reply in simplified Chinese."
-        st.session_state.bedrock_chat = BedrockChat(system_prompt=system_prompt)
-
+        st.session_state.bedrock_chat = BedrockChat()
+    
     query = st.text_input(
         "Test Query",
         placeholder="Ask about Section 3 and 4 of the HSK 2 Putonghua Exam.",
@@ -356,9 +358,11 @@ def render_rag_stage():
     )
     
     if query:
+        system_prompt = "You are an expert in HSK (Hanyu Shuiping Kaoshi) listening tests. Provide detailed and helpful responses to questions about HSK listening exams. You will be given the examples of HSK 2 listening test audio transcripts from sections 3 and 4 that best match the user's own input. You must produce a new HSK 2 listen test audio transcript. You must add 4 suitable Multiple Choice Question answer choices, one of which will be a good match for the context of the listening test audio transcript you produce. You must only reply in simplified Chinese."
         hsk2_data = read_hsk2_data('backend/data/HSK2_data.md')
         embeddings_transcripts = load_embeddings_with_hsk2_data('backend/data', hsk2_data)
-        retrieved_contexts, response = process_rag_message(query, embeddings_transcripts, st.session_state.bedrock_chat)
+        combined_message = system_prompt + "\n\n" + query
+        retrieved_contexts, response = process_rag_message(combined_message, embeddings_transcripts, st.session_state.bedrock_chat)
         st.session_state.retrieved_contexts = retrieved_contexts
         st.session_state.generated_response = response
 
@@ -390,8 +394,7 @@ def render_interactive_stage():
     st.header("Interactive Learning")
     
     if 'bedrock_chat' not in st.session_state:
-        system_prompt = "You are an expert in HSK (Hanyu Shuiping Kaoshi) listening tests. Provide detailed and helpful responses to questions about HSK listening exams. You will be given the examples of HSK 2 listening test audio transcripts from sections 3 and 4 that best match the user's own input. You must produce a new HSK 2 listen test audio transcript. You must add 4 suitable Multiple Choice Question answer choices, one of which will be a good match for the context of the listening test audio transcript you produce. You must only reply in simplified Chinese."
-        st.session_state.bedrock_chat = BedrockChat(system_prompt=system_prompt)
+        st.session_state.bedrock_chat = BedrockChat()
     
     query = st.text_input(
         "Interactive Query",
@@ -399,10 +402,20 @@ def render_interactive_stage():
         key="interactive_query_input"
     )
     
+    # Dropdown lists for key words
+    keywords = ["Listening", "Speaking", "Reading", "Writing"]
+    selected_keywords = st.multiselect("Select Keywords", keywords)
+    
     if query:
+        system_prompt = "You are an expert in HSK (Hanyu Shuiping Kaoshi) listening tests. Provide detailed and helpful responses to questions about HSK listening exams. You will be given the examples of HSK 2 listening test audio transcripts from sections 3 and 4 that best match the user's own input. You must produce a new HSK 2 listen test audio transcript. You must add 4 suitable Multiple Choice Question answer choices, one of which will be a good match for the context of the listening test audio transcript you produce. You must only reply in simplified Chinese."
+        
+        # Concatenate selected keywords to the query
+        combined_query = query + " " + " ".join(selected_keywords)
+        
         hsk2_data = read_hsk2_data('backend/data/HSK2_data.md')
         embeddings_transcripts = load_embeddings_with_hsk2_data('backend/data', hsk2_data)
-        retrieved_contexts, response = process_rag_message(query, embeddings_transcripts, st.session_state.bedrock_chat)
+        combined_message = system_prompt + "\n\n" + combined_query
+        retrieved_contexts, response = process_rag_message(combined_message, embeddings_transcripts, st.session_state.bedrock_chat)
         st.session_state.retrieved_contexts = retrieved_contexts
         st.session_state.generated_response = response
 
