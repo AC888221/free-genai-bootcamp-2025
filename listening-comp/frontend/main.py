@@ -10,6 +10,7 @@ import numpy as np
 import pickle
 import faiss
 from datetime import datetime
+import logging  # Import the logging module
 import faulthandler
 faulthandler.enable()
 from sklearn.metrics.pairwise import cosine_similarity
@@ -59,7 +60,7 @@ def render_sidebar():
                 "2. Raw Transcript",
                 "3. Structured Data",
                 "4. RAG Implementation",
-                "5. Interactive Learning"
+                "5. Interactive Learning",
                 "6. Interactive Response Audio"  # New stage added
             ]
         )
@@ -83,7 +84,7 @@ def render_sidebar():
             "3. Structured Data": """
             **Current Focus:**
             - Text cleaning
-            - Dialogue extraction
+            - Question extraction
             - Data structuring
             """,
             
@@ -97,8 +98,12 @@ def render_sidebar():
             "5. Interactive Learning": """
             **Current Focus:**
             - Scenario generation
-            - Audio synthesis
             - Interactive practice
+            """,
+
+            "6. Interactive Response Audio": """
+            - Audio response generation
+            - Audio file management
             """
         } # Bootcamp Week 2: Adapt to Putonghua
         
@@ -474,23 +479,66 @@ def render_interactive_stage():
                 unsafe_allow_html=True
             )
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Set the base directory to the absolute path of your project
+BASE_DIR = '/absolute/path/to/your/project'
+
+def process_text_files(input_dir, output_dir):
+    """Your actual audio processing function"""
+    logging.info(f"Processing files from {input_dir} to {output_dir}")
+    # Your actual processing logic here
+    # Example: Convert text files to audio files and save them in the output directory
+    for filename in os.listdir(input_dir):
+        if filename.endswith('.txt'):
+            input_path = os.path.join(input_dir, filename)
+            output_path = os.path.join(output_dir, filename.replace('.txt', '.mp3'))
+            # Simulate processing
+            with open(input_path, 'r') as infile, open(output_path, 'w') as outfile:
+                content = infile.read()
+                outfile.write(f"Processed audio content for: {content}")
+            logging.info(f"Processed {input_path} to {output_path}")
+
 def render_interactive_response_audio():
     """Render the interactive response audio stage"""
     st.header("Interactive Response Audio")
-    audio_dir = '/listening-comp/backend/data/audio/'
+    
+    # Set the absolute paths for the audio and input directories
+    audio_dir = os.path.join(BASE_DIR, 'backend/data/audio/')
+    input_dir = os.path.join(BASE_DIR, 'backend/data/int_resp/')
+    
+    # Check if the audio directory exists
+    if not os.path.exists(audio_dir):
+        st.error(f"Directory not found: {audio_dir}")
+        logging.error(f"Directory not found: {audio_dir}")
+        return
+    
+    # List all .mp3 files in the audio directory
     audio_files = [f for f in os.listdir(audio_dir) if f.endswith('.mp3')]
     selected_file = st.selectbox("Select a response to play", audio_files)
+    
     if selected_file:
         st.audio(os.path.join(audio_dir, selected_file))
     
     # Add a button to trigger the audio processing
     if st.button("Process Audio"):
-        input_dir = '/listening-comp/backend/data/int_resp/'
-        output_dir = '/listening-comp/backend/data/audio/'
-        process_text_files(input_dir, output_dir)
-        st.success("Audio processing completed!")
+        output_dir = audio_dir
+        
+        try:
+            with st.spinner('Processing audio...'):
+                process_text_files(input_dir, output_dir)
+            st.success("Audio processing completed!")
+            logging.info("Audio processing completed successfully.")
+        except FileNotFoundError as e:
+            st.error(f"File not found: {e}")
+            logging.error(f"File not found: {e}")
+        except Exception as e:
+            st.error(f"Error processing audio: {e}")
+            logging.error(f"Error processing audio: {e}")
 
 def main():
+    """Main function to render the selected stage"""
     # Ensure to define or remove render_header if not needed
     # render_header()
     selected_stage = render_sidebar()
