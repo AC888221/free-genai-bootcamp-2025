@@ -10,6 +10,7 @@ import numpy as np
 import pickle
 import faiss
 from datetime import datetime
+import subprocess
 import logging  # Import the logging module
 import faulthandler
 faulthandler.enable()
@@ -517,26 +518,39 @@ def render_interactive_response_audio():
     
     # List all .mp3 files in the audio directory
     audio_files = [f for f in os.listdir(audio_dir) if f.endswith('.mp3')]
-    selected_file = st.selectbox("Select an audio from the dropdown box to play", audio_files)
     
-    if selected_file:
-        st.audio(os.path.join(audio_dir, selected_file))
+    # List all .txt files in the input directory
+    text_files = [f for f in os.listdir(input_dir) if f.endswith('.txt')]
     
-    # Add a button to trigger the audio processing
-    if st.button("Process Audio"):
-        output_dir = audio_dir
+    # Find text files that do not have corresponding audio files
+    missing_audio_files = [f for f in text_files if f.replace('int_resp_', 'audio_').replace('.txt', '.mp3') not in audio_files]
+    
+    st.subheader("Play Saved Audio")
+    if audio_files:
+        selected_audio_file = st.selectbox("Select an audio file to play", audio_files)
+        if selected_audio_file:
+            st.audio(os.path.join(audio_dir, selected_audio_file))
+    else:
+        st.info("No audio files available to play.")
+    
+    st.subheader("Create Audio for Saved Responses")
+    if missing_audio_files:
+        selected_text_file = st.selectbox("Select an interactice learning response to process", missing_audio_files)
         
-        try:
-            with st.spinner('Processing audio...'):
-                process_text_files(input_dir, output_dir)
-            st.success("Audio processing completed!")
-            logging.info("Audio processing completed successfully.")
-        except FileNotFoundError as e:
-            st.error(f"File not found: {e}")
-            logging.error(f"File not found: {e}")
-        except Exception as e:
-            st.error(f"Error processing audio: {e}")
-            logging.error(f"Error processing audio: {e}")
+        if selected_text_file:
+            st.text_area("Text content", open(os.path.join(input_dir, selected_text_file)).read(), height=200)
+        
+        # Add a button to trigger the audio processing
+        if st.button("Create Audio"):
+            output_dir = audio_dir
+            tts_script_path = os.path.join(base_dir, '../backend/tts.py')
+            try:
+                subprocess.run(['python', tts_script_path], check=True)
+                st.success("Audio created successfully!")
+            except subprocess.CalledProcessError as e:
+                st.error(f"Audio creation failed: {e}")
+    else:
+        st.info("All saved responses corresponding audio files.")
 
 def main():
     """Main function to render the selected stage"""
