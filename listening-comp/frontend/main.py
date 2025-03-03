@@ -505,18 +505,19 @@ def render_interactive_response_audio():
     st.header("Interactive Response Audio")
     
     # Set the absolute paths for the audio and input directories
-    audio_dir = os.path.join(BASE_DIR, 'backend/data/audio/')
-    input_dir = os.path.join(BASE_DIR, 'backend/data/int_resp/')
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    audio_dir = os.path.join(base_dir, '../backend/data/audio/')
+    input_dir = os.path.join(base_dir, '../backend/data/int_resp/')
     
-    # Check if the audio directory exists
+    # Check if the audio directory exists, create if it doesn't
     if not os.path.exists(audio_dir):
-        st.error(f"Directory not found: {audio_dir}")
-        logging.error(f"Directory not found: {audio_dir}")
-        return
+        os.makedirs(audio_dir)
+        st.warning(f"Directory not found. Created new directory: {audio_dir}")
+        logging.warning(f"Directory not found. Created new directory: {audio_dir}")
     
     # List all .mp3 files in the audio directory
     audio_files = [f for f in os.listdir(audio_dir) if f.endswith('.mp3')]
-    selected_file = st.selectbox("Select a response to play", audio_files)
+    selected_file = st.selectbox("Select an audio from the dropdown box to play", audio_files)
     
     if selected_file:
         st.audio(os.path.join(audio_dir, selected_file))
@@ -539,8 +540,6 @@ def render_interactive_response_audio():
 
 def main():
     """Main function to render the selected stage"""
-    # Ensure to define or remove render_header if not needed
-    # render_header()
     selected_stage = render_sidebar()
     
     if selected_stage == "1. Chat with Nova":
@@ -554,14 +553,7 @@ def main():
     elif selected_stage == "5. Interactive Learning":
         render_interactive_stage()
     elif selected_stage == "6. Interactive Response Audio":
-        render_interactive_response_audio()  # Ensure proper indentation
-    
-    with st.expander("Debug Information"):
-        st.json({
-            "selected_stage": selected_stage,
-            "transcript_loaded": st.session_state.transcript is not None,
-            "chat_messages": len(st.session_state.messages)
-        })
+        render_interactive_response_audio()
 
 if __name__ == "__main__":
     main()
