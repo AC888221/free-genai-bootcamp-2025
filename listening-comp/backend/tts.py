@@ -178,8 +178,9 @@ def process_text_files(input_dir, output_dir):
                                     logging.error(f"Audio part does not exist: {audio_part}")
                         logging.info(f"Created list file for ffmpeg: {list_filename}")
                         
-                        # Use the original filename (without .txt) for the final audio file name
-                        final_audio_filename = os.path.abspath(os.path.join(output_dir, f"audio_{filename[:-4]}.mp3"))
+                        # Remove the "int_resp" prefix and ".txt" extension
+                        variable_name = filename.replace("int_resp_", "").replace(".txt", "")
+                        final_audio_filename = os.path.abspath(os.path.join(output_dir, f"audio_{variable_name}.mp3"))
                         logging.info(f"Final audio file will be: {final_audio_filename}")
                         subprocess.run(['ffmpeg', '-f', 'concat', '-safe', '0', '-i', list_filename, '-c', 'copy', final_audio_filename, '-y', '-loglevel', 'verbose'])
                         
