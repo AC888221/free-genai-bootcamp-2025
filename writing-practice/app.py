@@ -1,17 +1,12 @@
 import streamlit as st
-import requests
-import random
-import json
-import pandas as pd
-import io
-import base64
 from PIL import Image
-from gtts import gTTS
-import easyocr
-import time
-import numpy as np
-import boto3
 import os
+from frontend.styling import apply_styling
+from frontend.state_management import change_state, generate_new_sentence
+from backend.ocr_reader import load_ocr_reader
+from backend.audio_generation import generate_audio
+from backend.image_processing import process_and_grade_image
+import config
 
 # Set page config
 st.set_page_config(
@@ -30,331 +25,11 @@ if 'current_sentence' not in st.session_state:
 if 'grading_results' not in st.session_state:
     st.session_state['grading_results'] = {}
 
-# Initialize OCR reader (cached as a resource)
-@st.cache_resource
-def load_ocr_reader():
-    return easyocr.Reader(['ch_sim', 'en'])
-
+# Load OCR reader
 reader = load_ocr_reader()
 
-# Initialize Amazon Bedrock client
-@st.cache_resource
-def get_bedrock_client():
-    bedrock_runtime = boto3.client(
-        service_name="bedrock-runtime",
-        region_name="us-east-1",  # Change to your region
-    )
-    return bedrock_runtime
-
-# Function to call Claude 3 Haiku on Amazon Bedrock
-def call_claude_haiku(prompt, temperature=0.7, max_tokens=1000):
-    client = get_bedrock_client()
-    
-    request_body = {
-        "anthropic_version": "bedrock-2023-05-31",
-        "max_tokens": max_tokens,
-        "temperature": temperature,
-        "messages": [
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]
-    }
-    
-    response = client.invoke_model(
-        modelId="anthropic.claude-3-haiku-20240307-v1:0",  # Claude 3 Haiku model ID
-        body=json.dumps(request_body)
-    )
-    
-    response_body = json.loads(response.get('body').read())
-    return response_body.get('content')[0].get('text')
-
-# Mock API function (replace with actual API call)
-@st.cache_data(ttl=3600)
-def fetch_word_collection():
-    # In a real app, you would use:
-    # response = requests.get("localhost:5000/api/groups/:id/raw")
-    # return response.json()
-    
-    # For demo purposes, we'll use mock data
-    return [
-        {"chinese": "书", "english": "book", "pinyin": "shū"},
-        {"chinese": "水", "english": "water", "pinyin": "shuǐ"},
-        {"chinese": "吃", "english": "to eat", "pinyin": "chī"},
-        {"chinese": "喝", "english": "to drink", "pinyin": "hē"},
-        {"chinese": "去", "english": "to go", "pinyin": "qù"},
-        {"chinese": "看", "english": "to look/see", "pinyin": "kàn"},
-        {"chinese": "人", "english": "person", "pinyin": "rén"},
-        {"chinese": "今天", "english": "today", "pinyin": "jīntiān"},
-        {"chinese": "明天", "english": "tomorrow", "pinyin": "míngtiān"},
-        {"chinese": "昨天", "english": "yesterday", "pinyin": "zuótiān"},
-        {"chinese": "朋友", "english": "friend", "pinyin": "péngyou"},
-        {"chinese": "家", "english": "home", "pinyin": "jiā"},
-    ]
-
-# Sentence generator function using Claude 3 Haiku
-@st.cache_data(ttl=60)
-def generate_sentence(_word):
-    try:
-        prompt = f"""
-        Generate a simple sentence using the following Chinese word: {_word}
-        The grammar should be scoped to HSK Level 1-2 grammar patterns.
-        You can use the following vocabulary to construct a simple sentence:
-        - Common objects (e.g., book/书, water/水, food/食物)
-        - Basic verbs (e.g., to eat/吃, to drink/喝, to go/去)
-        - Simple time expressions (e.g., today/今天, tomorrow/明天, yesterday/昨天)
-
-        Return ONLY the following in JSON format:
-        {{
-          "english": "The English sentence",
-          "chinese": "The Chinese sentence in simplified characters",
-          "pinyin": "The pinyin representation with tone marks"
-        }}
-        """
-        
-        response = call_claude_haiku(prompt, temperature=0.3)
-        
-        # Find and extract the JSON part of the response
-        response = response.strip()
-        
-        # Handle potential explanations or additional text before/after the JSON
-        if response.find('{') >= 0 and response.rfind('}') >= 0:
-            start_idx = response.find('{')
-            end_idx = response.rfind('}') + 1
-            json_str = response[start_idx:end_idx]
-            return json.loads(json_str)
-        else:
-            # Fallback if no JSON found
-            return {
-                "english": "I want to learn Chinese",
-                "chinese": "我想学中文",
-                "pinyin": "wǒ xiǎng xué zhōngwén"
-            }
-            
-    except Exception as e:
-        st.error(f"Error generating sentence: {str(e)}")
-        # Fallback for errors
-        return {
-            "english": "I want to learn Chinese",
-            "chinese": "我想学中文",
-            "pinyin": "wǒ xiǎng xué zhōngwén"
-        }
-
-# Generate audio function
-@st.cache_data(ttl=300)
-def generate_audio(text):
-    tts = gTTS(text, lang='zh-CN')
-    audio_bytes = io.BytesIO()
-    tts.write_to_fp(audio_bytes)
-    audio_bytes.seek(0)
-    return audio_bytes
-
-# OCR and grading function using Claude 3 Haiku
-def process_and_grade_image(image, expected_chinese):
-    # Process with OCR
-    img_array = np.array(image)
-    results = reader.readtext(img_array)
-    
-    # Extract text
-    transcribed_text = " ".join([res[1] for res in results]) if results else "No text detected"
-    
-    try:
-        # Use Claude 3 Haiku for translation and grading
-        prompt = f"""
-        I am analyzing a student's handwritten Chinese characters.
-
-        Original English sentence: {st.session_state['current_sentence']['english']}
-        Expected Chinese characters: {expected_chinese}
-        OCR transcription of student's writing: {transcribed_text}
-
-        Task 1: First, provide a literal English translation of the transcribed Chinese text.
-        
-        Task 2: Grade the student's writing based on how well it matches the expected Chinese characters.
-        Use the S-A-B-C-D grading scale where:
-        - S: Perfect match
-        - A: Very good (>80% accuracy)
-        - B: Good (>60% accuracy)
-        - C: Needs improvement (>40% accuracy)
-        - D: Significant errors (<40% accuracy)
-        
-        Task 3: Provide specific feedback on the characters and suggestions for improvement.
-
-        Format your response as JSON:
-        {{
-          "back_translation": "English translation of transcribed text",
-          "grade": "Grade letter (S/A/B/C/D)",
-          "accuracy": decimal between 0-1,
-          "feedback": "Specific feedback with suggestions"
-        }}
-        """
-        
-        response = call_claude_haiku(prompt, temperature=0.1)
-        
-        # Extract JSON from response
-        response = response.strip()
-        if response.find('{') >= 0 and response.rfind('}') >= 0:
-            start_idx = response.find('{')
-            end_idx = response.rfind('}') + 1
-            json_str = response[start_idx:end_idx]
-            grading_result = json.loads(json_str)
-        else:
-            # Fallback if JSON extraction fails
-            if transcribed_text == "No text detected":
-                grading_result = {
-                    "back_translation": "No text detected",
-                    "grade": "D",
-                    "accuracy": 0,
-                    "feedback": "No Chinese characters were detected in the image. Please try again with clearer handwriting."
-                }
-            elif transcribed_text == expected_chinese:
-                grading_result = {
-                    "back_translation": st.session_state['current_sentence']['english'],
-                    "grade": "S",
-                    "accuracy": 1.0,
-                    "feedback": "Perfect! Your characters match exactly what was expected."
-                }
-            else:
-                grading_result = {
-                    "back_translation": "Translation unavailable",
-                    "grade": "C",
-                    "accuracy": 0.5,
-                    "feedback": "Some characters were recognized but there are errors. Keep practicing!"
-                }
-    
-    except Exception as e:
-        st.error(f"Error in grading: {str(e)}")
-        # Fallback grading if API call fails
-        if transcribed_text == "No text detected":
-            grading_result = {
-                "back_translation": "No text detected",
-                "grade": "D",
-                "accuracy": 0,
-                "feedback": "No Chinese characters were detected in the image. Please try again with clearer handwriting."
-            }
-        elif transcribed_text == expected_chinese:
-            grading_result = {
-                "back_translation": st.session_state['current_sentence']['english'],
-                "grade": "S",
-                "accuracy": 1.0,
-                "feedback": "Perfect! Your characters match exactly what was expected."
-            }
-        else:
-            grading_result = {
-                "back_translation": "Translation unavailable",
-                "grade": "C",
-                "accuracy": 0.5,
-                "feedback": "Some characters were recognized but there are errors. Keep practicing!"
-            }
-    
-    # Character comparison
-    char_comparison = []
-    for i, expected_char in enumerate(expected_chinese):
-        if i < len(transcribed_text):
-            is_correct = expected_char == transcribed_text[i]
-            char_comparison.append({
-                "expected": expected_char,
-                "written": transcribed_text[i],
-                "correct": is_correct
-            })
-        else:
-            char_comparison.append({
-                "expected": expected_char,
-                "written": "",
-                "correct": False
-            })
-    
-    # Add any extra characters the user wrote
-    for i in range(len(expected_chinese), len(transcribed_text)):
-        char_comparison.append({
-            "expected": "",
-            "written": transcribed_text[i],
-            "correct": False
-        })
-    
-    # Combine results
-    result = {
-        "transcription": transcribed_text,
-        "back_translation": grading_result.get("back_translation", "Translation unavailable"),
-        "accuracy": grading_result.get("accuracy", 0.5),
-        "grade": grading_result.get("grade", "C"),
-        "feedback": grading_result.get("feedback", "Keep practicing!"),
-        "char_comparison": char_comparison
-    }
-    
-    return result
-
-# Function to handle state transitions
-def change_state(new_state):
-    st.session_state['current_state'] = new_state
-    if new_state == 'setup':
-        # Reset everything
-        st.session_state['current_sentence'] = {}
-        st.session_state['grading_results'] = {}
-
-# Generate new sentence
-def generate_new_sentence():
-    # Get word collection (fetch if not already in session)
-    if not st.session_state['word_collection']:
-        st.session_state['word_collection'] = fetch_word_collection()
-    
-    # Select random word
-    random_word = random.choice(st.session_state['word_collection'])
-    
-    # Generate sentence
-    with st.spinner("Generating sentence with Claude 3 Haiku..."):
-        sentence_data = generate_sentence(random_word["chinese"])
-    st.session_state['current_sentence'] = sentence_data
-    
-    # Change state to practice
-    st.session_state['current_state'] = 'practice'
-
-# Add some styling
-st.markdown("""
-<style>
-    .main-header {
-        font-size: 2.5rem;
-        color: #FF4B4B;
-        text-align: center;
-    }
-    .sub-header {
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-    }
-    .chinese-text {
-        font-size: 2rem;
-        color: #FF4B4B;
-        margin: 1rem 0;
-    }
-    .pinyin-text {
-        font-size: 1.2rem;
-        color: #636EFA;
-        margin-bottom: 1.5rem;
-    }
-    .instruction-text {
-        font-size: 1rem;
-        color: #7F7F7F;
-        margin: 1rem 0;
-    }
-    .grade-s {color: #00CC96;}
-    .grade-a {color: #636EFA;}
-    .grade-b {color: #FFA15A;}
-    .grade-c {color: #EF553B;}
-    .grade-d {color: #AB63FA;}
-    .char-correct {
-        color: #00CC96;
-        font-weight: bold;
-    }
-    .char-incorrect {
-        color: #EF553B;
-        text-decoration: line-through;
-    }
-    .stApp {
-        max-width: 800px;
-        margin: 0 auto;
-    }
-</style>
-""", unsafe_allow_html=True)
+# Apply styling
+apply_styling()
 
 # Add AWS credentials section (hidden by default)
 with st.sidebar:
@@ -374,29 +49,14 @@ with st.sidebar:
     
     st.markdown("---")
     st.markdown("### About")
-    st.markdown("""
-    This app uses:
-    - Claude 3 Haiku on Amazon Bedrock
-    - EasyOCR for character recognition
-    - Google TTS for pronunciation
-    
-    Created for language learning bootcamp.
-    """)
+    st.markdown(config.ABOUT_TEXT)
 
 # Main app logic based on current state
 if st.session_state['current_state'] == 'setup':
     # Setup State
     st.markdown('<h1 class="main-header">Putonghua Learning App</h1>', unsafe_allow_html=True)
-    st.markdown("""
-    Welcome to the Putonghua Learning App! This app will help you practice writing Chinese characters.
-    
-    Press the button below to get started with a random Chinese sentence.
-    
-    #### Before starting:
-    Make sure to enter your AWS credentials in the sidebar if you haven't already.
-    """)
-    
-    if st.button("Generate Sentence", use_container_width=True):
+    st.markdown(config.WELCOME_TEXT)
+    if st.button("Start Learning"):
         generate_new_sentence()
         st.experimental_rerun()
 
