@@ -1,70 +1,72 @@
-import React, { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
-import { useNavigation } from '@/context/NavigationContext'
-import StudySessionsTable from '@/components/StudySessionsTable'
-import Pagination from '@/components/Pagination'
+import React, { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { useNavigation } from '@/context/NavigationContext';
+import StudySessionsTable from '@/components/StudySessionsTable';
+import Pagination from '@/components/Pagination';
 
 type Session = {
-  id: number
-  group_name: string
-  group_id: number
-  activity_id: number
-  activity_name: string
-  start_time: string
-  end_time: string
-  review_items_count: number
-}
+  id: number;
+  group_name: string;
+  group_id: number;
+  activity_id: number;
+  activity_name: string;
+  start_time: string;
+  end_time: string;
+  review_items_count: number;
+};
 
 type StudyActivity = {
-  id: number
-  preview_url: string
-  title: string
-  description: string
-  launch_url: string
-}
+  id: number;
+  preview_url: string;
+  title: string;
+  description: string;
+  launch_url: string;
+};
 
 type PaginatedSessions = {
-  items: Session[]
-  total: number
-  page: number
-  per_page: number
-  total_pages: number
-}
+  items: Session[];
+  total: number;
+  page: number;
+  per_page: number;
+  total_pages: number;
+};
 
-const ITEMS_PER_PAGE = 10
+const ITEMS_PER_PAGE = 10;
 
 export default function StudyActivityShow() {
-  const { id } = useParams<{ id: string }>()
-  const { setCurrentStudyActivity } = useNavigation()
-  const [activity, setActivity] = useState<StudyActivity | null>(null)
-  const [sessionData, setSessionData] = useState<PaginatedSessions | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { id } = useParams<{ id: string }>();
+  const { setCurrentStudyActivity } = useNavigation();
+  const [activity, setActivity] = useState<StudyActivity | null>(null);
+  const [sessionData, setSessionData] = useState<PaginatedSessions | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!id) return
-      
-      setLoading(true)
-      setError(null)
+      if (!id) return;
+
+      setLoading(true);
+      setError(null);
       try {
-        const response = await fetch(`http://localhost:5000/api/study-activities/${id}`)
+        const response = await fetch(`http://localhost:5000/api/study-activities/${id}`);
         if (!response.ok) {
-          throw new Error('Failed to fetch study activity')
+          throw new Error('Failed to fetch study activity');
         }
-        const data = await response.json()
-        setActivity(data)
-        setCurrentStudyActivity(data)
-        
+        const data = await response.json();
+        console.log('Study Activity Data:', data); // Debugging statement
+        setActivity(data);
+        setCurrentStudyActivity(data);
+
         // Fetch sessions for the current page
         const sessionsResponse = await fetch(
           `http://localhost:5000/api/study-activities/${id}/sessions?page=${currentPage}&per_page=${ITEMS_PER_PAGE}`
-        )
+        );
         if (!sessionsResponse.ok) {
-          throw new Error('Failed to fetch sessions')
+          throw new Error('Failed to fetch sessions');
         }
-        const sessionsData = await sessionsResponse.json()
+        const sessionsData = await sessionsResponse.json();
+        console.log('Sessions Data:', sessionsData); // Debugging statement
         setSessionData({
           items: sessionsData.items.map((item: any) => ({
             id: item.id,
@@ -74,36 +76,36 @@ export default function StudyActivityShow() {
             activity_name: item.activity_name,
             start_time: item.start_time,
             end_time: item.end_time,
-            review_items_count: item.review_items_count
+            review_items_count: item.review_items_count,
           })),
           total: sessionsData.total,
           page: sessionsData.page,
           per_page: sessionsData.per_page,
-          total_pages: sessionsData.total_pages
-        })
+          total_pages: sessionsData.total_pages,
+        });
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred')
+        setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchData()
-  }, [id, currentPage, setCurrentStudyActivity])
+    fetchData();
+  }, [id, currentPage, setCurrentStudyActivity]);
 
   // Clean up when unmounting
   useEffect(() => {
     return () => {
-      setCurrentStudyActivity(null)
-    }
-  }, [setCurrentStudyActivity])
+      setCurrentStudyActivity(null);
+    };
+  }, [setCurrentStudyActivity]);
 
   if (loading) {
-    return <div className="text-center py-4">Loading...</div>
+    return <div className="text-center py-4">Loading...</div>;
   }
 
   if (error || !activity) {
-    return <div className="text-red-500 text-center py-4">{error || 'Activity not found'}</div>
+    return <div className="text-red-500 text-center py-4">{error || 'Activity not found'}</div>;
   }
 
   return (
@@ -117,12 +119,12 @@ export default function StudyActivityShow() {
           Back to Activities
         </Link>
       </div>
-      
+
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
         <div className="relative">
-          <img 
-            src={activity.preview_url} 
-            alt={activity.title} 
+          <img
+            src={activity.preview_url}
+            alt={activity.title}
             className="inset-0 w-[600px] h-[400px] aspect-ratio bg-gray-900"
           />
         </div>
@@ -157,5 +159,5 @@ export default function StudyActivityShow() {
         </div>
       )}
     </div>
-  )
+  );
 }
