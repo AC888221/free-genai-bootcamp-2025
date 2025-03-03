@@ -15,6 +15,10 @@ st.set_page_config(
     layout="centered"
 )
 
+# API URL and group ID for the lang-portal app
+API_URL = "https://lang-portal.example.com"
+GROUP_ID = "12345"
+
 # Initialize session state if needed
 if 'current_state' not in st.session_state:
     st.session_state['current_state'] = 'setup'
@@ -57,7 +61,7 @@ if st.session_state['current_state'] == 'setup':
     st.markdown('<h1 class="main-header">Putonghua Learning App</h1>', unsafe_allow_html=True)
     st.markdown(config.WELCOME_TEXT)
     if st.button("Start Learning"):
-        generate_new_sentence()
+        generate_new_sentence(API_URL, GROUP_ID)
         st.experimental_rerun()
 
 elif st.session_state['current_state'] == 'practice':
@@ -176,5 +180,5 @@ elif st.session_state['current_state'] == 'review':
     
     with col2:
         if st.button("New Sentence", use_container_width=True):
-            generate_new_sentence()
+            generate_new_sentence(API_URL, GROUP_ID)
             st.experimental_rerun()
