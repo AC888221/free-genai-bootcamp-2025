@@ -1,4 +1,4 @@
-# app.py (addded back)
+# app.py (added back)
 
 import streamlit as st
 from PIL import Image
@@ -16,7 +16,7 @@ import config
 st.set_page_config(
     page_title="Putonghua Learning App",
     page_icon="🀄",
-    layout="centered"
+    layout="wide"  # Change layout to 'wide'
 )
 
 # Use API URL from config
@@ -24,7 +24,7 @@ API_URL = config.API_URL
 
 # Initialize session state if needed
 if 'current_state' not in st.session_state:
-    st.session_state['current_state'] = 'setup'
+    st.session_state['current_state'] = 'word_collection'  # Set initial state to 'word_collection'
 if 'word_collection' not in st.session_state:
     st.session_state['word_collection'] = []
 if 'current_sentence' not in st.session_state:
@@ -48,19 +48,25 @@ st.session_state['word_collection'] = fetch_word_collection(source, db_path=db_p
 def generate_new_sentence(api_url):
     st.session_state['current_sentence'] = generate_sentence(api_url, _word=None)
 
+# Sidebar for navigation
+with st.sidebar:
+    st.header("Navigation")
+    if st.button("View Word Collection"):
+        st.session_state['current_state'] = 'word_collection'
+    if st.button("Writing Practice"):
+        generate_new_sentence(API_URL)
+        st.session_state['current_state'] = 'practice'
+
 # Main app logic based on current state
 if st.session_state['current_state'] == 'setup':
     # Setup State
     st.markdown('<h1 class="main-header">Putonghua Learning App</h1>', unsafe_allow_html=True)
     st.markdown(config.WELCOME_TEXT)
-    
-    # Display fetched words
-    st.markdown("### Word Collection")
-    st.write(st.session_state['word_collection'])
-    
-    if st.button("Start Learning"):
-        generate_new_sentence(API_URL)
-        st.experimental_rerun()
+
+elif st.session_state['current_state'] == 'word_collection':
+    # Word Collection State
+    st.markdown('<h1 class="main-header">Word Collection</h1>', unsafe_allow_html=True)
+    st.table(st.session_state['word_collection'])  # Display word collection in a table
 
 elif st.session_state['current_state'] == 'practice':
     # Practice State
@@ -95,7 +101,7 @@ elif st.session_state['current_state'] == 'practice':
         # Submit button
         if st.button("Submit for Review"):
             # Show a spinner while processing
-            with st.spinner("Analyzing your writing with Claude 3 Haiku..."):
+            with st.spinner("Analyzing your writing..."):
                 results = process_and_grade_image(image, st.session_state["current_sentence"]["chinese"])
                 st.session_state['grading_results'] = results
                 st.session_state['current_state'] = 'review'
