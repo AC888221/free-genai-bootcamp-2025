@@ -1,12 +1,11 @@
 # word_collection.py (added back)
 
+import config
 import sqlite3
 import requests
-import config
 import streamlit as st
 from flask import Flask, request, jsonify
 from flask_cors import cross_origin
-
 
 # Function to fetch words from the SQLite3 database
 def fetch_words_from_db(db_path, page=1, words_per_page=50, sort_by='jiantizi', order='asc'):
@@ -62,20 +61,20 @@ def fetch_word_from_db(db_path, word_id):
 
 # Function to fetch words from the API
 @st.cache(ttl=3600)
-def fetch_words_from_api(api_url, group_id):
-    response = requests.get(f"{api_url}/api/groups/{group_id}/words/raw")
+def fetch_words_from_api(api_url):
+    response = requests.get(f"{api_url}/words?page=1")
     if response.status_code == 200:
-        return response.json()
+        return response.json().get('words', [])
     else:
-        st.error("Word_collection.py failed to fetch words from the lang-portal app.")
+        st.error("Failed to fetch words from the API.")
         return []
 
 # Combined function to fetch words from both sources
-def fetch_word_collection(source, db_path=None, api_url=None, group_id=None):
+def fetch_word_collection(source, db_path=None, api_url=None):
     if source == 'db' and db_path:
         return fetch_words_from_db(db_path)
-    elif source == 'api' and api_url and group_id:
-        return fetch_words_from_api(api_url, group_id)
+    elif source == 'api' and api_url:
+        return fetch_words_from_api(api_url)
     else:
         st.error("Invalid source or missing parameters.")
         return []
