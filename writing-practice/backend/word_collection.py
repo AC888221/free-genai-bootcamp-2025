@@ -7,7 +7,6 @@ import streamlit as st
 from flask import Flask, request, jsonify
 from flask_cors import cross_origin
 
-# Function to fetch words from the SQLite3 database
 def fetch_words_from_db(db_path, page=1, words_per_page=50, sort_by='jiantizi', order='asc'):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -37,7 +36,6 @@ def fetch_words_from_db(db_path, page=1, words_per_page=50, sort_by='jiantizi', 
     conn.close()
     return words, total_pages, total_words
 
-# Function to fetch a single word from the SQLite3 database
 def fetch_word_from_db(db_path, word_id):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -59,8 +57,7 @@ def fetch_word_from_db(db_path, word_id):
     conn.close()
     return word
 
-# Function to fetch words from the API
-@st.cache(ttl=3600)
+@st.experimental_memo(ttl=3600)
 def fetch_words_from_api(api_url):
     response = requests.get(f"{api_url}/words?page=1")
     if response.status_code == 200:
@@ -69,7 +66,6 @@ def fetch_words_from_api(api_url):
         st.error("Failed to fetch words from the API.")
         return []
 
-# Combined function to fetch words from both sources
 def fetch_word_collection(source, db_path=None, api_url=None):
     if source == 'db' and db_path:
         return fetch_words_from_db(db_path)
@@ -79,14 +75,13 @@ def fetch_word_collection(source, db_path=None, api_url=None):
         st.error("Invalid source or missing parameters.")
         return []
 
-# Flask app and endpoints
 app = Flask(__name__)
 
 @app.route('/words', methods=['GET'])
 @cross_origin()
 def get_words():
     try:
-        db_path = 'path_to_your_db'  # Update with your actual DB path
+        db_path = 'path_to_your_db'
         page = int(request.args.get('page', 1))
         sort_by = request.args.get('sort_by', 'jiantizi')
         order = request.args.get('order', 'asc')
@@ -118,7 +113,7 @@ def get_words():
 @cross_origin()
 def get_word(word_id):
     try:
-        db_path = 'path_to_your_db'  # Update with your actual DB path
+        db_path = 'path_to_your_db'
         word = fetch_word_from_db(db_path, word_id)
 
         if not word:

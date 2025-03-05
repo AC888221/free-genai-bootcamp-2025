@@ -12,6 +12,7 @@ from backend.sentence_generation import generate_sentence
 from word_collection import fetch_word_collection  # Import the combined module
 import config
 import logging
+import random
 
 # Define a custom hash function for Logger
 def hash_logger(obj):
@@ -36,6 +37,8 @@ if 'current_sentence' not in st.session_state:
     st.session_state['current_sentence'] = {}
 if 'grading_results' not in st.session_state:
     st.session_state['grading_results'] = {}
+if 'uploaded_image' not in st.session_state:
+    st.session_state['uploaded_image'] = None
 
 # Load OCR reader
 reader = load_ocr_reader()
@@ -44,8 +47,8 @@ reader = load_ocr_reader()
 apply_styling()
 
 # Function to generate a new sentence
-def generate_new_sentence(api_url, group_id):
-    st.session_state['current_sentence'] = generate_sentence(api_url, group_id, _word=None)
+def generate_new_sentence(api_url, group_id, _word=None):
+    st.session_state['current_sentence'] = generate_sentence(api_url, group_id, _word=_word)
 
 # Sidebar for navigation
 with st.sidebar:
@@ -57,8 +60,9 @@ with st.sidebar:
         st.session_state['setup_state'] = 'word_collection'
         st.session_state['current_state'] = 'setup'
     if st.button("Writing Practice"):
-        generate_new_sentence(API_URL, group_id=1)  # Provide a valid group_id
         st.session_state['current_state'] = 'practice'
+    if st.button("Review and Grading"):
+        st.session_state['current_state'] = 'review'
     
     st.header("About")
     st.markdown(config.ABOUT_TEXT)
@@ -116,59 +120,64 @@ if st.session_state['current_state'] == 'setup':
         st.markdown('</tbody></table>', unsafe_allow_html=True)
 
 elif st.session_state['current_state'] == 'practice':
-    # Practice State
+    # Writing Practice Stage
     st.markdown('<h1 class="main-header">Putonghua Learning App</h1>', unsafe_allow_html=True)
     
-    # Display English sentence
-    st.markdown(f'<h2 class="sub-header">Translate this sentence:</h2>', unsafe_allow_html=True)
-    st.markdown(f'<div class="instruction-text">{st.session_state["current_sentence"]["english"]}</div>', unsafe_allow_html=True)
+    # Word Selection
+    st.markdown('<h2 class="sub-header">Select a Word:</h2>', unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([3, 1, 3])
     
-    # Show Pinyin toggle
-    show_pinyin = st.checkbox("Show Pinyin")
-    if show_pinyin:
-        st.markdown(f'<div class="pinyin-text">{st.session_state["current_sentence"]["pinyin"]}</div>', unsafe_allow_html=True)
+    with col1:
+        word_options = [word['jiantizi'] for word in st.session_state['word_collection']]
+        selected_word = st.selectbox("Choose a word from your collection:", word_options)
     
-    # Show expected Chinese (hidden in real app, shown here for testing)
-    if st.checkbox("Show Expected Chinese (for testing only)"):
-        st.markdown(f'<div class="chinese-text">{st.session_state["current_sentence"]["chinese"]}</div>', unsafe_allow_html=True)
+    with col2:
+        if st.button("Choose Random Word"):
+            selected_word = random.choice(word_options)
     
-    # Audio playback
-    audio_bytes = generate_audio(st.session_state["current_sentence"]["chinese"])
-    st.audio(audio_bytes, format="audio/mp3")
+    with col3:
+        input_word = st.text_input("Or input a new word:")
+        if input_word:
+            selected_word = input_word
     
-    # Image upload
-    st.markdown('<div class="instruction-text">Write the Chinese characters and upload an image of your writing:</div>', unsafe_allow_html=True)
-    uploaded_file = st.file_uploader("Upload your handwritten Chinese", type=["jpg", "jpeg", "png"])
+    if selected_word:
+        st.session_state['current_sentence'] = generate_sentence(API_URL, group_id=1, _word=selected_word)
     
-    # Preview uploaded image
-    if uploaded_file is not None:
-        image = Image.open(uploaded_file)
-        st.image(image, caption="Your uploaded writing", use_column_width=True)
+    # Display Sentence for Translation
+    if 'current_sentence' in st.session_state and st.session_state['current_sentence']:
+        st.markdown(f'<h2 class="sub-header">Translate this sentence:</h2>', unsafe_allow_html=True)
+        st.markdown(f'<div class="instruction-text">{st.session_state["current_sentence"]["english"]}</div>', unsafe_allow_html=True)
         
-        # Submit button
-        if st.button("Submit for Review"):
-            # Show a spinner while processing
-            with st.spinner("Analyzing your writing..."):
-                results = process_and_grade_image(image, st.session_state["current_sentence"]["chinese"])
-                st.session_state['grading_results'] = results
+        # Show Pinyin toggle
+        show_pinyin = st.checkbox("Show Pinyin")
+        if show_pinyin:
+            st.markdown(f'<div class="pinyin-text">{st.session_state["current_sentence"]["pinyin"]}</div>', unsafe_allow_html=True)
+        
+        # Show expected Chinese (hidden in real app, shown here for testing)
+        if st.checkbox("Show Expected Chinese (for testing only)"):
+            st.markdown(f'<div class="chinese-text">{st.session_state["current_sentence"]["chinese"]}</div>', unsafe_allow_html=True)
+        
+        # Audio playback
+        audio_bytes = generate_audio(st.session_state["current_sentence"]["chinese"])
+        st.audio(audio_bytes, format="audio/mp3")
+        
+        # Image upload
+        st.markdown('<div class="instruction-text">Write the Chinese characters and upload an image of your writing:</div>', unsafe_allow_html=True)
+        uploaded_file = st.file_uploader("Upload your handwritten Chinese", type=["jpg", "jpeg", "png"])
+        
+        # Preview uploaded image
+        if uploaded_file is not None:
+            image = Image.open(uploaded_file)
+            st.image(image, caption="Your uploaded writing", use_column_width=True)
+            
+            # Submit button
+            if st.button("Submit for Review"):
+                st.session_state['uploaded_image'] = image
                 st.session_state['current_state'] = 'review'
                 st.experimental_rerun()
-    
-    # Buttons for next actions
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Try Again"):
-            st.session_state['current_state'] = 'practice'
-            st.session_state['grading_results'] = {}
-            st.experimental_rerun()
-
-    with col2:
-        if st.button("New Sentence"):
-            generate_new_sentence(API_URL, group_id=1)  # Provide a valid group_id
-            st.experimental_rerun()
 
 elif st.session_state['current_state'] == 'review':
-    # Review State
+    # Grading and Review Stage
     st.markdown('<h1 class="main-header">Putonghua Learning App</h1>', unsafe_allow_html=True)
     
     # Original English sentence
@@ -188,9 +197,12 @@ elif st.session_state['current_state'] == 'review':
     
     # Show user's submission
     st.markdown(f'<h2 class="sub-header">Your Writing:</h2>', unsafe_allow_html=True)
+    st.image(st.session_state['uploaded_image'], caption="Your uploaded writing", use_column_width=True)
     
-    # Review results
-    results = st.session_state['grading_results']
+    # Process and grade the image
+    with st.spinner("Analyzing your writing..."):
+        results = process_and_grade_image(st.session_state['uploaded_image'], st.session_state["current_sentence"]["chinese"])
+        st.session_state['grading_results'] = results
     
     # Display transcription
     st.markdown("**Transcription of your writing:**")
@@ -201,7 +213,7 @@ elif st.session_state['current_state'] == 'review':
     st.markdown(f'<div class="instruction-text">{results["back_translation"]}</div>', unsafe_allow_html=True)
     
     # Display grade with appropriate color
-    grade_class = f"grade-{results['
+    grade_class = f"grade-{results['grade'].lower()}"
     st.markdown(f'<h2 class="sub-header">Grade: <span class="{grade_class}">{results["grade"]}</span></h2>', unsafe_allow_html=True)
     
     # Progress bar for accuracy
@@ -234,15 +246,14 @@ elif st.session_state['current_state'] == 'review':
             else:
                 st.markdown("—")
 
-    # Buttons for next actions
-    col1, col2 = st.columns(2)
-    with col1:
+    # Sidebar navigation for next actions
+    with st.sidebar:
+        st.header("Next Actions")
         if st.button("Try Again"):
             st.session_state['current_state'] = 'practice'
             st.session_state['grading_results'] = {}
             st.experimental_rerun()
 
-    with col2:
         if st.button("New Sentence"):
             generate_new_sentence(API_URL, group_id=1)  # Provide a valid group_id
             st.experimental_rerun()

@@ -15,17 +15,13 @@ reader = load_ocr_reader()
 
 def process_and_grade_image(image, expected_chinese):
     try:
-        # Convert image to grayscale
         img = Image.open(image).convert('L')
         img_array = img.tobytes()
         
-        # Process with OCR
         results = reader.readtext(img_array)
         
-        # Extract text
         transcribed_text = " ".join([res[1] for res in results]) if results else "No text detected"
         
-        # Use Claude 3 Haiku for translation and grading
         prompt = f"""
         I am analyzing a student's handwritten Chinese characters.
 
@@ -56,7 +52,6 @@ def process_and_grade_image(image, expected_chinese):
         
         response = call_claude_haiku(prompt, temperature=0.1)
         
-        # Extract JSON from response
         response = response.strip()
         start_idx = response.find('{')
         end_idx = response.rfind('}') + 1
@@ -82,7 +77,6 @@ def process_and_grade_image(image, expected_chinese):
             "feedback": "No Chinese characters were detected in the image. Please try again with clearer handwriting." if transcribed_text == "No text detected" else "Some characters were recognized but there are errors. Keep practicing!"
         }
     
-    # Character comparison
     char_comparison = []
     for i, expected_char in enumerate(expected_chinese):
         if i < len(transcribed_text):
@@ -99,7 +93,6 @@ def process_and_grade_image(image, expected_chinese):
                 "correct": False
             })
     
-    # Add any extra characters the user wrote
     for i in range(len(expected_chinese), len(transcribed_text)):
         char_comparison.append({
             "expected": "",
@@ -107,7 +100,6 @@ def process_and_grade_image(image, expected_chinese):
             "correct": False
         })
     
-    # Combine results
     result = {
         "transcription": transcribed_text,
         "back_translation": grading_result.get("back_translation", "Translation unavailable"),
