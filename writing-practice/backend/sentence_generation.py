@@ -1,11 +1,15 @@
-# sentence_generation.py
+# sentence_generation.py (added back)
 
 import json
 import requests
 import streamlit as st
 from claude_haiku import call_claude_haiku
 
-@st.cache_data(ttl=60)
+# Custom hash function for call_claude_haiku
+def hash_func(obj):
+    return hash(str(obj))
+
+@st.cache(ttl=60, hash_funcs={type(call_claude_haiku): hash_func})
 def generate_sentence(api_url, group_id, _word):
     try:
         prompt = f"""
@@ -59,7 +63,7 @@ def generate_sentence(api_url, group_id, _word):
 
 def store_sentence(api_url, group_id, sentence_data):
     try:
-        response = requests.post(f"{api_url}/api/groups/{group_id}/sentences", json=sentence_data)
+        response = requests.post(f"{api_url}/groups/{group_id}/sentences", json=sentence_data)
         if response.status_code != 201:
             st.warning("Failed to store the generated sentence in the lang-portal app. The app will continue to function with read-only access.")
     except requests.exceptions.RequestException as e:

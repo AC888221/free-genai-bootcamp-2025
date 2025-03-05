@@ -1,3 +1,5 @@
+# app.py (addded back)
+
 import streamlit as st
 from PIL import Image
 import os
@@ -6,6 +8,8 @@ from frontend.state_management import change_state, generate_new_sentence
 from backend.ocr_reader import load_ocr_reader
 from backend.audio_generation import generate_audio
 from backend.image_processing import process_and_grade_image
+from backend.sentence_generation import generate_sentence
+from word_collection import fetch_word_collection  # Import the combined module
 import config
 
 # Set page config
@@ -15,9 +19,9 @@ st.set_page_config(
     layout="centered"
 )
 
-# API URL and group ID for the lang-portal app
-API_URL = "https://lang-portal.example.com"
-GROUP_ID = "12345"
+# Use API URL and group ID from config
+API_URL = config.API_URL
+GROUP_ID = config.GROUP_ID
 
 # Initialize session state if needed
 if 'current_state' not in st.session_state:
@@ -35,31 +39,25 @@ reader = load_ocr_reader()
 # Apply styling
 apply_styling()
 
-# Add AWS credentials section (hidden by default)
-with st.sidebar:
-    st.header("AWS Configuration")
-    with st.expander("AWS Credentials", expanded=False):
-        aws_access_key = st.text_input("AWS Access Key ID", type="password")
-        aws_secret_key = st.text_input("AWS Secret Access Key", type="password")
-        aws_region = st.selectbox("AWS Region", 
-                                  ["us-east-1", "us-west-1", "us-west-2", "eu-west-1", "ap-northeast-1"],
-                                  index=0)
-        
-        if st.button("Save Credentials"):
-            os.environ["AWS_ACCESS_KEY_ID"] = aws_access_key
-            os.environ["AWS_SECRET_ACCESS_KEY"] = aws_secret_key
-            os.environ["AWS_DEFAULT_REGION"] = aws_region
-            st.success("AWS credentials saved for this session")
-    
-    st.markdown("---")
-    st.markdown("### About")
-    st.markdown(config.ABOUT_TEXT)
+# Fetch words from the desired source (either 'db' or 'api')
+source = 'api'  # Change to 'db' if you want to fetch from the database
+db_path = 'backend-flask/words.db'
+st.session_state['word_collection'] = fetch_word_collection(source, db_path=db_path, api_url=API_URL, group_id=GROUP_ID)
+
+# Function to generate a new sentence
+def generate_new_sentence(api_url, group_id):
+    st.session_state['current_sentence'] = generate_sentence(api_url, group_id, _word=None)
 
 # Main app logic based on current state
 if st.session_state['current_state'] == 'setup':
     # Setup State
     st.markdown('<h1 class="main-header">Putonghua Learning App</h1>', unsafe_allow_html=True)
     st.markdown(config.WELCOME_TEXT)
+    
+    # Display fetched words
+    st.markdown("### Word Collection")
+    st.write(st.session_state['word_collection'])
+    
     if st.button("Start Learning"):
         generate_new_sentence(API_URL, GROUP_ID)
         st.experimental_rerun()
@@ -95,7 +93,7 @@ elif st.session_state['current_state'] == 'practice':
         st.image(image, caption="Your uploaded writing", use_column_width=True)
         
         # Submit button
-        if st.button("Submit for Review", use_container_width=True):
+        if st.button("Submit for Review"):
             # Show a spinner while processing
             with st.spinner("Analyzing your writing with Claude 3 Haiku..."):
                 results = process_and_grade_image(image, st.session_state["current_sentence"]["chinese"])
@@ -169,16 +167,16 @@ elif st.session_state['current_state'] == 'review':
                 st.markdown(f'<div class="chinese-text {css_class}">{char_data["written"]}</div>', unsafe_allow_html=True)
             else:
                 st.markdown("—")
-    
-    # Buttons for next actions
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Try Again", use_container_width=True):
-            st.session_state['current_state'] = 'practice'
-            st.session_state['grading_results'] = {}
-            st.experimental_rerun()
-    
-    with col2:
-        if st.button("New Sentence", use_container_width=True):
-            generate_new_sentence(API_URL, GROUP_ID)
-            st.experimental_rerun()
+
+# Buttons for next actions
+col1, col2 = st.columns(2)
+with col1:
+    if st.button("Try Again"):
+        st.session_state['current_state'] = 'practice'
+        st.session_state['grading_results'] = {}
+        st.experimental_rerun()
+
+with col2:
+    if st.button("New Sentence"):
+        generate_new_sentence(API_URL, GROUP_ID)
+        st.experimental_rerun()
