@@ -2,9 +2,11 @@
 
 import sqlite3
 import requests
+import config
 import streamlit as st
 from flask import Flask, request, jsonify
 from flask_cors import cross_origin
+
 
 # Function to fetch words from the SQLite3 database
 def fetch_words_from_db(db_path, page=1, words_per_page=50, sort_by='jiantizi', order='asc'):

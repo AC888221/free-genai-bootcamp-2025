@@ -4,6 +4,7 @@
 OCR_LANGUAGES = ['ch_sim', 'en']
 BEDROCK_REGION = "us-east-1"
 CLAUDE_MODEL_ID = "anthropic.claude-3-haiku-20240307-v1:0"
+API_URL = "http://localhost:5000"  # Add this line with your Flask server URL
 
 STYLING = """
 <style>
@@ -54,7 +55,7 @@ STYLING = """
 ABOUT_TEXT = """
 This app uses:
 - Claude 3 Haiku on Amazon Bedrock
-- EasyOCR for character recognition
+- pytesseract for character recognition
 - Google TTS for pronunciation
 
 Created for language learning bootcamp.
@@ -65,6 +66,4 @@ Welcome to the Putonghua Learning App! This app will help you practice writing C
 
 Press the button below to get started with a random Chinese sentence.
 
-#### Before starting:
-Make sure to enter your AWS credentials in the sidebar if you haven't already.
 """
