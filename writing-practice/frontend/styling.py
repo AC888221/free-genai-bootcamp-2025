@@ -2,7 +2,7 @@
 
 import streamlit as st
 
-ddef apply_styling():
+def apply_styling():
     st.markdown("""
     <style>
         .main-header {
