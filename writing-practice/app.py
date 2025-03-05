@@ -19,19 +19,6 @@ st.set_page_config(
     layout="wide"  # Change layout to 'wide'
 )
 
-# Apply custom CSS to ensure full width
-st.markdown(
-    """
-    <style>
-    .main {
-        max-width: 100%;
-        padding: 0;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
 # Use API URL from config
 API_URL = config.API_URL
 
@@ -58,17 +45,23 @@ print(f"Fetching words from source: {source}, API URL: {API_URL}")
 st.session_state['word_collection'] = fetch_word_collection(source, db_path=db_path, api_url=API_URL)
 
 # Function to generate a new sentence
-def generate_new_sentence(api_url):
-    st.session_state['current_sentence'] = generate_sentence(api_url, _word=None)
+def generate_new_sentence(api_url, group_id):
+    st.session_state['current_sentence'] = generate_sentence(api_url, group_id, _word=None)
 
 # Sidebar for navigation
 with st.sidebar:
+    st.header("Welcome")
+    st.markdown(config.WELCOME_TEXT)
+    
     st.header("Navigation")
-    if st.button("View Word Collection"):
+    if st.button("Word Collection"):
         st.session_state['current_state'] = 'word_collection'
     if st.button("Writing Practice"):
-        generate_new_sentence(API_URL)
+        generate_new_sentence(API_URL, group_id=1)  # Provide a valid group_id
         st.session_state['current_state'] = 'practice'
+    
+    st.header("About")
+    st.markdown(config.ABOUT_TEXT)
 
 # Main app logic based on current state
 if st.session_state['current_state'] == 'setup':
@@ -90,8 +83,35 @@ elif st.session_state['current_state'] == 'word_collection':
             unique_words.add(chinese_word)
             filtered_word_collection.append(filtered_word)
     
-    # Display filtered word collection in a table
-    st.table(filtered_word_collection)
+    # Display filtered word collection in a styled table
+    st.markdown('''
+        <style>
+        .word-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+        .word-table th, .word-table td {
+            border: 1px solid #DDDDDD;
+            padding: 0.5rem;
+            text-align: left;
+        }
+        .word-table th {
+            font-size: 1.875rem;  /* Increased by 25% */
+            color: #4B0082;
+            background-color: #F0F8FF;
+        }
+        .word-table td {
+            font-size: 1.5rem;  /* Increased by 25% */
+            color: #333333;
+        }
+        </style>
+    ''', unsafe_allow_html=True)
+
+    st.markdown('<table class="word-table"><thead><tr><th>English</th><th>Chinese</th><th>Pinyin</th></tr></thead><tbody>', unsafe_allow_html=True)
+    for word in filtered_word_collection:
+        st.markdown(f'<tr><td>{word["english"]}</td><td class="chinese-text">{word["jiantizi"]}</td><td>{word["pinyin"]}</td></tr>', unsafe_allow_html=True)
+    st.markdown('</tbody></table>', unsafe_allow_html=True)
 
 elif st.session_state['current_state'] == 'practice':
     # Practice State
@@ -131,6 +151,19 @@ elif st.session_state['current_state'] == 'practice':
                 st.session_state['grading_results'] = results
                 st.session_state['current_state'] = 'review'
                 st.experimental_rerun()
+    
+    # Buttons for next actions
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Try Again"):
+            st.session_state['current_state'] = 'practice'
+            st.session_state['grading_results'] = {}
+            st.experimental_rerun()
+
+    with col2:
+        if st.button("New Sentence"):
+            generate_new_sentence(API_URL, group_id=1)  # Provide a valid group_id
+            st.experimental_rerun()
 
 elif st.session_state['current_state'] == 'review':
     # Review State
@@ -199,15 +232,15 @@ elif st.session_state['current_state'] == 'review':
             else:
                 st.markdown("—")
 
-# Buttons for next actions
-col1, col2 = st.columns(2)
-with col1:
-    if st.button("Try Again"):
-        st.session_state['current_state'] = 'practice'
-        st.session_state['grading_results'] = {}
-        st.experimental_rerun()
+    # Buttons for next actions
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Try Again"):
+            st.session_state['current_state'] = 'practice'
+            st.session_state['grading_results'] = {}
+            st.experimental_rerun()
 
-with col2:
-    if st.button("New Sentence"):
-        generate_new_sentence(API_URL)
-        st.experimental_rerun()
+    with col2:
+        if st.button("New Sentence"):
+            generate_new_sentence(API_URL, group_id=1)  # Provide a valid group_id
+            st.experimental_rerun()
