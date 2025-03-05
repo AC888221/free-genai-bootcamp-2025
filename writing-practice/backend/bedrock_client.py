@@ -8,7 +8,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-@st.cache(hash_funcs={boto3.client: lambda _: None})
+@st.experimental_memo
 def get_bedrock_client():
     try:
         bedrock_runtime = boto3.client(

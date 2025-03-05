@@ -9,7 +9,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-@st.cache(ttl=300)
+@st.experimental_memo(ttl=300)
 def generate_audio(text):
     try:
         tts = gTTS(text, lang='zh-CN')
