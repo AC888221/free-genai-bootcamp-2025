@@ -11,6 +11,11 @@ from backend.image_processing import process_and_grade_image
 from backend.sentence_generation import generate_sentence
 from word_collection import fetch_word_collection  # Import the combined module
 import config
+import logging
+
+# Define a custom hash function for Logger
+def hash_logger(obj):
+    return (obj.name, obj.level)
 
 # Set page config
 st.set_page_config(
@@ -23,10 +28,10 @@ st.set_page_config(
 API_URL = config.API_URL
 
 # Initialize session state if needed
+if 'setup_state' not in st.session_state:
+    st.session_state['setup_state'] = 'word_collection'  # Set initial state to 'word_collection'
 if 'current_state' not in st.session_state:
-    st.session_state['current_state'] = 'word_collection'  # Set initial state to 'word_collection'
-if 'word_collection' not in st.session_state:
-    st.session_state['word_collection'] = []
+    st.session_state['current_state'] = 'setup'  # Set initial state to 'setup'
 if 'current_sentence' not in st.session_state:
     st.session_state['current_sentence'] = {}
 if 'grading_results' not in st.session_state:
@@ -37,12 +42,6 @@ reader = load_ocr_reader()
 
 # Apply styling
 apply_styling()
-
-# Fetch words from the desired source (either 'db' or 'api')
-source = 'api'  # Change to 'db' if you want to fetch from the database
-db_path = 'backend-flask/words.db'
-print(f"Fetching words from source: {source}, API URL: {API_URL}")
-st.session_state['word_collection'] = fetch_word_collection(source, db_path=db_path, api_url=API_URL)
 
 # Function to generate a new sentence
 def generate_new_sentence(api_url, group_id):
@@ -55,7 +54,8 @@ with st.sidebar:
     
     st.header("Navigation")
     if st.button("Word Collection"):
-        st.session_state['current_state'] = 'word_collection'
+        st.session_state['setup_state'] = 'word_collection'
+        st.session_state['current_state'] = 'setup'
     if st.button("Writing Practice"):
         generate_new_sentence(API_URL, group_id=1)  # Provide a valid group_id
         st.session_state['current_state'] = 'practice'
@@ -65,53 +65,55 @@ with st.sidebar:
 
 # Main app logic based on current state
 if st.session_state['current_state'] == 'setup':
-    # Setup State
-    st.markdown('<h1 class="main-header">Putonghua Learning App</h1>', unsafe_allow_html=True)
-    st.markdown(config.WELCOME_TEXT)
+    if st.session_state['setup_state'] == 'word_collection':
+        # Word Collection State
+        st.markdown('<h1 class="main-header">Word Collection</h1>', unsafe_allow_html=True)
+        
+        # Fetch words from the desired source (either 'db' or 'api')
+        source = 'api'  # Change to 'db' if you want to fetch from the database
+        db_path = 'backend-flask/words.db'
+        print(f"Fetching words from source: {source}, API URL: {API_URL}")
+        st.session_state['word_collection'] = fetch_word_collection(source, db_path=db_path, api_url=API_URL)
+        
+        # Filter out unnecessary columns and remove duplicates based on 'jiantizi'
+        unique_words = set()
+        filtered_word_collection = []
+        for word in st.session_state['word_collection']:
+            filtered_word = {key: value for key, value in word.items() if key not in ['ID', 'correct_count', 'wrong_count']}
+            chinese_word = filtered_word.get('jiantizi')  # Assuming 'jiantizi' is the key for the Chinese word
+            if chinese_word not in unique_words:
+                unique_words.add(chinese_word)
+                filtered_word_collection.append(filtered_word)
+        
+        # Display filtered word collection in a styled table
+        st.markdown('''
+            <style>
+            .word-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 2rem;
+            }
+            .word-table th, .word-table td {
+                border: 1px solid #DDDDDD;
+                padding: 0.5rem;
+                text-align: left;
+            }
+            .word-table th {
+                font-size: 1.875rem;  /* Increased by 25% */
+                color: #4B0082;
+                background-color: #F0F8FF;
+            }
+            .word-table td {
+                font-size: 1.5rem;  /* Increased by 25% */
+                color: #333333;
+            }
+            </style>
+        ''', unsafe_allow_html=True)
 
-elif st.session_state['current_state'] == 'word_collection':
-    # Word Collection State
-    st.markdown('<h1 class="main-header">Word Collection</h1>', unsafe_allow_html=True)
-    
-    # Filter out unnecessary columns and remove duplicates based on 'jiantizi'
-    unique_words = set()
-    filtered_word_collection = []
-    for word in st.session_state['word_collection']:
-        filtered_word = {key: value for key, value in word.items() if key not in ['ID', 'correct_count', 'wrong_count']}
-        chinese_word = filtered_word.get('jiantizi')  # Assuming 'jiantizi' is the key for the Chinese word
-        if chinese_word not in unique_words:
-            unique_words.add(chinese_word)
-            filtered_word_collection.append(filtered_word)
-    
-    # Display filtered word collection in a styled table
-    st.markdown('''
-        <style>
-        .word-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 2rem;
-        }
-        .word-table th, .word-table td {
-            border: 1px solid #DDDDDD;
-            padding: 0.5rem;
-            text-align: left;
-        }
-        .word-table th {
-            font-size: 1.875rem;  /* Increased by 25% */
-            color: #4B0082;
-            background-color: #F0F8FF;
-        }
-        .word-table td {
-            font-size: 1.5rem;  /* Increased by 25% */
-            color: #333333;
-        }
-        </style>
-    ''', unsafe_allow_html=True)
-
-    st.markdown('<table class="word-table"><thead><tr><th>English</th><th>Chinese</th><th>Pinyin</th></tr></thead><tbody>', unsafe_allow_html=True)
-    for word in filtered_word_collection:
-        st.markdown(f'<tr><td>{word["english"]}</td><td class="chinese-text">{word["jiantizi"]}</td><td>{word["pinyin"]}</td></tr>', unsafe_allow_html=True)
-    st.markdown('</tbody></table>', unsafe_allow_html=True)
+        st.markdown('<table class="word-table"><thead><tr><th>English</th><th>Chinese</th><th>Pinyin</th></tr></thead><tbody>', unsafe_allow_html=True)
+        for word in filtered_word_collection:
+            st.markdown(f'<tr><td>{word["english"]}</td><td class="chinese-text">{word["jiantizi"]}</td><td>{word["pinyin"]}</td></tr>', unsafe_allow_html=True)
+        st.markdown('</tbody></table>', unsafe_allow_html=True)
 
 elif st.session_state['current_state'] == 'practice':
     # Practice State
@@ -199,7 +201,7 @@ elif st.session_state['current_state'] == 'review':
     st.markdown(f'<div class="instruction-text">{results["back_translation"]}</div>', unsafe_allow_html=True)
     
     # Display grade with appropriate color
-    grade_class = f"grade-{results['grade'].lower()}"
+    grade_class = f"grade-{results['
     st.markdown(f'<h2 class="sub-header">Grade: <span class="{grade_class}">{results["grade"]}</span></h2>', unsafe_allow_html=True)
     
     # Progress bar for accuracy
