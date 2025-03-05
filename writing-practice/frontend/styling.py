@@ -43,7 +43,6 @@ def apply_styling():
             text-decoration: line-through;
         }
         .stApp {
-            max-width: 800px;
             margin: 0 auto;
         }
     </style>
