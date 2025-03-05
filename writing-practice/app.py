@@ -19,6 +19,19 @@ st.set_page_config(
     layout="wide"  # Change layout to 'wide'
 )
 
+# Apply custom CSS to ensure full width
+st.markdown(
+    """
+    <style>
+    .main {
+        max-width: 100%;
+        padding: 0;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # Use API URL from config
 API_URL = config.API_URL
 
@@ -66,7 +79,19 @@ if st.session_state['current_state'] == 'setup':
 elif st.session_state['current_state'] == 'word_collection':
     # Word Collection State
     st.markdown('<h1 class="main-header">Word Collection</h1>', unsafe_allow_html=True)
-    st.table(st.session_state['word_collection'])  # Display word collection in a table
+    
+    # Filter out unnecessary columns and remove duplicates based on 'jiantizi'
+    unique_words = set()
+    filtered_word_collection = []
+    for word in st.session_state['word_collection']:
+        filtered_word = {key: value for key, value in word.items() if key not in ['ID', 'correct_count', 'wrong_count']}
+        chinese_word = filtered_word.get('jiantizi')  # Assuming 'jiantizi' is the key for the Chinese word
+        if chinese_word not in unique_words:
+            unique_words.add(chinese_word)
+            filtered_word_collection.append(filtered_word)
+    
+    # Display filtered word collection in a table
+    st.table(filtered_word_collection)
 
 elif st.session_state['current_state'] == 'practice':
     # Practice State

@@ -8,14 +8,20 @@ API_URL = "http://localhost:5000"  # Add this line with your Flask server URL
 
 STYLING = """
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+    body {
+        font-family: 'Roboto', sans-serif;
+    }
     .main-header {
         font-size: 2.5rem;
         color: #FF4B4B;
         text-align: center;
+        margin-bottom: 20px;
     }
     .sub-header {
         font-size: 1.5rem;
         margin-bottom: 1rem;
+        color: #636EFA;
     }
     .chinese-text {
         font-size: 2rem;
@@ -31,6 +37,7 @@ STYLING = """
         font-size: 1rem;
         color: #7F7F7F;
         margin: 1rem 0;
+        line-height: 1.5;
     }
     .grade-s {color: #00CC96;}
     .grade-a {color: #636EFA;}
@@ -46,8 +53,30 @@ STYLING = """
         text-decoration: line-through;
     }
     .stApp {
-        max-width: 800px;
+        max-width: 100%;
         margin: 0 auto;
+        background: linear-gradient(to right, #f8f9fa, #e9ecef);
+        padding: 20px;
+        border-radius: 10px;
+    }
+    .stButton>button {
+        background-color: #636EFA;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    .stButton>button:hover {
+        background-color: #4a5bdc;
+    }
+    .card {
+        background: white;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 </style>
 """
