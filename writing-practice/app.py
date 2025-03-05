@@ -19,9 +19,8 @@ st.set_page_config(
     layout="centered"
 )
 
-# Use API URL and group ID from config
+# Use API URL from config
 API_URL = config.API_URL
-GROUP_ID = config.GROUP_ID
 
 # Initialize session state if needed
 if 'current_state' not in st.session_state:
@@ -42,11 +41,12 @@ apply_styling()
 # Fetch words from the desired source (either 'db' or 'api')
 source = 'api'  # Change to 'db' if you want to fetch from the database
 db_path = 'backend-flask/words.db'
-st.session_state['word_collection'] = fetch_word_collection(source, db_path=db_path, api_url=API_URL, group_id=GROUP_ID)
+print(f"Fetching words from source: {source}, API URL: {API_URL}")
+st.session_state['word_collection'] = fetch_word_collection(source, db_path=db_path, api_url=API_URL)
 
 # Function to generate a new sentence
-def generate_new_sentence(api_url, group_id):
-    st.session_state['current_sentence'] = generate_sentence(api_url, group_id, _word=None)
+def generate_new_sentence(api_url):
+    st.session_state['current_sentence'] = generate_sentence(api_url, _word=None)
 
 # Main app logic based on current state
 if st.session_state['current_state'] == 'setup':
@@ -59,7 +59,7 @@ if st.session_state['current_state'] == 'setup':
     st.write(st.session_state['word_collection'])
     
     if st.button("Start Learning"):
-        generate_new_sentence(API_URL, GROUP_ID)
+        generate_new_sentence(API_URL)
         st.experimental_rerun()
 
 elif st.session_state['current_state'] == 'practice':
@@ -178,5 +178,5 @@ with col1:
 
 with col2:
     if st.button("New Sentence"):
-        generate_new_sentence(API_URL, GROUP_ID)
+        generate_new_sentence(API_URL)
         st.experimental_rerun()

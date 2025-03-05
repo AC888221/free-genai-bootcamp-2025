@@ -1,5 +1,6 @@
 # sentence_generation.py (added back)
 
+import config
 import json
 import requests
 import streamlit as st
