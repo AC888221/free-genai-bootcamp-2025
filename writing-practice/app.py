@@ -144,13 +144,21 @@ elif st.session_state['current_state'] == 'practice':
     # Writing Practice Stage
     st.markdown('<h1 class="main-header">Putonghua Learning App</h1>', unsafe_allow_html=True)
     
-    # Word Selection
+    # Word Selection - Ensure unique Chinese characters
     st.markdown('<h2 class="sub-header">Select a Word:</h2>', unsafe_allow_html=True)
     col1, col2, col3 = st.columns([3, 1, 3])
     
     with col1:
-        word_options = [word['jiantizi'] for word in st.session_state['word_collection']]
-        selected_word = st.selectbox("Choose a word from your collection:", word_options)
+        # Create a list of unique Chinese characters
+        unique_chinese_words = []
+        seen_words = set()
+        for word in st.session_state['word_collection']:
+            chinese_word = word['jiantizi']
+            if chinese_word not in seen_words:
+                seen_words.add(chinese_word)
+                unique_chinese_words.append(chinese_word)
+        
+        selected_word = st.selectbox("Choose a word from your collection:", unique_chinese_words)
     
     with col2:
         st.markdown("""
@@ -201,27 +209,17 @@ elif st.session_state['current_state'] == 'practice':
         audio_bytes = generate_audio(st.session_state["current_sentence"]["chinese"])
         st.audio(audio_bytes, format="audio/mp3")
         
-        # Image upload
-        st.markdown('<div class="instruction-text">Write the Chinese characters and upload an image of your writing:</div>', unsafe_allow_html=True)
-        uploaded_file = st.file_uploader("Upload your handwritten Chinese", type=["jpg", "jpeg", "png"])
+        # Instructions for writing practice
+        st.markdown('<div class="instruction-text">Write the Chinese characters on paper, then proceed to the Review stage to upload your writing.</div>', unsafe_allow_html=True)
         
-        # Preview uploaded image
-        if uploaded_file is not None:
-            image = Image.open(uploaded_file)
-            st.image(image, caption="Your uploaded writing", use_column_width=True)
-            
-            # Submit button
-            if st.button("Submit for Review"):
-                st.session_state['uploaded_image'] = image
-                st.session_state['current_state'] = 'review'
-                st.experimental_rerun()
+        # Button to proceed to review stage
+        if st.button("Proceed to Review"):
+            st.session_state['current_state'] = 'review'
+            st.experimental_rerun()
 
 elif st.session_state['current_state'] == 'review':
     # Grading and Review Stage
     st.markdown('<h1 class="main-header">Putonghua Learning App</h1>', unsafe_allow_html=True)
-    
-    # Debugging: Print the current sentence dictionary
-    st.write("Current Sentence:", st.session_state["current_sentence"])
     
     # Original English sentence
     if "english" in st.session_state["current_sentence"]:
@@ -247,65 +245,185 @@ elif st.session_state['current_state'] == 'review':
         audio_bytes = generate_audio(st.session_state["current_sentence"]["chinese"])
         st.audio(audio_bytes, format="audio/mp3")
     
-    # Show user's submission
-    st.markdown(f'<h2 class="sub-header">Your Writing:</h2>', unsafe_allow_html=True)
-    st.image(st.session_state['uploaded_image'], caption="Your uploaded writing", use_column_width=True)
+    # Image upload section with clear instructions
+    st.markdown('<h2 class="sub-header">Upload Your Writing</h2>', unsafe_allow_html=True)
+    st.markdown('<div class="instruction-text">Take a photo of your handwritten Chinese characters and upload it here:</div>', unsafe_allow_html=True)
     
-    # Process and grade the image
-    with st.spinner("Analyzing your writing..."):
-        results = process_and_grade_image(st.session_state['uploaded_image'], st.session_state["current_sentence"]["chinese"])
-        st.session_state['grading_results'] = results
+    # Use a unique key for the file uploader to ensure it refreshes properly
+    uploaded_file = st.file_uploader("Choose an image file", type=["jpg", "jpeg", "png"], key="writing_image_uploader")
     
-    # Display transcription
-    st.markdown("**Transcription of your writing:**")
-    st.markdown(f'<div class="chinese-text">{results["transcription"]}</div>', unsafe_allow_html=True)
-    
-    # Display back translation
-    st.markdown("**Translation of your writing:**")
-    st.markdown(f'<div class="instruction-text">{results["back_translation"]}</div>', unsafe_allow_html=True)
-    
-    # Display grade with appropriate color
-    grade_class = f"grade-{results['grade'].lower()}"
-    st.markdown(f'<h2 class="sub-header">Grade: <span class="{grade_class}">{results["grade"]}</span></h2>', unsafe_allow_html=True)
-    
-    # Progress bar for accuracy
-    st.progress(results["accuracy"])
-    
-    # Feedback
-    st.markdown("**Feedback:**")
-    st.markdown(f'<div class="instruction-text">{results["feedback"]}</div>', unsafe_allow_html=True)
-    
-    # Character comparison
-    st.markdown("**Character Comparison:**")
-    
-    # Create columns for side-by-side comparison
-    cols = st.columns(len(results["char_comparison"]))
-    
-    for i, char_data in enumerate(results["char_comparison"]):
-        with cols[i]:
-            # Expected character
-            st.markdown("Expected:")
-            if char_data["expected"]:
-                st.markdown(f'<div class="chinese-text">{char_data["expected"]}</div>', unsafe_allow_html=True)
-            else:
-                st.markdown("—")
+    # Only show grading if an image has been uploaded
+    if uploaded_file is not None:
+        try:
+            # Display a success message
+            st.success("Image uploaded successfully!")
             
-            # User's character with color coding
-            st.markdown("Your writing:")
-            if char_data["written"]:
-                css_class = "char-correct" if char_data["correct"] else "char-incorrect"
-                st.markdown(f'<div class="chinese-text {css_class}">{char_data["written"]}</div>', unsafe_allow_html=True)
-            else:
-                st.markdown("—")
+            # Open and display the image
+            image = Image.open(uploaded_file)
+            st.session_state['uploaded_image'] = image
+            st.image(image, caption="Your uploaded writing", use_column_width=True)
+            
+            # Process and grade the image
+            grade_button = st.button("Grade My Writing", key="grade_writing_button")
+            if grade_button:
+                with st.spinner("Analyzing your writing..."):
+                    results = process_and_grade_image(image, st.session_state["current_sentence"]["chinese"])
+                    st.session_state['grading_results'] = results
+                    st.experimental_rerun()
+        except Exception as e:
+            st.error(f"Error processing the uploaded image: {str(e)}")
+            st.session_state['uploaded_image'] = None
+    else:
+        # Show a placeholder or instructions when no image is uploaded
+        st.info("Please upload an image of your handwritten Chinese characters to proceed with grading.")
+    
+    # Display grading results if available
+    if 'grading_results' in st.session_state and st.session_state['grading_results']:
+        results = st.session_state['grading_results']
+        
+        # Display transcription
+        st.markdown("**Transcription of your writing:**")
+        st.markdown(f'<div class="chinese-text">{results["transcription"]}</div>', unsafe_allow_html=True)
+        
+        # Display back translation
+        st.markdown("**Translation of your writing:**")
+        st.markdown(f'<div class="instruction-text">{results["back_translation"]}</div>', unsafe_allow_html=True)
+        
+        # Display grade with appropriate color
+        grade_class = f"grade-{results['grade'].lower()}"
+        st.markdown(f'<h2 class="sub-header">Grade: <span class="{grade_class}">{results["grade"]}</span></h2>', unsafe_allow_html=True)
+        
+        # Progress bar for accuracy
+        st.progress(results["accuracy"])
+        
+        # Feedback
+        st.markdown("**Feedback:**")
+        st.markdown(f'<div class="instruction-text">{results["feedback"]}</div>', unsafe_allow_html=True)
+        
+        # Character comparison
+        st.markdown("**Character Comparison:**")
+        
+        # Create columns for side-by-side comparison
+        cols = st.columns(len(results["char_comparison"]))
+        
+        for i, char_data in enumerate(results["char_comparison"]):
+            with cols[i]:
+                # Expected character
+                st.markdown("Expected:")
+                if char_data["expected"]:
+                    st.markdown(f'<div class="chinese-text">{char_data["expected"]}</div>', unsafe_allow_html=True)
+                else:
+                    st.markdown("—")
+                
+                # User's character with color coding
+                st.markdown("Your writing:")
+                if char_data["written"]:
+                    css_class = "char-correct" if char_data["correct"] else "char-incorrect"
+                    st.markdown(f'<div class="chinese-text {css_class}">{char_data["written"]}</div>', unsafe_allow_html=True)
+                else:
+                    st.markdown("—")
 
     # Sidebar navigation for next actions
     with st.sidebar:
         st.header("Next Actions")
-        if st.button("Try Again"):
+        if st.button("Try Again", key="try_again_button"):
             st.session_state['current_state'] = 'practice'
             st.session_state['grading_results'] = {}
+            st.session_state['uploaded_image'] = None
             st.experimental_rerun()
 
-        if st.button("New Sentence"):
+        if st.button("New Sentence", key="new_sentence_button"):
             generate_sentence_for_app(API_URL, group_id=1)  # Provide a valid group_id
+            st.session_state['uploaded_image'] = None
             st.experimental_rerun()
+
+elif st.session_state['current_state'] == 'collection':
+    # Word Collection Stage
+    st.markdown('<h1 class="main-header">Putonghua Learning App</h1>', unsafe_allow_html=True)
+    st.markdown('<h2 class="sub-header">Your Word Collection</h2>', unsafe_allow_html=True)
+    
+    # Add custom CSS for better table styling
+    st.markdown("""
+    <style>
+    .word-collection-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    .word-collection-table th {
+        background-color: #f0f0f0;
+        padding: 10px;
+        text-align: center;
+        font-weight: bold;
+        border: 1px solid #ddd;
+    }
+    .word-collection-table td {
+        padding: 10px;
+        text-align: center;
+        border: 1px solid #ddd;
+    }
+    .word-collection-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    .word-collection-table tr:hover {
+        background-color: #f1f1f1;
+    }
+    .chinese-cell {
+        font-size: 24px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    # Create a proper HTML table for word collection
+    if 'word_collection' in st.session_state and st.session_state['word_collection']:
+        table_html = """
+        <table class="word-collection-table">
+            <thead>
+                <tr>
+                    <th>Chinese</th>
+                    <th>Pinyin</th>
+                    <th>English</th>
+                    <th>Traditional</th>
+                </tr>
+            </thead>
+            <tbody>
+        """
+        
+        for word in st.session_state['word_collection']:
+            table_html += f"""
+            <tr>
+                <td class="chinese-cell">{word.get('jiantizi', '')}</td>
+                <td>{word.get('pinyin', '')}</td>
+                <td>{word.get('english', '')}</td>
+                <td class="chinese-cell">{word.get('fantizi', '')}</td>
+            </tr>
+            """
+        
+        table_html += """
+            </tbody>
+        </table>
+        """
+        
+        st.markdown(table_html, unsafe_allow_html=True)
+    else:
+        st.info("Your word collection is empty. Add words during practice to see them here.")
+    
+    # Add a word manually
+    st.markdown('<h3 class="sub-header">Add a Word Manually</h3>', unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        new_word = st.text_input("Chinese Character (Simplified):")
+    
+    with col2:
+        if new_word:
+            if st.button("Add to Collection"):
+                add_word_to_collection(new_word)
+                st.success(f"Added '{new_word}' to your collection!")
+                st.experimental_rerun()
+    
+    # Navigation
+    if st.button("Back to Practice"):
+        st.session_state['current_state'] = 'practice'
+        st.experimental_rerun()
