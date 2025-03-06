@@ -9,7 +9,7 @@ API_URL = "http://localhost:5000"  # Add this line with your Flask server URL
 ABOUT_TEXT = """
 This app uses:
 - Claude 3 Haiku on Amazon Bedrock
-- pytesseract for character recognition
+- Pytesseract for character recognition
 - Google TTS for pronunciation
 
 Created for language learning bootcamp.
@@ -17,4 +17,8 @@ Created for language learning bootcamp.
 
 WELCOME_TEXT = """
 Welcome to the Putonghua Learning App! This app will help you practice writing Chinese characters.
+
+1. Look at your word collection
+2. Practice writing your Chinese characters
+3. Submit your writing for grading and feedback
 """
