@@ -2,14 +2,12 @@
 
 import io
 from gtts import gTTS
-import streamlit as st
 import logging
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-@st.experimental_memo(ttl=300)
 def generate_audio(text):
     try:
         tts = gTTS(text, lang='zh-CN')
@@ -19,5 +17,12 @@ def generate_audio(text):
         return audio_bytes
     except Exception as e:
         logger.error(f"Error generating audio: {e}")
-        st.error("Failed to generate audio. Please try again.")
         return None
+
+# Example usage
+if __name__ == "__main__":
+    text = "你好，世界！"
+    audio = generate_audio(text)
+    if audio:
+        with open("output.mp3", "wb") as f:
+            f.write(audio.getbuffer())

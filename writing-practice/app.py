@@ -8,7 +8,7 @@ from frontend.state_management import change_state, generate_new_sentence
 from backend.ocr_reader import load_ocr_reader
 from backend.audio_generation import generate_audio
 from backend.image_processing import process_and_grade_image
-from backend.sentence_generation import generate_sentence
+from backend.sentence_generation import SentenceGenerator
 from word_collection import fetch_word_collection  # Import the combined module
 import config
 import logging
@@ -46,9 +46,30 @@ reader = load_ocr_reader()
 # Apply styling
 apply_styling()
 
-# Function to generate a new sentence
-def generate_new_sentence(api_url, group_id, _word=None):
-    st.session_state['current_sentence'] = generate_sentence(api_url, group_id, _word=_word)
+# Function to generate a new sentence using SentenceGenerator
+def generate_sentence_for_app(api_url, group_id, _word=None):
+    try:
+        sentence_generator = SentenceGenerator()
+        result = sentence_generator.generate_sentence(_word if _word else "学习")
+        
+        if "error" in result:
+            st.error(f"Error generating sentence: {result['error']}")
+        else:
+            # Ensure the result contains the necessary keys
+            if all(key in result for key in ["english", "chinese", "pinyin"]):
+                st.session_state['current_sentence'] = result
+                # Optionally store the sentence if needed
+                if api_url and group_id:
+                    try:
+                        sentence_generator.store_sentence(api_url, group_id, result)
+                    except Exception as e:
+                        st.warning(f"Could not store sentence: {e}")
+            else:
+                st.error("Error: Generated sentence does not contain all required keys.")
+        return result
+    except Exception as e:
+        st.error(f"Error in generate_sentence_for_app: {e}")
+        return {"error": str(e)}
 
 # Sidebar for navigation
 with st.sidebar:
@@ -132,8 +153,27 @@ elif st.session_state['current_state'] == 'practice':
         selected_word = st.selectbox("Choose a word from your collection:", word_options)
     
     with col2:
-        if st.button("Choose Random Word"):
-            selected_word = random.choice(word_options)
+        st.markdown("""
+            <style>
+            .random-button {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
+                background-color: #FF6347;  /* Brighter color */
+                color: white;
+                font-size: 1.2rem;
+                padding: 0.5rem;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+            .random-button:hover {
+                background-color: #FF4500;  /* Darker shade on hover */
+            }
+            </style>
+            <button class="random-button" onclick="window.location.href=window.location.href">Choose Random Word</button>
+        """, unsafe_allow_html=True)
     
     with col3:
         input_word = st.text_input("Or input a new word:")
@@ -141,7 +181,7 @@ elif st.session_state['current_state'] == 'practice':
             selected_word = input_word
     
     if selected_word:
-        st.session_state['current_sentence'] = generate_sentence(API_URL, group_id=1, _word=selected_word)
+        generate_sentence_for_app(API_URL, group_id=1, _word=selected_word)
     
     # Display Sentence for Translation
     if 'current_sentence' in st.session_state and st.session_state['current_sentence']:
@@ -180,20 +220,32 @@ elif st.session_state['current_state'] == 'review':
     # Grading and Review Stage
     st.markdown('<h1 class="main-header">Putonghua Learning App</h1>', unsafe_allow_html=True)
     
+    # Debugging: Print the current sentence dictionary
+    st.write("Current Sentence:", st.session_state["current_sentence"])
+    
     # Original English sentence
-    st.markdown(f'<h2 class="sub-header">Original Sentence:</h2>', unsafe_allow_html=True)
-    st.markdown(f'<div class="instruction-text">{st.session_state["current_sentence"]["english"]}</div>', unsafe_allow_html=True)
+    if "english" in st.session_state["current_sentence"]:
+        st.markdown(f'<div class="instruction-text">{st.session_state["current_sentence"]["english"]}</div>', unsafe_allow_html=True)
+    else:
+        st.error("Error: 'english' key not found in the current sentence.")
     
     # Expected Chinese sentence
-    st.markdown(f'<h2 class="sub-header">Expected Chinese:</h2>', unsafe_allow_html=True)
-    st.markdown(f'<div class="chinese-text">{st.session_state["current_sentence"]["chinese"]}</div>', unsafe_allow_html=True)
+    if "chinese" in st.session_state["current_sentence"]:
+        st.markdown(f'<h2 class="sub-header">Expected Chinese:</h2>', unsafe_allow_html=True)
+        st.markdown(f'<div class="chinese-text">{st.session_state["current_sentence"]["chinese"]}</div>', unsafe_allow_html=True)
+    else:
+        st.error("Error: 'chinese' key not found in the current sentence.")
     
     # Pinyin
-    st.markdown(f'<div class="pinyin-text">{st.session_state["current_sentence"]["pinyin"]}</div>', unsafe_allow_html=True)
+    if "pinyin" in st.session_state["current_sentence"]:
+        st.markdown(f'<div class="pinyin-text">{st.session_state["current_sentence"]["pinyin"]}</div>', unsafe_allow_html=True)
+    else:
+        st.error("Error: 'pinyin' key not found in the current sentence.")
     
     # Audio playback
-    audio_bytes = generate_audio(st.session_state["current_sentence"]["chinese"])
-    st.audio(audio_bytes, format="audio/mp3")
+    if "chinese" in st.session_state["current_sentence"]:
+        audio_bytes = generate_audio(st.session_state["current_sentence"]["chinese"])
+        st.audio(audio_bytes, format="audio/mp3")
     
     # Show user's submission
     st.markdown(f'<h2 class="sub-header">Your Writing:</h2>', unsafe_allow_html=True)
@@ -255,5 +307,5 @@ elif st.session_state['current_state'] == 'review':
             st.experimental_rerun()
 
         if st.button("New Sentence"):
-            generate_new_sentence(API_URL, group_id=1)  # Provide a valid group_id
+            generate_sentence_for_app(API_URL, group_id=1)  # Provide a valid group_id
             st.experimental_rerun()

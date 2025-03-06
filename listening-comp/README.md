@@ -58,7 +58,7 @@ Make sure to have your AWS credentials configured properly to access the necessa
 ### Technical Uncertainties
 
 **Q:** How did I address the unavailability of Amazon Nova models in AWS regions near Australia?
-**A:** I discovered that Amazon Nova models are not available in the Asia Pacific (Sydney) or Asia Pacific (Melbourne) regions. To overcome this, I selected the US West (Oregon) region as the nearest alternative to manage latency and performance considerations.
+**A:** I discovered that Amazon Nova models are not available in the Asia Pacific (Sydney) or Asia Pacific (Melbourne) regions. To overcome this, I selected the US West (Oregon) region [us-west-2] as the nearest alternative to manage latency and performance considerations.
 
 **Q:** How did I locate HSK2 practice tests on YouTube with Putonghua subtitles?
 **A:** While I was able to filter Youtube videos based on whether subtitles were enabled, it seemed many HSK2 test videos did not have subtitles and those that did usually had subtitltes in languages other than Putonghua. However, I did find one channel that seemed to have a lot (https://www.youtube.com/@mengziyu396).
