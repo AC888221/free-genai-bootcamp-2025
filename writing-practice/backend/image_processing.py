@@ -3,6 +3,7 @@
 import json
 import logging
 from PIL import Image
+import streamlit as st
 from ocr_reader import load_ocr_reader
 from claude_haiku import call_claude_haiku
 
@@ -14,17 +15,27 @@ reader = load_ocr_reader()
 
 def process_and_grade_image(image, expected_chinese):
     try:
-        img = Image.open(image).convert('L')
+        # If image is a file path or file-like object, open it
+        if not isinstance(image, Image.Image):
+            img = Image.open(image).convert('L')
+        else:
+            img = image.convert('L')
+            
         img_array = img.tobytes()
         
         results = reader.readtext(img_array)
         
         transcribed_text = " ".join([res[1] for res in results]) if results else "No text detected"
         
+        # Get the English sentence from session state if available
+        english_sentence = ""
+        if 'current_sentence' in st.session_state and 'english' in st.session_state['current_sentence']:
+            english_sentence = st.session_state['current_sentence']['english']
+        
         prompt = f"""
         I am analyzing a student's handwritten Chinese characters.
 
-        Original English sentence: {st.session_state['current_sentence']['english']}
+        Original English sentence: {english_sentence}
         Expected Chinese characters: {expected_chinese}
         OCR transcription of student's writing: {transcribed_text}
 
@@ -71,11 +82,15 @@ def process_and_grade_image(image, expected_chinese):
     except Exception as e:
         logger.error(f"Error in grading: {e}")
         grading_result = {
-            "back_translation": "No text detected" if transcribed_text == "No text detected" else "Translation unavailable",
-            "grade": "D" if transcribed_text == "No text detected" else "C",
-            "accuracy": 0 if transcribed_text == "No text detected" else 0.5,
-            "feedback": "No Chinese characters were detected in the image. Please try again with clearer handwriting." if transcribed_text == "No text detected" else "Some characters were recognized but there are errors. Keep practicing!"
+            "back_translation": "No text detected" if 'transcribed_text' in locals() and transcribed_text == "No text detected" else "Translation unavailable",
+            "grade": "D" if 'transcribed_text' in locals() and transcribed_text == "No text detected" else "C",
+            "accuracy": 0 if 'transcribed_text' in locals() and transcribed_text == "No text detected" else 0.5,
+            "feedback": "No Chinese characters were detected in the image. Please try again with clearer handwriting." if 'transcribed_text' in locals() and transcribed_text == "No text detected" else "Some characters were recognized but there are errors. Keep practicing!"
         }
+    
+    # Initialize transcribed_text if it wasn't set in the try block
+    if 'transcribed_text' not in locals():
+        transcribed_text = "No text detected"
     
     char_comparison = []
     for i, expected_char in enumerate(expected_chinese):
