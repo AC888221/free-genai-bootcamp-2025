@@ -1,11 +1,10 @@
 # image_processing.py (added back)
 
 import json
-import streamlit as st
+import logging
 from PIL import Image
 from ocr_reader import load_ocr_reader
 from claude_haiku import call_claude_haiku
-import logging
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -52,6 +51,9 @@ def process_and_grade_image(image, expected_chinese):
         
         response = call_claude_haiku(prompt, temperature=0.1)
         
+        if response is None:
+            raise ValueError("Received no response from Claude Haiku API.")
+        
         response = response.strip()
         start_idx = response.find('{')
         end_idx = response.rfind('}') + 1
@@ -60,7 +62,6 @@ def process_and_grade_image(image, expected_chinese):
     
     except json.JSONDecodeError as e:
         logger.error(f"JSON decoding error: {e}")
-        st.error(f"Error in grading: {str(e)}")
         grading_result = {
             "back_translation": "Translation unavailable",
             "grade": "C",
@@ -69,7 +70,6 @@ def process_and_grade_image(image, expected_chinese):
         }
     except Exception as e:
         logger.error(f"Error in grading: {e}")
-        st.error(f"Error in grading: {str(e)}")
         grading_result = {
             "back_translation": "No text detected" if transcribed_text == "No text detected" else "Translation unavailable",
             "grade": "D" if transcribed_text == "No text detected" else "C",
