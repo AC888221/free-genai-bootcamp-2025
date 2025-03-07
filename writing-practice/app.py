@@ -178,7 +178,6 @@ elif st.session_state['current_state'] == 'practice':
         if isinstance(word, dict):
             chinese_word = word.get('jiantizi', '')
         else:
-            # Handle case where word might be a tuple from DB
             chinese_word = word[1] if len(word) > 1 else ''
             
         if chinese_word and chinese_word not in seen_words:
@@ -207,7 +206,7 @@ elif st.session_state['current_state'] == 'practice':
                 align-items: center;
                 justify-content: center;
                 height: 100%;
-                background-color: #FF6347;  /* Brighter color */
+                background-color: #FF6347;
                 color: white;
                 font-size: 1.2rem;
                 padding: 0.5rem;
@@ -216,7 +215,7 @@ elif st.session_state['current_state'] == 'practice':
                 cursor: pointer;
             }
             .random-button:hover {
-                background-color: #FF4500;  /* Darker shade on hover */
+                background-color: #FF4500;
             }
             </style>
         """, unsafe_allow_html=True)
@@ -227,7 +226,7 @@ elif st.session_state['current_state'] == 'practice':
     
     with col3:
         input_word = st.text_input("Or input a new word:")
-        if st.button("Use this word") and input_word:
+        if input_word:  # Automatically update selected_word when input changes
             st.session_state['selected_word'] = input_word
     
     # Display the selected word and generate sentence button
@@ -253,10 +252,17 @@ elif st.session_state['current_state'] == 'practice':
         </style>
     """, unsafe_allow_html=True)
     
-    # Display the selected word and generate button in a single row
-    col1, col2 = st.columns([1, 2])
+    # Create two columns with reversed order and vertical alignment
+    col1, col2 = st.columns([2, 1])
     
+    # Add vertical spacing to align with the word display
     with col1:
+        generate_button_disabled = not st.session_state['selected_word']
+        st.write("")  # Add some vertical spacing
+        if st.button("Generate Sentence", disabled=generate_button_disabled):
+            generate_sentence_for_app(API_URL, group_id=1, _word=st.session_state['selected_word'])
+    
+    with col2:
         if st.session_state['selected_word']:
             st.markdown(f"""
                 <div class="word-display">
@@ -271,12 +277,7 @@ elif st.session_state['current_state'] == 'practice':
                     <div class="selected-word">No word selected</div>
                 </div>
             """, unsafe_allow_html=True)
-    
-    with col2:
-        generate_button_disabled = not st.session_state['selected_word']
-        if st.button("Generate Sentence", disabled=generate_button_disabled):
-            generate_sentence_for_app(API_URL, group_id=1, _word=st.session_state['selected_word'])
-    
+
     # Display Sentence for Translation
     if 'current_sentence' in st.session_state and st.session_state['current_sentence'] and 'chinese' in st.session_state['current_sentence']:
         st.markdown(f'<h2 class="sub-header">Translate this sentence:</h2>', unsafe_allow_html=True)
@@ -309,163 +310,248 @@ elif st.session_state['current_state'] == 'review':
     # Grading and Review Stage
     st.markdown('<h1 class="main-header">Putonghua Learning App</h1>', unsafe_allow_html=True)
     
-    # Check if a sentence has been generated
-    if not st.session_state["current_sentence"] or "chinese" not in st.session_state["current_sentence"]:
-        # Display a friendly message prompting the user to generate a sentence first
-        st.info("Please go to the Writing Practice section and generate a sentence first before reviewing.")
+    # Add custom sentence input option
+    st.markdown('<h2 class="sub-header">Review Options</h2>', unsafe_allow_html=True)
+    use_custom_sentence = st.checkbox("Use custom sentence instead of generated sentence")
+    
+    if use_custom_sentence:
+        # Initialize session state for custom inputs if they don't exist
+        if 'custom_chinese' not in st.session_state:
+            st.session_state.custom_chinese = ""
+        if 'custom_english' not in st.session_state:
+            st.session_state.custom_english = ""
+        if 'custom_pinyin' not in st.session_state:
+            st.session_state.custom_pinyin = ""
+
+        # Previous values for change detection
+        prev_chinese = st.session_state.custom_chinese
+        prev_english = st.session_state.custom_english
+
+        # Input fields with session state values
+        custom_chinese = st.text_input("Enter Chinese characters:", 
+                                     value=st.session_state.custom_chinese,
+                                     key="custom_chinese_input")
+        custom_english = st.text_input("Enter English translation:", 
+                                     value=st.session_state.custom_english,
+                                     key="custom_english_input")
+        custom_pinyin = st.text_input("Enter Pinyin (optional):", 
+                                    value=st.session_state.custom_pinyin,
+                                    key="custom_pinyin_input")
         
-        # Add a button to navigate to practice section
-        if st.button("Go to Writing Practice"):
-            st.session_state['current_state'] = 'practice'
-            st.experimental_rerun()
+        # Initialize sentence generator
+        sentence_generator = SentenceGenerator()
+        
+        # Check which field was updated and generate translations
+        if custom_english and custom_english != prev_english:
+            try:
+                with st.spinner("Generating translation..."):
+                    result = sentence_generator.translate_english(custom_english)
+                    if result and "error" not in result:
+                        # Update session state
+                        st.session_state.custom_chinese = result["chinese"]
+                        st.session_state.custom_pinyin = result["pinyin"]
+                        st.session_state.custom_english = custom_english
+                        # Update the current sentence
+                        st.session_state["current_sentence"] = {
+                            "english": custom_english,
+                            "chinese": result["chinese"],
+                            "pinyin": result["pinyin"]
+                        }
+                        st.experimental_rerun()
+                    else:
+                        st.error("Failed to generate translation")
+            except Exception as e:
+                st.error(f"Error generating translation: {str(e)}")
+
+        elif custom_chinese and custom_chinese != prev_chinese:
+            try:
+                with st.spinner("Generating translation..."):
+                    result = sentence_generator.translate_chinese(custom_chinese)
+                    if result and "error" not in result:
+                        # Update session state
+                        st.session_state.custom_english = result["english"]
+                        st.session_state.custom_pinyin = result["pinyin"]
+                        st.session_state.custom_chinese = custom_chinese
+                        # Update the current sentence
+                        st.session_state["current_sentence"] = {
+                            "english": result["english"],
+                            "chinese": custom_chinese,
+                            "pinyin": result["pinyin"]
+                        }
+                        st.experimental_rerun()
+                    else:
+                        st.error("Failed to generate translation")
+            except Exception as e:
+                st.error(f"Error generating translation: {str(e)}")
+        
+        # Always update current_sentence with the latest values
+        if custom_chinese or custom_english or custom_pinyin:
+            st.session_state["current_sentence"] = {
+                "chinese": custom_chinese,
+                "english": custom_english,
+                "pinyin": custom_pinyin
+            }
+
+    # Check if a sentence exists (either generated or custom)
+    if not st.session_state.get("current_sentence") or "chinese" not in st.session_state["current_sentence"]:
+        if not use_custom_sentence:
+            st.info("Please go to the Writing Practice section and generate a sentence first before reviewing.")
+            if st.button("Go to Writing Practice"):
+                st.session_state['current_state'] = 'practice'
+                st.experimental_rerun()
+        else:
+            st.info("Please enter both Chinese characters and English translation.")
     else:
-        # Original English sentence
+        # Display current sentence information
         st.markdown(f'<div class="instruction-text">{st.session_state["current_sentence"]["english"]}</div>', unsafe_allow_html=True)
-        
-        # Expected Chinese sentence
         st.markdown(f'<h2 class="sub-header">Expected Chinese:</h2>', unsafe_allow_html=True)
         st.markdown(f'<div class="chinese-text">{st.session_state["current_sentence"]["chinese"]}</div>', unsafe_allow_html=True)
-        
-        # Pinyin
-        st.markdown(f'<div class="pinyin-text">{st.session_state["current_sentence"]["pinyin"]}</div>', unsafe_allow_html=True)
-        
-        # Audio playback
-        audio_bytes = generate_audio(st.session_state["current_sentence"]["chinese"])
-        st.audio(audio_bytes, format="audio/mp3")
-        
-        # Image upload section with clear instructions
+        if st.session_state["current_sentence"]["pinyin"]:
+            st.markdown(f'<div class="pinyin-text">{st.session_state["current_sentence"]["pinyin"]}</div>', unsafe_allow_html=True)
+
+        # Image upload section
         st.markdown('<h2 class="sub-header">Upload Your Writing</h2>', unsafe_allow_html=True)
-        st.markdown('<div class="instruction-text">Try one of these methods to upload your handwritten Chinese characters:</div>', unsafe_allow_html=True)
         
-        # Create a radio button to select the upload method
+        # Upload method selection
         upload_method = st.radio(
-            "Select upload method:",
-            ["Standard File Uploader", "Camera Input", "Alternative Uploader", "URL Input"],
-            key="upload_method"
+            "Choose upload method:",
+            ["Traditional File Upload", "WSL File Path"],
+            help="Choose 'WSL File Path' if you're running in Windows Subsystem for Linux"
         )
+
+        col1, col2 = st.columns([3, 1])
         
-        # Method 1: Standard File Uploader
-        if upload_method == "Standard File Uploader":
-            st.subheader("Standard File Uploader")
-            uploaded_file1 = st.file_uploader("Upload image", type=["jpg", "jpeg", "png"], key="uploader1")
-            if uploaded_file1 is not None:
-                st.session_state['uploaded_image'] = Image.open(uploaded_file1)
-                st.image(st.session_state['uploaded_image'], caption="Uploaded with Standard Uploader", use_column_width=True)
-        
-        # Method 2: Camera Input
-        elif upload_method == "Camera Input":
-            st.subheader("Camera Input")
-            try:
-                camera_input = st.camera_input("Take a picture", key="camera_input")
-                if camera_input is not None:
-                    st.session_state['uploaded_image'] = Image.open(camera_input)
-                    st.image(st.session_state['uploaded_image'], caption="Captured with camera", use_column_width=True)
-            except Exception as e:
-                st.error(f"Camera input not available: {str(e)}")
-                st.info("Your version of Streamlit might not support camera input. Try upgrading Streamlit or use another method.")
-        
-        # Method 3: Alternative Uploader
-        elif upload_method == "Alternative Uploader":
-            st.subheader("Alternative File Uploader")
-            col1, col2 = st.columns(2)
-            with col1:
-                uploaded_file3 = st.file_uploader("Choose file", type=["jpg", "jpeg", "png"], key="uploader3")
-            with col2:
-                if st.button("Confirm Upload", key="confirm_upload"):
-                    if 'uploaded_file3' in locals() and uploaded_file3 is not None:
-                        st.session_state['uploaded_image'] = Image.open(uploaded_file3)
-                        st.image(st.session_state['uploaded_image'], caption="Uploaded with Alternative Uploader", use_column_width=True)
+        with col1:
+            if upload_method == "Traditional File Upload":
+                uploaded_file = st.file_uploader(
+                    "Upload your image file",
+                    type=["jpg", "jpeg", "png"],
+                    help="Select an image file from your computer"
+                )
+                
+                if st.button("Load Image", key="traditional_load"):
+                    if uploaded_file is not None:
+                        try:
+                            st.session_state['uploaded_image'] = Image.open(uploaded_file)
+                        except Exception as e:
+                            st.error(f"Error loading image: {str(e)}")
                     else:
-                        st.error("Please select a file first")
-        
-        # Method 4: URL Input
-        elif upload_method == "URL Input":
-            st.subheader("URL Input")
-            image_url = st.text_input("Enter image URL:", key="image_url")
-            if st.button("Load from URL", key="load_url"):
-                if image_url:
-                    try:
-                        import requests
-                        from io import BytesIO
-                        response = requests.get(image_url)
-                        st.session_state['uploaded_image'] = Image.open(BytesIO(response.content))
-                        st.image(st.session_state['uploaded_image'], caption="Loaded from URL", use_column_width=True)
-                    except Exception as e:
-                        st.error(f"Error loading image from URL: {str(e)}")
-                else:
-                    st.error("Please enter a valid URL")
-        
-        # Display the currently uploaded image (if any)
+                        st.warning("Please select a file first")
+
+            else:  # WSL File Path option
+                st.markdown("""
+                    <div class="instruction-text">
+                    To upload your image using WSL:
+                    1. Save your image file in an accessible location (e.g., /mnt/c/Users/YourName/Pictures/)
+                    2. Enter the full path to your image file below
+                    </div>
+                """, unsafe_allow_html=True)
+
+                file_path = st.text_input(
+                    "Enter the full path to your image file:",
+                    help="Example: /mnt/c/Users/YourName/Pictures/my_writing.jpg"
+                )
+                
+                if st.button("Load Image", key="wsl_load"):
+                    if file_path:
+                        try:
+                            st.session_state['uploaded_image'] = Image.open(file_path)
+                        except Exception as e:
+                            st.error(f"Error loading image: {str(e)}")
+                            st.info("Make sure the file path is correct and the image format is supported (jpg, jpeg, or png)")
+                    else:
+                        st.warning("Please enter a file path first")
+
+        # Display the uploaded image if it exists
         if 'uploaded_image' in st.session_state and st.session_state['uploaded_image'] is not None:
-            st.markdown('<h3 class="sub-header">Your Uploaded Image:</h3>', unsafe_allow_html=True)
             st.image(st.session_state['uploaded_image'], caption="Your writing", use_column_width=True)
-            
-            # Add a grade button
-            if st.button("Grade My Writing", key="grade_writing_button"):
-                with st.spinner("Analyzing your writing..."):
-                    results = process_and_grade_image(st.session_state['uploaded_image'], 
-                                                     st.session_state["current_sentence"]["chinese"])
-                    st.session_state['grading_results'] = results
-                    st.experimental_rerun()
-        
+
+        # Grading section - Always visible
+        st.markdown("### Grade Your Writing")
+        col1, col2, col3 = st.columns([1, 1, 1])
+        with col2:
+            grade_button_disabled = 'uploaded_image' not in st.session_state or st.session_state['uploaded_image'] is None
+            if st.button("Grade My Writing", disabled=grade_button_disabled):
+                if 'uploaded_image' in st.session_state and st.session_state['uploaded_image'] is not None:
+                    with st.spinner("Analyzing your writing..."):
+                        results = process_and_grade_image(st.session_state['uploaded_image'], 
+                                                        st.session_state["current_sentence"]["chinese"])
+                        st.session_state['grading_results'] = results
+
         # Display grading results if available
         if 'grading_results' in st.session_state and st.session_state['grading_results']:
+            st.markdown("""
+                <style>
+                .feedback-box {
+                    padding: 20px;
+                    border-radius: 10px;
+                    margin: 20px 0;
+                    background-color: #f8f9fa;
+                    border-left: 5px solid #4CAF50;
+                }
+                .grade-header {
+                    font-size: 24px;
+                    font-weight: bold;
+                    margin-bottom: 15px;
+                    color: #2C3E50;
+                }
+                .feedback-section {
+                    margin: 10px 0;
+                }
+                .feedback-title {
+                    font-weight: bold;
+                    color: #34495E;
+                }
+                </style>
+            """, unsafe_allow_html=True)
+
             results = st.session_state['grading_results']
             
-            # Display transcription
-            st.markdown("**Transcription of your writing:**")
-            st.markdown(f'<div class="chinese-text">{results["transcription"]}</div>', unsafe_allow_html=True)
-            
-            # Display back translation
-            st.markdown("**Translation of your writing:**")
-            st.markdown(f'<div class="instruction-text">{results["back_translation"]}</div>', unsafe_allow_html=True)
-            
-            # Display grade with appropriate color
-            grade_class = f"grade-{results['grade'].lower()}"
-            st.markdown(f'<h2 class="sub-header">Grade: <span class="{grade_class}">{results["grade"]}</span></h2>', unsafe_allow_html=True)
-            
-            # Progress bar for accuracy
-            st.progress(results["accuracy"])
-            
-            # Feedback
-            st.markdown("**Feedback:**")
-            st.markdown(f'<div class="instruction-text">{results["feedback"]}</div>', unsafe_allow_html=True)
-            
-            # Character comparison
-            st.markdown("**Character Comparison:**")
-            
-            # Create columns for side-by-side comparison
-            cols = st.columns(len(results["char_comparison"]))
-            
-            for i, char_data in enumerate(results["char_comparison"]):
-                with cols[i]:
-                    # Expected character
-                    st.markdown("Expected:")
-                    if char_data["expected"]:
-                        st.markdown(f'<div class="chinese-text">{char_data["expected"]}</div>', unsafe_allow_html=True)
-                    else:
-                        st.markdown("—")
-                    
-                    # User's character with color coding
-                    st.markdown("Your writing:")
-                    if char_data["written"]:
-                        css_class = "char-correct" if char_data["correct"] else "char-incorrect"
-                        st.markdown(f'<div class="chinese-text {css_class}">{char_data["written"]}</div>', unsafe_allow_html=True)
-                    else:
-                        st.markdown("—")
-        
-        # Sidebar navigation for next actions
-        with st.sidebar:
-            st.header("Next Actions")
-            if st.button("Try Again", key="try_again_button"):
-                st.session_state['current_state'] = 'practice'
-                st.session_state['grading_results'] = {}
-                st.session_state['uploaded_image'] = None
-                st.experimental_rerun()
+            st.markdown('<div class="feedback-box">', unsafe_allow_html=True)
+            st.markdown('<div class="grade-header">Grading Results</div>', unsafe_allow_html=True)
 
-            if st.button("New Sentence", key="new_sentence_button"):
-                generate_sentence_for_app(API_URL, group_id=1)  # Provide a valid group_id
-                st.session_state['uploaded_image'] = None
+            # Overall Grade
+            st.markdown(f"""
+                <div class="feedback-section">
+                    <div class="feedback-title">Overall Grade:</div>
+                    {results.get('grade', 'N/A')}
+                </div>
+            """, unsafe_allow_html=True)
+
+            # Character Accuracy
+            st.markdown(f"""
+                <div class="feedback-section">
+                    <div class="feedback-title">Character Accuracy:</div>
+                    {results.get('accuracy', 'N/A')}%
+                </div>
+            """, unsafe_allow_html=True)
+
+            # Detailed Feedback
+            st.markdown(f"""
+                <div class="feedback-section">
+                    <div class="feedback-title">Detailed Feedback:</div>
+                    {results.get('feedback', 'No detailed feedback available.')}
+                </div>
+            """, unsafe_allow_html=True)
+
+            # Areas for Improvement
+            if 'improvements' in results and results['improvements']:
+                st.markdown("""
+                    <div class="feedback-section">
+                        <div class="feedback-title">Areas for Improvement:</div>
+                        <ul>
+                """, unsafe_allow_html=True)
+                
+                for improvement in results['improvements']:
+                    st.markdown(f"<li>{improvement}</li>", unsafe_allow_html=True)
+                
+                st.markdown("</ul>", unsafe_allow_html=True)
+
+            st.markdown('</div>', unsafe_allow_html=True)
+
+            # Add a button to try again
+            if st.button("Try Another Practice"):
+                st.session_state['current_state'] = 'practice'
                 st.experimental_rerun()
 
 elif st.session_state['current_state'] == 'collection':
