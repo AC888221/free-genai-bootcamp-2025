@@ -14,6 +14,8 @@ import config
 import logging
 import random
 import pandas as pd
+from difflib import SequenceMatcher
+import io
 
 # Set page config - MUST BE THE FIRST STREAMLIT COMMAND
 st.set_page_config(
@@ -468,15 +470,88 @@ elif st.session_state['current_state'] == 'review':
 
         # Grading section - Always visible
         st.markdown("### Grade Your Writing")
-        col1, col2, col3 = st.columns([1, 1, 1])
-        with col2:
-            grade_button_disabled = 'uploaded_image' not in st.session_state or st.session_state['uploaded_image'] is None
-            if st.button("Grade My Writing", disabled=grade_button_disabled):
-                if 'uploaded_image' in st.session_state and st.session_state['uploaded_image'] is not None:
-                    with st.spinner("Analyzing your writing..."):
-                        results = process_and_grade_image(st.session_state['uploaded_image'], 
-                                                        st.session_state["current_sentence"]["chinese"])
-                        st.session_state['grading_results'] = results
+        grade_button_disabled = 'uploaded_image' not in st.session_state or st.session_state['uploaded_image'] is None
+        if st.button("Grade My Writing", disabled=grade_button_disabled):
+            if 'uploaded_image' in st.session_state and st.session_state['uploaded_image'] is not None:
+                with st.spinner("Analyzing your writing..."):
+                    # Get expected text before OCR processing
+                    expected_text = st.session_state["current_sentence"]["chinese"]
+                    
+                    # Debug image information
+                    st.markdown("### Image Debug Information")
+                    img = st.session_state['uploaded_image']
+                    st.markdown(f"**Image Details:**")
+                    st.code(f"Format: {img.format}\nSize: {img.size}\nMode: {img.mode}")
+                    
+                    # Convert PIL Image to bytes for OCR
+                    img_byte_arr = io.BytesIO()
+                    st.session_state['uploaded_image'].save(img_byte_arr, format='PNG')
+                    img_byte_arr = img_byte_arr.getvalue()
+                    
+                    st.markdown(f"**Image Bytes Size:** {len(img_byte_arr)} bytes")
+                    
+                    try:
+                        results = process_and_grade_image(img_byte_arr, expected_text)
+                        st.markdown("**OCR Processing Status:** Completed")
+                    except Exception as e:
+                        st.error(f"OCR Processing Error: {str(e)}")
+                        st.markdown("**OCR Processing Status:** Failed")
+                        results = {"error": str(e)}
+                    
+                    # Add debug information
+                    st.markdown("### Text Debug Information")
+                    st.markdown("**Expected Text:**")
+                    st.code(f"Expected text: {expected_text}")
+                    
+                    # Calculate similarity ratio if OCR text exists
+                    if 'ocr_text' in results:
+                        ocr_text = results['ocr_text']
+                        st.markdown("**Raw OCR Output:**")
+                        st.code(ocr_text)
+                        
+                        # Calculate similarity ratio
+                        similarity_ratio = SequenceMatcher(None, ocr_text, expected_text).ratio()
+                        accuracy = round(similarity_ratio * 100, 2)
+                        
+                        st.markdown("**Text Comparison:**")
+                        st.code(f"OCR text length: {len(ocr_text)}")
+                        st.code(f"Expected text length: {len(expected_text)}")
+                        st.code(f"Raw similarity score: {similarity_ratio}")
+                        
+                        # Assign grade based on accuracy
+                        if accuracy >= 90:
+                            grade = 'A'
+                        elif accuracy >= 80:
+                            grade = 'B'
+                        elif accuracy >= 70:
+                            grade = 'C'
+                        elif accuracy >= 60:
+                            grade = 'D'
+                        else:
+                            grade = 'F'
+                        
+                        # Update results with new grading
+                        results.update({
+                            'grade': grade,
+                            'accuracy': accuracy,
+                            'ocr_text': ocr_text,
+                            'expected_text': expected_text,
+                            'feedback': f"Character match accuracy: {accuracy}%\n" +
+                                      f"OCR detected: {ocr_text}\n" +
+                                      f"Expected: {expected_text}"
+                        })
+                        
+                        # Add OCR debug information
+                        st.markdown("**Final Results:**")
+                        st.code(f"OCR detected text: {ocr_text}")
+                        st.code(f"Similarity score: {accuracy}%")
+                        st.code(f"Grade assigned: {grade}")
+                    else:
+                        st.error("OCR failed to detect any text in the image")
+                        if 'error' in results:
+                            st.code(f"Error details: {results['error']}")
+                    
+                    st.session_state['grading_results'] = results
 
         # Display grading results if available
         if 'grading_results' in st.session_state and st.session_state['grading_results']:
