@@ -4,124 +4,130 @@ import json
 import logging
 from PIL import Image
 import streamlit as st
-from ocr_reader import load_ocr_reader
+from .ocr_reader import load_ocr_reader
 from claude_haiku import call_claude_haiku
+import io
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-reader = load_ocr_reader()
-
-def process_and_grade_image(image, expected_chinese):
+def process_and_grade_image(image_data, expected_text):
+    """
+    Process an image with OCR and grade it against expected text
+    
+    Args:
+        image_data: Image data (bytes or file path)
+        expected_text: Expected Chinese text
+        
+    Returns:
+        Dictionary containing grading results
+    """
     try:
-        # If image is a file path or file-like object, open it
-        if not isinstance(image, Image.Image):
-            img = Image.open(image).convert('L')
-        else:
-            img = image.convert('L')
+        logger.debug("Starting image processing")
+        logger.debug(f"Image data type: {type(image_data)}")
+        logger.debug(f"Expected text: {expected_text}")
+        
+        # Convert image data to proper format
+        try:
+            if isinstance(image_data, bytes):
+                logger.debug(f"Processing bytes of length: {len(image_data)}")
+                img = Image.open(io.BytesIO(image_data))
+            elif isinstance(image_data, Image.Image):
+                logger.debug("Processing PIL Image directly")
+                img = image_data
+            else:
+                logger.error(f"Unsupported image data type: {type(image_data)}")
+                return {'error': 'Unsupported image format'}
             
-        img_array = img.tobytes()
+            logger.debug(f"Image details - Format: {img.format}, Size: {img.size}, Mode: {img.mode}")
+            
+            # Convert image to RGB if needed
+            if img.mode not in ['L', 'RGB']:
+                logger.debug(f"Converting image from {img.mode} to RGB")
+                img = img.convert('RGB')
+            
+            # Save to PNG format in memory
+            img_byte_arr = io.BytesIO()
+            img.save(img_byte_arr, format='PNG')
+            img_byte_arr = img_byte_arr.getvalue()
+            logger.debug(f"Converted image to PNG bytes: {len(img_byte_arr)} bytes")
+            
+        except Exception as e:
+            logger.error(f"Error processing image data: {str(e)}", exc_info=True)
+            return {'error': f'Image processing error: {str(e)}'}
         
-        results = reader.readtext(img_array)
+        # Load OCR reader
+        reader = load_ocr_reader()
+        if not reader:
+            logger.error("Failed to load OCR reader")
+            return {'error': 'Failed to load OCR reader'}
         
-        transcribed_text = " ".join([res[1] for res in results]) if results else "No text detected"
+        # Process the image with OCR
+        logger.debug("Running OCR on image")
+        try:
+            results = reader.readtext(img_byte_arr)
+            logger.debug(f"OCR results: {results}")
+        except Exception as e:
+            logger.error(f"OCR processing error: {str(e)}", exc_info=True)
+            return {'error': f'OCR processing error: {str(e)}'}
         
-        # Get the English sentence from session state if available
-        english_sentence = ""
-        if 'current_sentence' in st.session_state and 'english' in st.session_state['current_sentence']:
-            english_sentence = st.session_state['current_sentence']['english']
+        if not results:
+            logger.warning("No text detected in image")
+            return {
+                'grade': 'F',
+                'ocr_text': '',
+                'error': 'No text detected in image'
+            }
         
-        prompt = f"""
-        I am analyzing a student's handwritten Chinese characters.
-
-        Original English sentence: {english_sentence}
-        Expected Chinese characters: {expected_chinese}
-        OCR transcription of student's writing: {transcribed_text}
-
-        Task 1: First, provide a literal English translation of the transcribed Chinese text.
-        
-        Task 2: Grade the student's writing based on how well it matches the expected Chinese characters.
-        Use the S-A-B-C-D grading scale where:
-        - S: Perfect match
-        - A: Very good (>80% accuracy)
-        - B: Good (>60% accuracy)
-        - C: Needs improvement (>40% accuracy)
-        - D: Significant errors (<40% accuracy)
-        
-        Task 3: Provide specific feedback on the characters and suggestions for improvement.
-
-        Format your response as JSON:
-        {{
-          "back_translation": "English translation of transcribed text",
-          "grade": "Grade letter (S/A/B/C/D)",
-          "accuracy": decimal between 0-1,
-          "feedback": "Specific feedback with suggestions"
-        }}
-        """
-        
-        response = call_claude_haiku(prompt, temperature=0.1)
-        
-        if response is None:
-            raise ValueError("Received no response from Claude Haiku API.")
-        
-        response = response.strip()
-        start_idx = response.find('{')
-        end_idx = response.rfind('}') + 1
-        json_str = response[start_idx:end_idx]
-        grading_result = json.loads(json_str)
-    
-    except json.JSONDecodeError as e:
-        logger.error(f"JSON decoding error: {e}")
-        grading_result = {
-            "back_translation": "Translation unavailable",
-            "grade": "C",
-            "accuracy": 0.5,
-            "feedback": "Some characters were recognized but there are errors. Keep practicing!"
-        }
+        # Extract and clean text from results
+        try:
+            detected_text = results[0][1]
+            # Remove null bytes and clean whitespace
+            detected_text = detected_text.replace('\x00', '').strip()
+            logger.debug(f"Cleaned detected text: '{detected_text}'")
+            logger.debug(f"Expected text: '{expected_text}'")
+            
+            # Calculate similarity
+            from difflib import SequenceMatcher
+            similarity = SequenceMatcher(None, detected_text, expected_text).ratio()
+            accuracy = round(similarity * 100, 2)
+            logger.debug(f"Similarity score: {accuracy}%")
+            
+            # Assign grade based on accuracy
+            if accuracy >= 90:
+                grade = 'A'
+            elif accuracy >= 80:
+                grade = 'B'
+            elif accuracy >= 70:
+                grade = 'C'
+            elif accuracy >= 60:
+                grade = 'D'
+            else:
+                grade = 'F'
+            
+            return {
+                'grade': grade,
+                'accuracy': accuracy,
+                'ocr_text': detected_text,
+                'expected_text': expected_text,
+                'similarity': similarity
+            }
+            
+        except Exception as e:
+            logger.error(f"Error processing OCR results: {str(e)}", exc_info=True)
+            return {
+                'grade': 'F',
+                'error': f'Text processing error: {str(e)}',
+                'ocr_text': '',
+                'expected_text': expected_text
+            }
+            
     except Exception as e:
-        logger.error(f"Error in grading: {e}")
-        grading_result = {
-            "back_translation": "No text detected" if 'transcribed_text' in locals() and transcribed_text == "No text detected" else "Translation unavailable",
-            "grade": "D" if 'transcribed_text' in locals() and transcribed_text == "No text detected" else "C",
-            "accuracy": 0 if 'transcribed_text' in locals() and transcribed_text == "No text detected" else 0.5,
-            "feedback": "No Chinese characters were detected in the image. Please try again with clearer handwriting." if 'transcribed_text' in locals() and transcribed_text == "No text detected" else "Some characters were recognized but there are errors. Keep practicing!"
+        logger.error(f"Error in grading: {str(e)}", exc_info=True)
+        return {
+            'grade': 'F',
+            'error': str(e),
+            'ocr_text': '',
+            'expected_text': expected_text
         }
-    
-    # Initialize transcribed_text if it wasn't set in the try block
-    if 'transcribed_text' not in locals():
-        transcribed_text = "No text detected"
-    
-    char_comparison = []
-    for i, expected_char in enumerate(expected_chinese):
-        if i < len(transcribed_text):
-            is_correct = expected_char == transcribed_text[i]
-            char_comparison.append({
-                "expected": expected_char,
-                "written": transcribed_text[i],
-                "correct": is_correct
-            })
-        else:
-            char_comparison.append({
-                "expected": expected_char,
-                "written": "",
-                "correct": False
-            })
-    
-    for i in range(len(expected_chinese), len(transcribed_text)):
-        char_comparison.append({
-            "expected": "",
-            "written": transcribed_text[i],
-            "correct": False
-        })
-    
-    result = {
-        "transcription": transcribed_text,
-        "back_translation": grading_result.get("back_translation", "Translation unavailable"),
-        "accuracy": grading_result.get("accuracy", 0.5),
-        "grade": grading_result.get("grade", "C"),
-        "feedback": grading_result.get("feedback", "Keep practicing!"),
-        "char_comparison": char_comparison
-    }
-    
-    return result
