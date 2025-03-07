@@ -1,4 +1,4 @@
-# sentence_generation.py (added back)
+# sentence_generation.py
 
 import json
 import requests
@@ -88,6 +88,76 @@ class SentenceGenerator:
             return {
                 "error": str(e)
             }
+
+    def translate_chinese(self, chinese_text):
+        """Generate English translation and Pinyin for Chinese text."""
+        try:
+            logger.info("Translating Chinese text: %s", chinese_text)
+            prompt = f"""
+            Translate the following Chinese text and provide its pinyin:
+            {chinese_text}
+
+            Return ONLY the following in JSON format:
+            {{
+              "english": "The English translation",
+              "chinese": "{chinese_text}",
+              "pinyin": "The pinyin representation with tone marks"
+            }}
+            """
+            
+            response_text = self.bedrock_client.generate_response(prompt, {"temperature": 0.3})
+            
+            if response_text is None:
+                raise ValueError("Received no response from Bedrock API.")
+            
+            response_text = response_text.strip()
+            
+            if response_text.find('{') >= 0 and response_text.rfind('}') >= 0:
+                start_idx = response_text.find('{')
+                end_idx = response_text.rfind('}') + 1
+                json_str = response_text[start_idx:end_idx]
+                return json.loads(json_str)
+            else:
+                raise ValueError("Response does not contain valid JSON")
+                
+        except Exception as e:
+            logger.error(f"Error translating Chinese: {str(e)}")
+            return {"error": str(e)}
+
+    def translate_english(self, english_text):
+        """Generate Chinese translation and Pinyin for English text."""
+        try:
+            logger.info("Translating English text: %s", english_text)
+            prompt = f"""
+            Translate the following English text to Chinese and provide its pinyin:
+            {english_text}
+
+            Return ONLY the following in JSON format:
+            {{
+              "english": "{english_text}",
+              "chinese": "The Chinese translation in simplified characters",
+              "pinyin": "The pinyin representation with tone marks"
+            }}
+            """
+            
+            response_text = self.bedrock_client.generate_response(prompt, {"temperature": 0.3})
+            
+            if response_text is None:
+                raise ValueError("Received no response from Bedrock API.")
+            
+            response_text = response_text.strip()
+            
+            if response_text.find('{') >= 0 and response_text.rfind('}') >= 0:
+                start_idx = response_text.find('{')
+                end_idx = response_text.rfind('}') + 1
+                json_str = response_text[start_idx:end_idx]
+                return json.loads(json_str)
+            else:
+                raise ValueError("Response does not contain valid JSON")
+                
+        except Exception as e:
+            logger.error(f"Error translating English: {str(e)}")
+            return {"error": str(e)}
 
     def store_sentence(self, api_url, group_id, sentence_data):
         """
