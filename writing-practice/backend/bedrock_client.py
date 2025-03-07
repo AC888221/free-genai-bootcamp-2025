@@ -1,6 +1,7 @@
 # bedrock_client.py (added back)
 
 import boto3
+import json
 import logging
 from typing import Optional, Dict, Any
 import sys
@@ -34,21 +35,35 @@ class BedrockClient:
 
     def generate_response(self, message: str, inference_config: Optional[Dict[str, Any]] = None) -> Optional[str]:
         """Generate a response using Amazon Bedrock"""
+        if self.client is None:
+            logger.error("Bedrock client is not initialized")
+            return None
+            
         if inference_config is None:
             inference_config = {"temperature": 0.7}
-
-        messages = [{
-            "role": "user",
-            "content": [{"text": message}]
-        }]
-
+            
         try:
-            response = self.client.converse(
+            # For Claude models, use the invoke_model method with the appropriate request format
+            request_body = {
+                "anthropic_version": "bedrock-2023-05-31",
+                "max_tokens": 1000,
+                "temperature": inference_config.get("temperature", 0.7),
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": message
+                    }
+                ]
+            }
+            
+            response = self.client.invoke_model(
                 modelId=self.model_id,
-                messages=messages,
-                inferenceConfig=inference_config
+                body=json.dumps(request_body)
             )
-            return response['output']['message']['content'][0]['text']
+            
+            response_body = json.loads(response.get('body').read())
+            return response_body.get('content')[0].get('text')
+            
         except boto3.exceptions.Boto3Error as e:
             logger.error(f"Boto3 error generating response: {str(e)}")
             return None
