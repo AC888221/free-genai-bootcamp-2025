@@ -13,17 +13,18 @@ from word_collection import fetch_word_collection  # Import the combined module
 import config
 import logging
 import random
+import pandas as pd
 
-# Define a custom hash function for Logger
-def hash_logger(obj):
-    return (obj.name, obj.level)
-
-# Set page config
+# Set page config - MUST BE THE FIRST STREAMLIT COMMAND
 st.set_page_config(
     page_title="Putonghua Learning App",
     page_icon="🀄",
     layout="wide"  # Change layout to 'wide'
 )
+
+# Define a custom hash function for Logger
+def hash_logger(obj):
+    return (obj.name, obj.level)
 
 # Use API URL from config
 API_URL = config.API_URL
@@ -98,47 +99,70 @@ if st.session_state['current_state'] == 'setup':
         source = 'api'  # Change to 'db' if you want to fetch from the database
         db_path = 'backend-flask/words.db'
         print(f"Fetching words from source: {source}, API URL: {API_URL}")
-        st.session_state['word_collection'] = fetch_word_collection(source, db_path=db_path, api_url=API_URL)
+        word_collection = fetch_word_collection(source, db_path=db_path, api_url=API_URL)
         
         # Filter out unnecessary columns and remove duplicates based on 'jiantizi'
         unique_words = set()
         filtered_word_collection = []
-        for word in st.session_state['word_collection']:
-            filtered_word = {key: value for key, value in word.items() if key not in ['ID', 'correct_count', 'wrong_count']}
-            chinese_word = filtered_word.get('jiantizi')  # Assuming 'jiantizi' is the key for the Chinese word
-            if chinese_word not in unique_words:
-                unique_words.add(chinese_word)
-                filtered_word_collection.append(filtered_word)
         
-        # Display filtered word collection in a styled table
-        st.markdown('''
-            <style>
-            .word-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 2rem;
-            }
-            .word-table th, .word-table td {
-                border: 1px solid #DDDDDD;
-                padding: 0.5rem;
-                text-align: left;
-            }
-            .word-table th {
-                font-size: 1.875rem;  /* Increased by 25% */
-                color: #4B0082;
-                background-color: #F0F8FF;
-            }
-            .word-table td {
-                font-size: 1.5rem;  /* Increased by 25% */
-                color: #333333;
-            }
-            </style>
-        ''', unsafe_allow_html=True)
-
-        st.markdown('<table class="word-table"><thead><tr><th>English</th><th>Chinese</th><th>Pinyin</th></tr></thead><tbody>', unsafe_allow_html=True)
-        for word in filtered_word_collection:
-            st.markdown(f'<tr><td>{word["english"]}</td><td class="chinese-text">{word["jiantizi"]}</td><td>{word["pinyin"]}</td></tr>', unsafe_allow_html=True)
-        st.markdown('</tbody></table>', unsafe_allow_html=True)
+        for word in word_collection:
+            # Extract the relevant fields
+            if isinstance(word, dict):
+                chinese_word = word.get('jiantizi', '')
+                english = word.get('english', '')
+                pinyin = word.get('pinyin', '')
+            else:
+                # Handle case where word might be a tuple from DB
+                chinese_word = word[1] if len(word) > 1 else ''
+                english = word[3] if len(word) > 3 else ''
+                pinyin = word[2] if len(word) > 2 else ''
+            
+            if chinese_word and chinese_word not in unique_words:
+                unique_words.add(chinese_word)
+                filtered_word_collection.append({
+                    'English': english,
+                    'Chinese': chinese_word,
+                    'Pinyin': pinyin
+                })
+        
+        # Convert to DataFrame for better display
+        df = pd.DataFrame(filtered_word_collection)
+        
+        # Apply custom CSS for better display
+        st.markdown("""
+        <style>
+        .dataframe {
+            font-size: 18px !important;
+            width: 100% !important;
+        }
+        .dataframe th {
+            text-align: left !important;
+            background-color: #f2f2f2 !important;
+            color: #333 !important;
+            font-weight: bold !important;
+            padding: 12px !important;
+        }
+        .dataframe td {
+            text-align: left !important;
+            padding: 12px !important;
+        }
+        /* Make Chinese characters larger */
+        .dataframe td:nth-child(2) {
+            font-size: 24px !important;
+        }
+        /* Hide the index column */
+        .dataframe th:first-child,
+        .dataframe td:first-child {
+            display: none !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
+        # Display the DataFrame without the index column
+        st.dataframe(df, use_container_width=True, hide_index=True)
+        
+        # Store in session state for later use
+        st.session_state['word_collection'] = word_collection
 
 elif st.session_state['current_state'] == 'practice':
     # Writing Practice Stage
@@ -146,19 +170,34 @@ elif st.session_state['current_state'] == 'practice':
     
     # Word Selection - Ensure unique Chinese characters
     st.markdown('<h2 class="sub-header">Select a Word:</h2>', unsafe_allow_html=True)
+    
+    # Create a list of unique Chinese characters
+    unique_chinese_words = []
+    seen_words = set()
+    for word in st.session_state['word_collection']:
+        if isinstance(word, dict):
+            chinese_word = word.get('jiantizi', '')
+        else:
+            # Handle case where word might be a tuple from DB
+            chinese_word = word[1] if len(word) > 1 else ''
+            
+        if chinese_word and chinese_word not in seen_words:
+            seen_words.add(chinese_word)
+            unique_chinese_words.append(chinese_word)
+    
+    # Initialize selected_word in session state if not present
+    if 'selected_word' not in st.session_state:
+        st.session_state['selected_word'] = ""
+    
+    # Create a 3-column layout for word selection
     col1, col2, col3 = st.columns([3, 1, 3])
     
     with col1:
-        # Create a list of unique Chinese characters
-        unique_chinese_words = []
-        seen_words = set()
-        for word in st.session_state['word_collection']:
-            chinese_word = word['jiantizi']
-            if chinese_word not in seen_words:
-                seen_words.add(chinese_word)
-                unique_chinese_words.append(chinese_word)
-        
-        selected_word = st.selectbox("Choose a word from your collection:", unique_chinese_words)
+        selected_word_from_list = st.selectbox("Choose a word from your collection:", 
+                                              [""] + unique_chinese_words,
+                                              index=0)
+        if selected_word_from_list:
+            st.session_state['selected_word'] = selected_word_from_list
     
     with col2:
         st.markdown("""
@@ -180,19 +219,66 @@ elif st.session_state['current_state'] == 'practice':
                 background-color: #FF4500;  /* Darker shade on hover */
             }
             </style>
-            <button class="random-button" onclick="window.location.href=window.location.href">Choose Random Word</button>
         """, unsafe_allow_html=True)
+        
+        if st.button("Choose Random Word"):
+            if unique_chinese_words:
+                st.session_state['selected_word'] = random.choice(unique_chinese_words)
     
     with col3:
         input_word = st.text_input("Or input a new word:")
-        if input_word:
-            selected_word = input_word
+        if st.button("Use this word") and input_word:
+            st.session_state['selected_word'] = input_word
     
-    if selected_word:
-        generate_sentence_for_app(API_URL, group_id=1, _word=selected_word)
+    # Display the selected word and generate sentence button
+    st.markdown("""
+        <style>
+        .word-display {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 5px solid #4CAF50;
+        }
+        .selected-word {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+        }
+        .generate-container {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    # Display the selected word and generate button in a single row
+    col1, col2 = st.columns([1, 2])
+    
+    with col1:
+        if st.session_state['selected_word']:
+            st.markdown(f"""
+                <div class="word-display">
+                    <div>Selected Word:</div>
+                    <div class="selected-word">{st.session_state['selected_word']}</div>
+                </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown("""
+                <div class="word-display">
+                    <div>Selected Word:</div>
+                    <div class="selected-word">No word selected</div>
+                </div>
+            """, unsafe_allow_html=True)
+    
+    with col2:
+        generate_button_disabled = not st.session_state['selected_word']
+        if st.button("Generate Sentence", disabled=generate_button_disabled):
+            generate_sentence_for_app(API_URL, group_id=1, _word=st.session_state['selected_word'])
     
     # Display Sentence for Translation
-    if 'current_sentence' in st.session_state and st.session_state['current_sentence']:
+    if 'current_sentence' in st.session_state and st.session_state['current_sentence'] and 'chinese' in st.session_state['current_sentence']:
         st.markdown(f'<h2 class="sub-header">Translate this sentence:</h2>', unsafe_allow_html=True)
         st.markdown(f'<div class="instruction-text">{st.session_state["current_sentence"]["english"]}</div>', unsafe_allow_html=True)
         
@@ -201,141 +287,186 @@ elif st.session_state['current_state'] == 'practice':
         if show_pinyin:
             st.markdown(f'<div class="pinyin-text">{st.session_state["current_sentence"]["pinyin"]}</div>', unsafe_allow_html=True)
         
-        # Show expected Chinese (hidden in real app, shown here for testing)
-        if st.checkbox("Show Expected Chinese (for testing only)"):
-            st.markdown(f'<div class="chinese-text">{st.session_state["current_sentence"]["chinese"]}</div>', unsafe_allow_html=True)
-        
         # Audio playback
         audio_bytes = generate_audio(st.session_state["current_sentence"]["chinese"])
         st.audio(audio_bytes, format="audio/mp3")
         
         # Instructions for writing practice
-        st.markdown('<div class="instruction-text">Write the Chinese characters on paper, then proceed to the Review stage to upload your writing.</div>', unsafe_allow_html=True)
+        st.markdown("""
+            <div class="instruction-text">
+                1. Listen to the audio for pronunciation
+                2. Write the Chinese characters on paper
+                3. Proceed to the Review stage to check your writing
+            </div>
+        """, unsafe_allow_html=True)
         
         # Button to proceed to review stage
         if st.button("Proceed to Review"):
             st.session_state['current_state'] = 'review'
-            st.experimental_rerun()
+            st.rerun()
 
 elif st.session_state['current_state'] == 'review':
     # Grading and Review Stage
     st.markdown('<h1 class="main-header">Putonghua Learning App</h1>', unsafe_allow_html=True)
     
-    # Original English sentence
-    if "english" in st.session_state["current_sentence"]:
-        st.markdown(f'<div class="instruction-text">{st.session_state["current_sentence"]["english"]}</div>', unsafe_allow_html=True)
+    # Check if a sentence has been generated
+    if not st.session_state["current_sentence"] or "chinese" not in st.session_state["current_sentence"]:
+        # Display a friendly message prompting the user to generate a sentence first
+        st.info("Please go to the Writing Practice section and generate a sentence first before reviewing.")
+        
+        # Add a button to navigate to practice section
+        if st.button("Go to Writing Practice"):
+            st.session_state['current_state'] = 'practice'
+            st.experimental_rerun()
     else:
-        st.error("Error: 'english' key not found in the current sentence.")
-    
-    # Expected Chinese sentence
-    if "chinese" in st.session_state["current_sentence"]:
+        # Original English sentence
+        st.markdown(f'<div class="instruction-text">{st.session_state["current_sentence"]["english"]}</div>', unsafe_allow_html=True)
+        
+        # Expected Chinese sentence
         st.markdown(f'<h2 class="sub-header">Expected Chinese:</h2>', unsafe_allow_html=True)
         st.markdown(f'<div class="chinese-text">{st.session_state["current_sentence"]["chinese"]}</div>', unsafe_allow_html=True)
-    else:
-        st.error("Error: 'chinese' key not found in the current sentence.")
-    
-    # Pinyin
-    if "pinyin" in st.session_state["current_sentence"]:
+        
+        # Pinyin
         st.markdown(f'<div class="pinyin-text">{st.session_state["current_sentence"]["pinyin"]}</div>', unsafe_allow_html=True)
-    else:
-        st.error("Error: 'pinyin' key not found in the current sentence.")
-    
-    # Audio playback
-    if "chinese" in st.session_state["current_sentence"]:
+        
+        # Audio playback
         audio_bytes = generate_audio(st.session_state["current_sentence"]["chinese"])
         st.audio(audio_bytes, format="audio/mp3")
-    
-    # Image upload section with clear instructions
-    st.markdown('<h2 class="sub-header">Upload Your Writing</h2>', unsafe_allow_html=True)
-    st.markdown('<div class="instruction-text">Take a photo of your handwritten Chinese characters and upload it here:</div>', unsafe_allow_html=True)
-    
-    # Use a unique key for the file uploader to ensure it refreshes properly
-    uploaded_file = st.file_uploader("Choose an image file", type=["jpg", "jpeg", "png"], key="writing_image_uploader")
-    
-    # Only show grading if an image has been uploaded
-    if uploaded_file is not None:
-        try:
-            # Display a success message
-            st.success("Image uploaded successfully!")
+        
+        # Image upload section with clear instructions
+        st.markdown('<h2 class="sub-header">Upload Your Writing</h2>', unsafe_allow_html=True)
+        st.markdown('<div class="instruction-text">Try one of these methods to upload your handwritten Chinese characters:</div>', unsafe_allow_html=True)
+        
+        # Create a radio button to select the upload method
+        upload_method = st.radio(
+            "Select upload method:",
+            ["Standard File Uploader", "Camera Input", "Alternative Uploader", "URL Input"],
+            key="upload_method"
+        )
+        
+        # Method 1: Standard File Uploader
+        if upload_method == "Standard File Uploader":
+            st.subheader("Standard File Uploader")
+            uploaded_file1 = st.file_uploader("Upload image", type=["jpg", "jpeg", "png"], key="uploader1")
+            if uploaded_file1 is not None:
+                st.session_state['uploaded_image'] = Image.open(uploaded_file1)
+                st.image(st.session_state['uploaded_image'], caption="Uploaded with Standard Uploader", use_column_width=True)
+        
+        # Method 2: Camera Input
+        elif upload_method == "Camera Input":
+            st.subheader("Camera Input")
+            try:
+                camera_input = st.camera_input("Take a picture", key="camera_input")
+                if camera_input is not None:
+                    st.session_state['uploaded_image'] = Image.open(camera_input)
+                    st.image(st.session_state['uploaded_image'], caption="Captured with camera", use_column_width=True)
+            except Exception as e:
+                st.error(f"Camera input not available: {str(e)}")
+                st.info("Your version of Streamlit might not support camera input. Try upgrading Streamlit or use another method.")
+        
+        # Method 3: Alternative Uploader
+        elif upload_method == "Alternative Uploader":
+            st.subheader("Alternative File Uploader")
+            col1, col2 = st.columns(2)
+            with col1:
+                uploaded_file3 = st.file_uploader("Choose file", type=["jpg", "jpeg", "png"], key="uploader3")
+            with col2:
+                if st.button("Confirm Upload", key="confirm_upload"):
+                    if 'uploaded_file3' in locals() and uploaded_file3 is not None:
+                        st.session_state['uploaded_image'] = Image.open(uploaded_file3)
+                        st.image(st.session_state['uploaded_image'], caption="Uploaded with Alternative Uploader", use_column_width=True)
+                    else:
+                        st.error("Please select a file first")
+        
+        # Method 4: URL Input
+        elif upload_method == "URL Input":
+            st.subheader("URL Input")
+            image_url = st.text_input("Enter image URL:", key="image_url")
+            if st.button("Load from URL", key="load_url"):
+                if image_url:
+                    try:
+                        import requests
+                        from io import BytesIO
+                        response = requests.get(image_url)
+                        st.session_state['uploaded_image'] = Image.open(BytesIO(response.content))
+                        st.image(st.session_state['uploaded_image'], caption="Loaded from URL", use_column_width=True)
+                    except Exception as e:
+                        st.error(f"Error loading image from URL: {str(e)}")
+                else:
+                    st.error("Please enter a valid URL")
+        
+        # Display the currently uploaded image (if any)
+        if 'uploaded_image' in st.session_state and st.session_state['uploaded_image'] is not None:
+            st.markdown('<h3 class="sub-header">Your Uploaded Image:</h3>', unsafe_allow_html=True)
+            st.image(st.session_state['uploaded_image'], caption="Your writing", use_column_width=True)
             
-            # Open and display the image
-            image = Image.open(uploaded_file)
-            st.session_state['uploaded_image'] = image
-            st.image(image, caption="Your uploaded writing", use_column_width=True)
-            
-            # Process and grade the image
-            grade_button = st.button("Grade My Writing", key="grade_writing_button")
-            if grade_button:
+            # Add a grade button
+            if st.button("Grade My Writing", key="grade_writing_button"):
                 with st.spinner("Analyzing your writing..."):
-                    results = process_and_grade_image(image, st.session_state["current_sentence"]["chinese"])
+                    results = process_and_grade_image(st.session_state['uploaded_image'], 
+                                                     st.session_state["current_sentence"]["chinese"])
                     st.session_state['grading_results'] = results
                     st.experimental_rerun()
-        except Exception as e:
-            st.error(f"Error processing the uploaded image: {str(e)}")
-            st.session_state['uploaded_image'] = None
-    else:
-        # Show a placeholder or instructions when no image is uploaded
-        st.info("Please upload an image of your handwritten Chinese characters to proceed with grading.")
-    
-    # Display grading results if available
-    if 'grading_results' in st.session_state and st.session_state['grading_results']:
-        results = st.session_state['grading_results']
         
-        # Display transcription
-        st.markdown("**Transcription of your writing:**")
-        st.markdown(f'<div class="chinese-text">{results["transcription"]}</div>', unsafe_allow_html=True)
+        # Display grading results if available
+        if 'grading_results' in st.session_state and st.session_state['grading_results']:
+            results = st.session_state['grading_results']
+            
+            # Display transcription
+            st.markdown("**Transcription of your writing:**")
+            st.markdown(f'<div class="chinese-text">{results["transcription"]}</div>', unsafe_allow_html=True)
+            
+            # Display back translation
+            st.markdown("**Translation of your writing:**")
+            st.markdown(f'<div class="instruction-text">{results["back_translation"]}</div>', unsafe_allow_html=True)
+            
+            # Display grade with appropriate color
+            grade_class = f"grade-{results['grade'].lower()}"
+            st.markdown(f'<h2 class="sub-header">Grade: <span class="{grade_class}">{results["grade"]}</span></h2>', unsafe_allow_html=True)
+            
+            # Progress bar for accuracy
+            st.progress(results["accuracy"])
+            
+            # Feedback
+            st.markdown("**Feedback:**")
+            st.markdown(f'<div class="instruction-text">{results["feedback"]}</div>', unsafe_allow_html=True)
+            
+            # Character comparison
+            st.markdown("**Character Comparison:**")
+            
+            # Create columns for side-by-side comparison
+            cols = st.columns(len(results["char_comparison"]))
+            
+            for i, char_data in enumerate(results["char_comparison"]):
+                with cols[i]:
+                    # Expected character
+                    st.markdown("Expected:")
+                    if char_data["expected"]:
+                        st.markdown(f'<div class="chinese-text">{char_data["expected"]}</div>', unsafe_allow_html=True)
+                    else:
+                        st.markdown("—")
+                    
+                    # User's character with color coding
+                    st.markdown("Your writing:")
+                    if char_data["written"]:
+                        css_class = "char-correct" if char_data["correct"] else "char-incorrect"
+                        st.markdown(f'<div class="chinese-text {css_class}">{char_data["written"]}</div>', unsafe_allow_html=True)
+                    else:
+                        st.markdown("—")
         
-        # Display back translation
-        st.markdown("**Translation of your writing:**")
-        st.markdown(f'<div class="instruction-text">{results["back_translation"]}</div>', unsafe_allow_html=True)
-        
-        # Display grade with appropriate color
-        grade_class = f"grade-{results['grade'].lower()}"
-        st.markdown(f'<h2 class="sub-header">Grade: <span class="{grade_class}">{results["grade"]}</span></h2>', unsafe_allow_html=True)
-        
-        # Progress bar for accuracy
-        st.progress(results["accuracy"])
-        
-        # Feedback
-        st.markdown("**Feedback:**")
-        st.markdown(f'<div class="instruction-text">{results["feedback"]}</div>', unsafe_allow_html=True)
-        
-        # Character comparison
-        st.markdown("**Character Comparison:**")
-        
-        # Create columns for side-by-side comparison
-        cols = st.columns(len(results["char_comparison"]))
-        
-        for i, char_data in enumerate(results["char_comparison"]):
-            with cols[i]:
-                # Expected character
-                st.markdown("Expected:")
-                if char_data["expected"]:
-                    st.markdown(f'<div class="chinese-text">{char_data["expected"]}</div>', unsafe_allow_html=True)
-                else:
-                    st.markdown("—")
-                
-                # User's character with color coding
-                st.markdown("Your writing:")
-                if char_data["written"]:
-                    css_class = "char-correct" if char_data["correct"] else "char-incorrect"
-                    st.markdown(f'<div class="chinese-text {css_class}">{char_data["written"]}</div>', unsafe_allow_html=True)
-                else:
-                    st.markdown("—")
+        # Sidebar navigation for next actions
+        with st.sidebar:
+            st.header("Next Actions")
+            if st.button("Try Again", key="try_again_button"):
+                st.session_state['current_state'] = 'practice'
+                st.session_state['grading_results'] = {}
+                st.session_state['uploaded_image'] = None
+                st.experimental_rerun()
 
-    # Sidebar navigation for next actions
-    with st.sidebar:
-        st.header("Next Actions")
-        if st.button("Try Again", key="try_again_button"):
-            st.session_state['current_state'] = 'practice'
-            st.session_state['grading_results'] = {}
-            st.session_state['uploaded_image'] = None
-            st.experimental_rerun()
-
-        if st.button("New Sentence", key="new_sentence_button"):
-            generate_sentence_for_app(API_URL, group_id=1)  # Provide a valid group_id
-            st.session_state['uploaded_image'] = None
-            st.experimental_rerun()
+            if st.button("New Sentence", key="new_sentence_button"):
+                generate_sentence_for_app(API_URL, group_id=1)  # Provide a valid group_id
+                st.session_state['uploaded_image'] = None
+                st.experimental_rerun()
 
 elif st.session_state['current_state'] == 'collection':
     # Word Collection Stage
@@ -349,18 +480,22 @@ elif st.session_state['current_state'] == 'collection':
         width: 100%;
         border-collapse: collapse;
         margin-bottom: 20px;
+        table-layout: fixed;
     }
     .word-collection-table th {
         background-color: #f0f0f0;
-        padding: 10px;
+        padding: 12px 15px;
         text-align: center;
         font-weight: bold;
         border: 1px solid #ddd;
+        font-size: 18px;
     }
     .word-collection-table td {
-        padding: 10px;
+        padding: 12px 15px;
         text-align: center;
         border: 1px solid #ddd;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
     .word-collection-table tr:nth-child(even) {
         background-color: #f9f9f9;
@@ -370,6 +505,23 @@ elif st.session_state['current_state'] == 'collection':
     }
     .chinese-cell {
         font-size: 24px;
+        font-weight: normal;
+    }
+    .word-collection-table th:nth-child(1),
+    .word-collection-table td:nth-child(1) {
+        width: 20%;
+    }
+    .word-collection-table th:nth-child(2),
+    .word-collection-table td:nth-child(2) {
+        width: 25%;
+    }
+    .word-collection-table th:nth-child(3),
+    .word-collection-table td:nth-child(3) {
+        width: 35%;
+    }
+    .word-collection-table th:nth-child(4),
+    .word-collection-table td:nth-child(4) {
+        width: 20%;
     }
     </style>
     """, unsafe_allow_html=True)

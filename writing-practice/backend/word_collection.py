@@ -57,7 +57,7 @@ def fetch_word_from_db(db_path, word_id):
     conn.close()
     return word
 
-@st.experimental_memo(ttl=3600)
+@st.cache_data(ttl=3600)
 def fetch_words_from_api(api_url):
     response = requests.get(f"{api_url}/words?page=1")
     if response.status_code == 200:
