@@ -1,0 +1,86 @@
+OPEA Comps (Week 3)
+
+In week 1, I set up Ollama 2.1 B
+
+
+This is a table of the supported vLLM models (from 08/03/2025, source: https://docs.vllm.ai/en/latest/models/supported_models.html#) that had a RAM requirement of 16GB or less:
+
+```markdown
+| Architecture                  | Models                        | Example HF Models                                                                 | RAM Requirement | Storage Requirement | Release Date |
+|-------------------------------|-------------------------------|----------------------------------------------------------------------------------|-----------------|---------------------|--------------|
+| ArcticForCausalLM             | Arctic                        | Snowflake/snowflake-arctic-base, Snowflake/snowflake-arctic-instruct, etc.       | 16GB            | 50GB                | 2024-01-15   |
+| BartForConditionalGeneration  | BART                          | facebook/bart-base, facebook/bart-large-cnn, etc.                                | 16GB            | 20GB                | 2020-06-25   |
+| DbrxForCausalLM               | DBRX                          | databricks/dbrx-base, databricks/dbrx-instruct, etc.                             | 16GB            | 30GB                | 2023-05-10   |
+| GPT2LMHeadModel               | GPT-2                         | gpt2, gpt2-xl, etc.                                                              | 16GB            | 10GB                | 2019-02-14   |
+| MambaForCausalLM              | Mamba                         | state-spaces/mamba-130m-hf, state-spaces/mamba-790m-hf, state-spaces/mamba-2.8b-hf, etc. | 16GB            | 25GB                | 2023-11-20   |
+| MiniCPMForCausalLM            | MiniCPM                       | openbmb/MiniCPM-2B-sft-bf16, openbmb/MiniCPM-2B-dpo-bf16, openbmb/MiniCPM-S-1B-sft, etc. | 16GB            | 40GB                | 2022-08-30   |
+| OLMoForCausalLM               | OLMo                          | allenai/OLMo-1B-hf, allenai/OLMo-7B-hf, etc.                                     | 16GB            | 15GB                | 2023-03-18   |
+| Phi3SmallForCausalLM          | Phi-3-Small                   | microsoft/Phi-3-small-8k-instruct, microsoft/Phi-3-small-128k-instruct, etc.     | 16GB            | 20GB                | 2024-07-22   |
+```
+ ArcticForCausalLM
+ Phi3SmallForCausalLM  
+Based on this information, I selected Phi3SmallForCausalLM as it was realtively new and required less storage.
+
+As vLLM is a community-driven project, I think that the model ID will come from a community type source like Hugging Face.
+irst, let's update your docker-compose.yml to use vllm-openvino instead of vllm-server since you're running on CPU:
+t looks like the DBRX model is gated, meaning it requires special access permissions even with your HF token. Let's try a different model that's publicly available. Let's use GPT
+
+
+microsoft/Phi-3-small-8k-instruct model requires the trust_remote_code=True flag to be set.  This flag is necessary for models whose code lives on the Hugging Face hub rather than being natively available in the Transformers library.
+
+added this to the docker_compose.yaml file:
+    command: --model $LLM_MODEL_ID --host 0.0.0.0 --port 80 --trust-remote-code
+
+Update your .env file to ensure proper paths:
+
+rst, let's update your docker-compose.yml to use vllm-openvino ins
+docker-compose -f docker_compose.yaml up vllm-openvino
+
+
+# Install vLLM from pip:
+pip install vllm
+
+Copy
+# Load and run the model:
+vllm serve "microsoft/Phi-3-small-8k-instruct"
+
+Copy
+# Call the server using curl:
+curl -X POST "http://localhost:8000/v1/chat/completions" \
+	-H "Content-Type: application/json" \
+	--data '{
+		"model": "microsoft/Phi-3-small-8k-instruct",
+		"messages": [
+			{
+				"role": "user",
+				"content": "What is the capital of France?"
+			}
+		]
+	}'
+
+
+vllm 15 mins
+
+WARN[0000] The "http_proxy" variable is not set. Defaulting to a blank string.
+WARN[0000] The "https_proxy" variable is not set. Defaulting to a blank string.
+WARN[0000] The "no_proxy" variable is not set. Defaulting to a blank string.
+WARN[0000] The "http_proxy" variable is not set. Defaulting to a blank string.
+WARN[0000] The "no_proxy" variable is not set. Defaulting to a blank string.
+WARN[0000] The "https_proxy" variable is not set. Defaulting to a blank string.
+WARN[0000] The "http_proxy" variable is not set. Defaulting to a blank string.
+WARN[0000] The "https_proxy" variable is not set. Defaulting to a blank string.
+WARN[0000] The "http_proxy" variable is not set. Defaulting to a blank string.
+WARN[0000] The "https_proxy" variable is not set. Defaulting to a blank string.
+
+
+## Appendices
+
+### LLM Megaservice Glossory
+
+LLM: An LLM (Large Language Model) is an AI model designed to understand and generate human-like text based on extensive training data.
+LLM microservices: These are essentially containerized versions of large language models (LLMs). They package the model and its dependencies into a container, ensuring consistency and ease of deployment across different environments.
+Ollama (LLM) microservice: This is a service developed by LlamaFactory.  It is a toolkit designed for deploying and serving LLMs, particularly locally. It containerizes LLMs and provides tools to enhance their performance, scalability, and flexibility. The models it supports include Llama, Mistral, Nemo, Firefunction v2, and Command-R.
+TGI (Text Generation Inference) LLM Microservice: This is a service developed by Hugging Face. It is a toolkit that containrizes LLMs and provides tools to enhance their performance, scalability, and flexibility. The models it supports include Llama, Falcon, StarCoder, BLOOM, GPT-NeoX, and T5. 
+vLLM: This is a service originally developed by Sky Computing Lab at UC Berkeley that has since evolved into a community-driven project. It is a toolkit that containrizes LLMs and provides tools to enhance their performance, scalability, and flexibility. It also supports ditributed inference. The models it supports include Llama, Mistral, Falcon, StarCoder, BLOOM, GPT-NeoX, and many more. 
+
+LLM megaservice: An LLM megaservice refers to a comprehensive service that integrates multiple microservices related to large language models (LLMs) into a single, cohesive system.
