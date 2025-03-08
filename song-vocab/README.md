@@ -12,6 +12,31 @@ touch song-vocab/tools/__init__.py
 
 # Create a README.md file
 cat > song-vocab/README.md << 'EOF'
+
+Yes, that's correct! Running python main.py will start your FastAPI application using uvicorn. Based on your main.py, it will:
+Start the server on http://localhost:8000
+Enable auto-reload for development
+Initialize the database tables on startup
+You should see output similar to this:
+Once running, you can:
+Access the API documentation at:
+http://localhost:8000/docs (Swagger UI)
+http://localhost:8000/redoc (ReDoc)
+Test the endpoints:
+GET http://localhost:8000/ - Welcome message
+POST http://localhost:8000/api/agent - Get lyrics and vocabulary
+POST http://localhost:8000/api/get_vocabulary - Extract vocabulary from text
+Alternatively, you can also use the provided shell script:
+This script will:
+Check if Ollama is installed
+Verify the phi4-mini model is available
+Install requirements
+Start the server
+Both methods will work, but the shell script includes additional setup checks.
+
+
+
+
 # Song Vocabulary Extractor
 
 A FastAPI application that finds lyrics for songs in Putonghua (Mandarin Chinese) and extracts vocabulary for language learners.
@@ -597,3 +622,4 @@ To run the tests: `./run_tests.sh`
 
 
 13:30 vid: just use duckduckgo, in genai essentials Andrew uses SerpApi, need account.
+
