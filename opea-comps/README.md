@@ -2,6 +2,10 @@
 
 [Jump to Bootcamp Week 1: OPEA Implementation Report](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps/README.md#bootcamp-week-1-opea-implementation-report)
 
+[Jump to Bootcamp Week 3: OPEA Megaservice Implementation Report](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps/README.md#bootcamp-week-3-opea-megaservice-implementation-report)
+
+[Jump to LLM Megaservice Glossory](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps/README.md#llm-megaservice-glossory)
+
 ## Running Ollama Third-Party Services
 
 ### Choosing a Model
@@ -161,3 +165,19 @@ curl -X POST http://localhost:8000/v1/example-service \
 1. **Direct API Testing**: Verified Ollama functionality through direct API calls.
 2. **Service Integration**: Tested FastAPI service endpoints for correct interaction with Ollama.
 3. **Response Handling**: Ensured proper handling of streaming responses and error conditions.
+
+## Bootcamp Week 3: OPEA Megaservice Implementation Report
+It seems that my understanding of what a megaservice was incomplete and I did not fully implement the megaservice in week 1. While I had a dockerized version of Ollama running that could be called on by my Chatbot QnA app using FastAPI, my understanding now is that I needed  I did not have a  port 8008, I did not have a megaservice that could be called on port 9000.
+
+
+
+## Appendices
+
+### LLM Megaservice Glossory
+
+LLM: An LLM (Large Language Model) is an AI model designed to understand and generate human-like text based on extensive training data.
+vLLMs: vLLMs are a tool that helps run large language models quickly and efficiently, using less memory. They are high-throughput, memory-efficient engines for serving large language models with advanced features like PagedAttention and continuous batching.
+LLM microservices: LLM microservices are essentially containerized versions of large language models (LLMs). They package the model and its dependencies into a container, ensuring consistency and ease of deployment across different environments.
+LLM megaservice: An LLM megaservice refers to a comprehensive service that integrates multiple microservices related to large language models (LLMs) into a single, cohesive system.
+TGI LLM Microservice: TGI (Text Generation Inference) LLM Microservice is a specific service developed by Hugging Face, not a general term for LLM microservices. It is a toolkit designed for deploying and serving large language models (LLMs).  It enhances performance, scalability, and flexibility, making it easier to integrate LLMs into various applications and handle high-throughput requests.
+Quantization is a technique used to reduce the size and memory usage of machine learning models by representing the model's weights and activations with lower precision. Here's a simple explanation:
