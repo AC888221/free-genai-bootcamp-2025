@@ -15,51 +15,20 @@ services:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       HF_TOKEN: ${HF_TOKEN}
-      LLM_MODEL_ID: ${LLM_MODEL_ID}
+      LLM_MODEL_ID: ${LLM_MODEL_ID:-"Qwen/Qwen2.5-0.5B-Instruct"}
       VLLM_TORCH_PROFILER_DIR: "${VLLM_TORCH_PROFILER_DIR:-/mnt}"
       host_ip: ${host_ip}
       LLM_ENDPOINT_PORT: ${LLM_ENDPOINT_PORT}
-      VLLM_SKIP_WARMUP: ${VLLM_SKIP_WARMUP:-false}
+      VLLM_SKIP_WARMUP: ${VLLM_SKIP_WARMUP:-true}
       trust_remote_code: ${trust_remote_code}
       VLLM_CPU_KVCACHE_SPACE: "50"
+      MAX_MODEL_LEN: ${MAX_TOTAL_TOKENS:-2048}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://${host_ip}:${LLM_ENDPOINT_PORT}/health || exit 1"]
       interval: 10s
       timeout: 10s
       retries: 100
     command: --model $LLM_MODEL_ID --host 0.0.0.0 --port 80 --trust-remote-code --device cpu
-  vllm-gaudi-server:
-    image: ${REGISTRY:-opea}/vllm-gaudi:${TAG:-latest}
-    container_name: vllm-gaudi-server
-    ports:
-      - ${LLM_ENDPOINT_PORT:-8008}:80
-    volumes:
-      - "${DATA_PATH:-./data}:/data"
-    environment:
-      no_proxy: ${no_proxy}
-      http_proxy: ${http_proxy}
-      https_proxy: ${https_proxy}
-      HF_TOKEN: ${HF_TOKEN}
-      HABANA_VISIBLE_DEVICES: all
-      OMPI_MCA_btl_vader_single_copy_mechanism: none
-      LLM_MODEL_ID: ${LLM_MODEL_ID}
-      VLLM_TORCH_PROFILER_DIR: "/mnt"
-      host_ip: ${host_ip}
-      LLM_ENDPOINT_PORT: ${LLM_ENDPOINT_PORT}
-      VLLM_SKIP_WARMUP: ${VLLM_SKIP_WARMUP:-false}
-      MAX_MODEL_LEN: ${MAX_TOTAL_TOKENS:-4096}
-      MAX_SEQ_LEN_TO_CAPTURE: ${MAX_TOTAL_TOKENS:-4096}
-      trust_remote_code: ${trust_remote_code}
-    runtime: habana
-    cap_add:
-      - SYS_NICE
-    ipc: host
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://${host_ip}:${LLM_ENDPOINT_PORT}/health || exit 1"]
-      interval: 10s
-      timeout: 10s
-      retries: 150
-    command: --model $LLM_MODEL_ID --tensor-parallel-size 1 --host 0.0.0.0 --port 80 --trust-remote-code --block-size 128 --max-num-seqs 256
   vllm-openvino:
     image: ${REGISTRY:-opea}/vllm-openvino:${TAG:-latest}
     container_name: vllm-openvino
@@ -87,20 +56,29 @@ services:
     group_add:
       - ${RENDER_GROUP_ID:-110}
     environment:
-      HTTPS_PROXY: ${http_proxy}
-      HTTP_PROXY: ${https_proxy}
-      LLM_MODEL_ID: ${LLM_MODEL_ID}
-      LLM_ENDPOINT_PORT: ${LLM_ENDPOINT_PORT}
-      host_ip: ${host_ip}
-      trust_remote_code: ${trust_remote_code}
-    entrypoint: /bin/bash -c " export VLLM_OPENVINO_DEVICE=GPU &&  export VLLM_OPENVINO_ENABLE_QUANTIZED_WEIGHTS=ON &&  python3 -m vllm.entrypoints.openai.api_server    --model ${LLM_MODEL_ID}    --host 0.0.0.0    --port ${LLM_ENDPOINT_PORT}    --max_model_len 8192"
+      - HTTPS_PROXY=${http_proxy}
+      - HTTP_PROXY=${https_proxy}
+      - LLM_MODEL_ID=${LLM_MODEL_ID}
+      - LLM_ENDPOINT_PORT=${LLM_ENDPOINT_PORT}
+      - host_ip=${host_ip}
+      - trust_remote_code=${trust_remote_code}
+      - VLLM_ALLOW_LONG_MAX_MODEL_LEN=${VLLM_ALLOW_LONG_MAX_MODEL_LEN}
+      - VLLM_OPENVINO_DEVICE=CPU
+      - VLLM_OPENVINO_ENABLE_QUANTIZED_WEIGHTS=${VLLM_OPENVINO_ENABLE_QUANTIZED_WEIGHTS}
+      - HF_TOKEN=${HF_TOKEN}
+    entrypoint: /bin/bash -c "
+      python3 -m vllm.entrypoints.openai.api_server \
+      --model ${LLM_MODEL_ID} \
+      --host 0.0.0.0 \
+      --port ${LLM_ENDPOINT_PORT} \
+      --max_model_len 1024 \
+      --trust-remote-code"
     ipc: host
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://${host_ip}:${LLM_ENDPOINT_PORT}/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:${LLM_ENDPOINT_PORT}/health || exit 1"]
       interval: 10s
       timeout: 10s
       retries: 100
-    command: --model $LLM_MODEL_ID --host 0.0.0.0 --port 80 --trust-remote-code
 
 networks:
   default:
