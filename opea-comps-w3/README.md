@@ -79,6 +79,59 @@ WARN[0000] The "http_proxy" variable is not set. Defaulting to a blank string.
 WARN[0000] The "https_proxy" variable is not set. Defaulting to a blank string.
 
 
+### Updated `README.md`
+
+```markdown
+### Download (pull) a model
+
+To pull a model from the VLLM service, use the following command:
+
+```bash
+curl http://localhost:8008/api/pull -d '{
+"model": "Qwen/Qwen2.5-0.5B-Instruct"
+}'
+```
+
+### Generate a Request
+
+To generate a response using the VLLM service, use the following command:
+
+```bash
+curl http://localhost:8008/api/generate -d '{
+"model": "Qwen/Qwen2.5-0.5B-Instruct",
+"prompt": "Why is the sky blue?"
+}'
+```
+
+## Port change for Megaservice
+
+If you need to change the port for the megaservice, you can use the following command:
+
+```bash
+HOST_IP=$(hostname -I | awk '{print $1}') NO_PROXY=localhost LLM_ENDPOINT_PORT=9000 LLM_MODEL_ID="Qwen/Qwen2.5-0.5B-Instruct" docker-compose up
+```
+
+### Download (pull) a model
+
+To pull a model from the megaservice, use the following command:
+
+```bash
+curl http://localhost:9000/api/pull -d '{
+"model": "Qwen/Qwen2.5-0.5B-Instruct"
+}'
+```
+
+### Generate a Request
+
+To generate a response using the megaservice, use the following command:
+
+```bash
+curl http://localhost:9000/api/generate -d '{
+"model": "Qwen/Qwen2.5-0.5B-Instruct",
+"prompt": "Why is the sky blue?"
+}'
+```
+
 ## Appendices
 
 ### LLM Megaservice Glossory
@@ -88,5 +141,4 @@ LLM microservices: These are essentially containerized versions of large languag
 Ollama (LLM) microservice: This is a service developed by LlamaFactory.  It is a toolkit designed for deploying and serving LLMs, particularly locally. It containerizes LLMs and provides tools to enhance their performance, scalability, and flexibility. The models it supports include Llama, Mistral, Nemo, Firefunction v2, and Command-R.
 TGI (Text Generation Inference) LLM Microservice: This is a service developed by Hugging Face. It is a toolkit that containrizes LLMs and provides tools to enhance their performance, scalability, and flexibility. The models it supports include Llama, Falcon, StarCoder, BLOOM, GPT-NeoX, and T5. 
 vLLM: This is a service originally developed by Sky Computing Lab at UC Berkeley that has since evolved into a community-driven project. It is a toolkit that containrizes LLMs and provides tools to enhance their performance, scalability, and flexibility. It also supports ditributed inference. The models it supports include Llama, Mistral, Falcon, StarCoder, BLOOM, GPT-NeoX, and many more. 
-
 LLM megaservice: An LLM megaservice refers to a comprehensive service that integrates multiple microservices related to large language models (LLMs) into a single, cohesive system.
