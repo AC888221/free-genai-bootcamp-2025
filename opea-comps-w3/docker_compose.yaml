@@ -51,6 +51,7 @@ services:
       - ${LLM_ENDPOINT_PORT:-8008}:${LLM_ENDPOINT_PORT:-8008}
     volumes:
       - "${HF_CACHE_DIR:-$HOME/.cache/huggingface}:/root/.cache/huggingface"
+      - "./logs:/var/log"
     devices:
       - "/dev/dri:/dev/dri"
     group_add:
@@ -63,22 +64,26 @@ services:
       - host_ip=${host_ip}
       - trust_remote_code=${trust_remote_code}
       - VLLM_ALLOW_LONG_MAX_MODEL_LEN=${VLLM_ALLOW_LONG_MAX_MODEL_LEN}
-      - VLLM_OPENVINO_DEVICE=CPU
+      - VLLM_OPENVINO_DEVICE=${VLLM_OPENVINO_DEVICE}
       - VLLM_OPENVINO_ENABLE_QUANTIZED_WEIGHTS=${VLLM_OPENVINO_ENABLE_QUANTIZED_WEIGHTS}
       - HF_TOKEN=${HF_TOKEN}
-    entrypoint: /bin/bash -c "
-      python3 -m vllm.entrypoints.openai.api_server \
-      --model ${LLM_MODEL_ID} \
-      --host 0.0.0.0 \
-      --port ${LLM_ENDPOINT_PORT} \
-      --max_model_len 1024 \
-      --trust-remote-code"
+    entrypoint: >
+      /bin/bash -c "
+      echo 'Starting vLLM server with model: ${LLM_MODEL_ID}' &&
+      echo 'OpenVINO device: ${VLLM_OPENVINO_DEVICE}' &&
+      echo 'Max model length: ${VLLM_ALLOW_LONG_MAX_MODEL_LEN:-2048}' &&
+      python3 -m vllm.entrypoints.openai.api_server
+      --model ${LLM_MODEL_ID}
+      --host 0.0.0.0
+      --port ${LLM_ENDPOINT_PORT}
+      --max_model_len ${VLLM_ALLOW_LONG_MAX_MODEL_LEN:-2048}
+      --trust-remote-code 2>&1 | tee /var/log/vllm.log"
     ipc: host
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:${LLM_ENDPOINT_PORT}/health || exit 1"]
-      interval: 10s
-      timeout: 10s
-      retries: 100
+      interval: 30s
+      timeout: 30s
+      retries: 5
 
 networks:
   default:
