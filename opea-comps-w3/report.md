@@ -74,4 +74,34 @@ Next Steps
 Continue testing additional endpoints to explore the full capabilities of the API.
 Investigate the health check issue further if needed.
 Consider integrating the API into applications or workflows as required.
-This summary encapsulates the progress made with the OPEA project, highlighting the successful setup and testing of the API services. If you need any further details or specific information, feel free to ask!
+
+
+rogress Report: OPEA Integration with VLLM Service
+Summary of Actions Taken
+We successfully migrated the FastAPI application from using Ollama to using the VLLM service. This involved several key steps and troubleshooting efforts:
+1. Initial Problem Identification
+Identified that the application was encountering 404 errors when trying to access Ollama endpoints
+Discovered that the environment had been updated to use VLLM instead of Ollama
+2. Code Modifications
+Updated environment variable references from OLLAMA_API_BASE to VLLM_API_BASE
+Changed the client variable name from ollama_client to vllm_client for consistency
+Modified the API endpoint from /api/generate to /v1/chat/completions to match VLLM's API structure
+Updated the request payload format to conform to VLLM's expected structure
+Changed service name references from "Ollama Chat Service" to "VLLM Chat Service"
+Updated the default model to "Qwen/Qwen2.5-0.5B-Instruct"
+3. Troubleshooting
+Verified the health of the VLLM service using the /health endpoint
+Confirmed available endpoints by checking the VLLM service logs
+Identified that the VLLM service uses OpenAI-compatible endpoints (/v1/chat/completions, /v1/completions) rather than Ollama-specific endpoints (/api/generate, /api/pull)
+Verified that the model "Qwen/Qwen2.5-0.5B-Instruct" was available in the VLLM service
+4. Testing
+Tested the FastAPI application's root endpoint to confirm it was running correctly
+Attempted to make requests to the VLLM service directly to understand its API structure
+Updated the testing commands to use the correct endpoints and payload format
+Current Status
+The FastAPI application has been successfully updated to use the VLLM service instead of Ollama. The application now:
+Connects to the VLLM service running at the specified URL (default: http://localhost:8008)
+Uses the OpenAI-compatible /v1/chat/completions endpoint for generating responses
+Properly formats messages in the structure expected by the VLLM service
+Extracts the assistant's message from the VLLM response
+
