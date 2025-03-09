@@ -28,6 +28,12 @@ t looks like the DBRX model is gated, meaning it requires special access permiss
 
 microsoft/Phi-3-small-8k-instruct model requires the trust_remote_code=True flag to be set.  This flag is necessary for models whose code lives on the Hugging Face hub rather than being natively available in the Transformers library.
 
+Dmytro
+OP
+ — 3/2/2025 8:52 PM
+"Thank you for a great suggestion - I was looking for logs, but loading progress is definitely isn't logged. I have switched to the smallest possible model - Qwen/Qwen2.5-0.5B-Instruct and it worked. Took 10 min or so to fully load."
+
+
 added this to the docker_compose.yaml file:
     command: --model $LLM_MODEL_ID --host 0.0.0.0 --port 80 --trust-remote-code
 
