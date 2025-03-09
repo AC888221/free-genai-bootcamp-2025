@@ -64,6 +64,25 @@ curl -X POST "http://localhost:8000/v1/chat/completions" \
 		]
 	}'
 
+Create a README.md file that explains:
+The purpose of each service
+Hardware requirements for each option
+How to choose the right service for different environments
+Step-by-step instructions for starting each service
+3. Provide Example Profiles
+Create example profiles for different common scenarios:
+# CPU-only profile
+LLM_ENDPOINT_PORT=8008
+LLM_MODEL_ID=Qwen/Qwen2.5-0.5B-Instruct
+# OpenVINO CPU profile
+LLM_ENDPOINT_PORT=8008
+LLM_MODEL_ID=Qwen/Qwen2.5-0.5B-Instruct
+VLLM_OPENVINO_DEVICE=CPU
+# OpenVINO Arc GPU profile
+LLM_ENDPOINT_PORT=8008
+LLM_MODEL_ID=Qwen/Qwen2.5-0.5B-Instruct
+VLLM_OPENVINO_DEVICE=GPU
+RENDER_GROUP_ID=110
 
 vllm 15 mins
 

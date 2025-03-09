@@ -105,3 +105,22 @@ Uses the OpenAI-compatible /v1/chat/completions endpoint for generating response
 Properly formats messages in the structure expected by the VLLM service
 Extracts the assistant's message from the VLLM response
 
+Actions Taken to Fix OPEA vLLM Container Issues
+Diagnosed the unhealthy container issue by examining Docker logs and identifying that the vLLM server was running but failing health checks.
+Identified the root cause: The VLLM_ALLOW_LONG_MAX_MODEL_LEN was set to 1 in the .env file, causing the model to have an insufficient maximum context length of just 1 token.
+Fixed YAML syntax errors in the docker-compose.yaml file by properly formatting the multi-line entrypoint command using the block scalar syntax (>).
+Added improved logging to the container configuration to capture startup parameters and runtime errors.
+Updated the .env file to set VLLM_ALLOW_LONG_MAX_MODEL_LEN=2048, providing sufficient context length for normal operation.
+Added volume mounting for logs to persist log files outside the container for easier debugging.
+Adjusted health check parameters to give the container more time to initialize properly.
+These changes resolved the issues with the OpenVINO-based vLLM container, allowing it to properly serve the Qwen2.5-0.5B-Instruct model with appropriate context length.
+
+OPEA Progress Report: Fixing vLLM OpenVINO Container Configuration
+ Identified issue with vLLM OpenVINO container showing as unhealthy despite running
+• Added debugging environment variables (VLLM_LOG_LEVEL=DEBUG) to .env file
+• Extended healthcheck timeouts to accommodate model loading time
+• Added VLLM_OPENVINO_KVCACHE_SPACE setting to eliminate warnings
+• Updated docker-compose.yaml to use new environment variables
+• Verified container successfully loads Qwen2.5-0.5B model with int8 quantization
+• Confirmed API functionality by testing /health endpoint and generating text
+• Demonstrated OPEA's capability to run optimized LLMs on CPU hardware using OpenVINO
