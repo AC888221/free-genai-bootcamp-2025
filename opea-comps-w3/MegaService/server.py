@@ -20,6 +20,10 @@ TTS_DEFAULT_REF_WAV = os.getenv("TTS_DEFAULT_REF_WAV", "welcome_cn.wav")
 TTS_DEFAULT_PROMPT = os.getenv("TTS_DEFAULT_PROMPT", "欢迎使用")
 TTS_DEFAULT_LANGUAGE = os.getenv("TTS_DEFAULT_LANGUAGE", "zh")
 
+# Add known TTS endpoints and make them visible in logs
+TTS_ENDPOINTS = ["/", "/generate", "/tts", "/v1/audio/speech"]
+logger.info(f"Configured TTS endpoints: {TTS_ENDPOINTS}")
+
 # Define models
 class ChatMessage(BaseModel):
     role: str
@@ -49,6 +53,7 @@ class MegaServiceResponse(BaseModel):
     text_response: str
     audio_data: Optional[str] = None  # Base64 encoded audio
     audio_format: Optional[str] = None
+    error_message: Optional[str] = None
 
 # Create FastAPI app
 app = FastAPI(title="OPEA MegaService", 
@@ -96,28 +101,97 @@ async def chat_completions(request: ChatCompletionRequest):
         logger.error(f"Error calling LLM service: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error calling LLM service: {str(e)}")
 
+async def try_tts_request(client: httpx.AsyncClient, endpoint: str, payload: dict) -> tuple[bool, Optional[bytes], Optional[str]]:
+    """
+    Try a TTS request with detailed logging and error handling.
+    Returns: (success, audio_content, error_message)
+    """
+    full_url = f"{client.base_url.rstrip('/')}{endpoint}"
+    try:
+        logger.info(f"Attempting TTS request to: {full_url}")
+        logger.info(f"TTS request payload: {json.dumps(payload)}")
+        
+        response = await client.post(
+            endpoint,
+            json=payload,
+            timeout=30.0
+        )
+        
+        logger.info(f"TTS response status [{endpoint}]: {response.status_code}")
+        logger.info(f"TTS response headers [{endpoint}]: {dict(response.headers)}")
+        
+        if response.status_code == 404:
+            return False, None, f"Endpoint not found: {full_url}"
+            
+        response.raise_for_status()
+        
+        if not response.content:
+            return False, None, f"Empty response from TTS service at {endpoint}"
+            
+        logger.info(f"Successfully received {len(response.content)} bytes from {endpoint}")
+        return True, response.content, None
+        
+    except httpx.TimeoutException:
+        logger.warning(f"Timeout calling {full_url}")
+        return False, None, f"Timeout calling {endpoint}"
+    except httpx.RequestError as e:
+        logger.warning(f"Request error for {full_url}: {str(e)}")
+        return False, None, f"Request error: {str(e)}"
+    except Exception as e:
+        error_msg = f"TTS error at {endpoint}: {str(e)}"
+        if hasattr(e, 'response'):
+            error_msg += f"\nResponse: {e.response.text if e.response else 'No response'}"
+        logger.error(error_msg)
+        return False, None, error_msg
+
+async def make_tts_request(client: httpx.AsyncClient, text: str) -> tuple[bool, Optional[bytes], Optional[str]]:
+    """
+    Try multiple TTS endpoints with fallback and logging.
+    Returns: (success, audio_content, error_message)
+    """
+    payload = {
+        "text": text,
+        "text_language": TTS_DEFAULT_LANGUAGE,
+        "prompt_text": TTS_DEFAULT_PROMPT,
+        "prompt_language": TTS_DEFAULT_LANGUAGE,
+        "speed": 1.0,
+        "temperature": 1.0,
+        "top_k": 15,
+        "top_p": 1.0
+    }
+    
+    errors = []
+    logger.info(f"Starting TTS request attempts for text: {text[:100]}...")
+    
+    # Try each endpoint in order
+    for endpoint in TTS_ENDPOINTS:
+        logger.info(f"Trying TTS endpoint: {endpoint}")
+        success, content, error = await try_tts_request(client, endpoint, payload)
+        if success:
+            logger.info(f"Successfully generated audio using endpoint: {endpoint}")
+            return True, content, None
+        errors.append(f"Endpoint {endpoint}: {error}")
+        logger.warning(f"Failed attempt with {endpoint}: {error}")
+    
+    # If we get here, all endpoints failed
+    error_msg = "All TTS endpoints failed:\n" + "\n".join(errors)
+    logger.error(error_msg)
+    return False, None, error_msg
+
 @app.post("/v1/tts")
 async def text_to_speech(request: TTSRequest):
     """Direct endpoint for GPT-SoVITS service"""
-    try:
-        response = await tts_client.post(
-            "/generate",
-            json={
-                "text": request.text,
-                "voice": request.voice,
-                "language": "en"
-            }
-        )
-        response.raise_for_status()
-        return Response(content=response.content, media_type="audio/wav")
-    except Exception as e:
-        logger.error(f"Error calling GPT-SoVITS service: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error calling GPT-SoVITS service: {str(e)}")
+    success, content, error = await make_tts_request(tts_client, request.text)
+    
+    if not success:
+        raise HTTPException(status_code=500, detail=f"Error calling GPT-SoVITS service: {error}")
+    
+    return Response(content=content, media_type="audio/wav")
 
 @app.post("/v1/megaservice", response_model=MegaServiceResponse)
 async def megaservice(request: MegaServiceRequest):
     try:
-        # Try to call LLM service, but handle failure gracefully
+        # Try to call LLM service
         try:
             llm_request = ChatCompletionRequest(
                 model=request.model,
@@ -126,6 +200,7 @@ async def megaservice(request: MegaServiceRequest):
                 max_tokens=request.max_tokens
             )
             
+            logger.info(f"Sending LLM request: {llm_request.dict()}")
             llm_response = await llm_client.post(
                 "/v1/chat/completions",
                 json=llm_request.dict()
@@ -133,39 +208,31 @@ async def megaservice(request: MegaServiceRequest):
             llm_response.raise_for_status()
             llm_data = llm_response.json()
             text_response = llm_data["choices"][0]["message"]["content"]
+            logger.info(f"Received LLM response: {text_response[:100]}...")
         except Exception as llm_error:
-            logger.warning(f"LLM service error: {str(llm_error)}")
-            text_response = "I apologize, but I'm having trouble accessing the language model right now. Please try again later."
+            logger.exception("LLM service error")
+            raise HTTPException(status_code=500, detail=f"LLM service error: {str(llm_error)}")
 
         # Initialize response
         response = MegaServiceResponse(text_response=text_response)
         
         # Try TTS service if requested
         if request.generate_audio:
-            try:
-                tts_response = await tts_client.post(
-                    "/",
-                    json={
-                        "text": text_response,
-                        "text_language": TTS_DEFAULT_LANGUAGE,
-                        "refer_wav_path": TTS_DEFAULT_REF_WAV,
-                        "prompt_text": TTS_DEFAULT_PROMPT,
-                        "prompt_language": TTS_DEFAULT_LANGUAGE
-                    }
-                )
-                tts_response.raise_for_status()
-                
-                audio_data = base64.b64encode(tts_response.content).decode("utf-8")
-                response.audio_data = audio_data
+            logger.info("Starting TTS generation attempt")
+            success, audio_content, error = await make_tts_request(tts_client, text_response)
+            
+            if success:
+                logger.info("Successfully generated audio")
+                response.audio_data = base64.b64encode(audio_content).decode("utf-8")
                 response.audio_format = "wav"
-            except Exception as tts_error:
-                logger.warning(f"TTS service error: {str(tts_error)}")
-                # Continue without audio if TTS fails
+            else:
+                logger.error(f"Failed to generate audio: {error}")
+                # Don't raise an exception, just continue without audio
+                response.error_message = f"Audio generation failed: {error}"
         
         return response
-    
     except Exception as e:
-        logger.error(f"Error in megaservice: {str(e)}")
+        logger.exception("Error in megaservice")
         raise HTTPException(status_code=500, detail=f"Error in megaservice: {str(e)}")
 
 @app.on_event("shutdown")
