@@ -124,3 +124,39 @@ OPEA Progress Report: Fixing vLLM OpenVINO Container Configuration
 • Verified container successfully loads Qwen2.5-0.5B model with int8 quantization
 • Confirmed API functionality by testing /health endpoint and generating text
 • Demonstrated OPEA's capability to run optimized LLMs on CPU hardware using OpenVINO
+
+
+Progress Report on OPEA TTS Integration
+Setup Docker Environment:
+Configured and ran the Docker containers for the OPEA TTS services, including gptsovits-service and tts-gptsovits-service.
+Identified API Endpoints:
+Explored the available API endpoints using the OpenAPI documentation and Swagger UI.
+Determined the correct endpoint for text-to-speech functionality as /v1/audio/speech.
+Tested TTS Functionality:
+Successfully sent POST requests to the TTS service to generate audio from text.
+Used the correct request format, including parameters like input, model, voice, response_format, and speed.
+Generated Audio File:
+Created an audio file (test_speech.mp3) from the TTS service response and saved it to the current working directory.
+Accessed Audio File in Windows:
+Provided methods to open and access the generated audio file in Windows, including using the explorer.exe command and copying the file to a Windows directory.
+Troubleshot Issues:
+Addressed and resolved issues related to incorrect API endpoint usage and ensured successful communication with the TTS service.
+
+
+Progress Report on OPEA Development
+Environment Setup:
+Created a .env.mega file to configure environment variables for the MegaService, including LLM and TTS configurations.
+Docker Configuration:
+Developed a docker-compose.mega.yaml file to orchestrate the MegaService along with its dependencies (vLLM and GPT-SoVITS services).
+Ensured that the MegaService connects directly to the GPT-SoVITS service, removing the unnecessary TTS wrapper service.
+Service Development:
+Implemented the server.py file to handle API requests for both LLM and TTS functionalities.
+Developed the MegaTalk.py file as a Streamlit frontend for user interaction with the MegaService.
+Dockerfile Creation:
+Created a Dockerfile for the MegaService to define the build process, including installing dependencies and setting up the entry point.
+Service Deployment:
+Built and started the MegaService using Docker Compose, ensuring all services (vLLM, GPT-SoVITS, and MegaService) are running correctly.
+Monitored service logs to confirm successful startup and health status of all components.
+Testing:
+Verified the accessibility of the Streamlit frontend and MegaService API endpoints.
+Conducted health checks to ensure all services are operational.
