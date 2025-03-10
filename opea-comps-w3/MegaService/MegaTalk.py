@@ -4,6 +4,19 @@ import base64
 import io
 from typing import Optional
 import os
+import logging
+import sys
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('/var/log/megatalk.log'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # Configuration
 MEGASERVICE_URL = os.getenv("MEGASERVICE_URL", "http://localhost:9500")
@@ -56,13 +69,18 @@ with st.sidebar:
 # Main content area
 user_input = st.text_area("Enter your message:", height=150)
 
+# Add startup logging
+logger.info("Starting MegaTalk application")
+logger.info(f"MEGASERVICE_URL: {MEGASERVICE_URL}")
+
 if st.button("Submit"):
     if not user_input.strip():
         st.error("Please enter a message")
+        logger.warning("Empty input submitted")
     else:
         with st.spinner("Processing..."):
-            # Call the megaservice API
             try:
+                logger.info(f"Sending request to megaservice: {user_input[:100]}...")
                 response = requests.post(
                     f"{MEGASERVICE_URL}/v1/megaservice",
                     json={
@@ -72,12 +90,16 @@ if st.button("Submit"):
                         "generate_audio": generate_audio,
                         "temperature": temperature,
                         "max_tokens": max_tokens
-                    }
+                    },
+                    timeout=30  # Add timeout
                 )
                 
                 if response.status_code != 200:
-                    st.error(f"Error: {response.status_code} - {response.text}")
+                    error_msg = f"Error: {response.status_code} - {response.text}"
+                    logger.error(error_msg)
+                    st.error(error_msg)
                 else:
+                    logger.info("Successfully received response from megaservice")
                     data = response.json()
                     
                     # Display text response
@@ -104,8 +126,18 @@ if st.button("Submit"):
                         st.session_state.chat_history = []
                     st.session_state.chat_history.append((user_input, data["text_response"], audio_bytes))
             
+            except requests.exceptions.ConnectionError as e:
+                error_msg = f"Connection error to megaservice: {str(e)}"
+                logger.error(error_msg)
+                st.error(error_msg)
+            except requests.exceptions.Timeout as e:
+                error_msg = f"Timeout connecting to megaservice: {str(e)}"
+                logger.error(error_msg)
+                st.error(error_msg)
             except Exception as e:
-                st.error(f"Error: {str(e)}")
+                error_msg = f"Unexpected error: {str(e)}"
+                logger.error(error_msg, exc_info=True)
+                st.error(error_msg)
 
 # Display chat history if it exists
 if "chat_history" in st.session_state and st.session_state.chat_history:

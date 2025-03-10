@@ -1,0 +1,131 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+version: '3.8'
+
+services:
+  vllm-openvino-arc:
+    image: ${REGISTRY:-opea}/vllm-arc:${TAG:-latest}
+    container_name: vllm-openvino-arc
+    ports:
+      - "${LLM_ENDPOINT_PORT:-8008}:${LLM_ENDPOINT_PORT:-8008}"
+    volumes:
+      - "${HF_CACHE_DIR:-$HOME/.cache/huggingface}:/root/.cache/huggingface"
+      - "./logs:/var/log"
+    devices:
+      - "/dev/dri:/dev/dri"
+    group_add:
+      - ${RENDER_GROUP_ID:-110}
+    environment:
+      - HTTPS_PROXY=${http_proxy}
+      - HTTP_PROXY=${https_proxy}
+      - LLM_MODEL_ID=${LLM_MODEL_ID:-Qwen/Qwen2.5-0.5B-Instruct}
+      - LLM_ENDPOINT_PORT=${LLM_ENDPOINT_PORT:-8008}
+      - host_ip=${host_ip}
+      - trust_remote_code=${trust_remote_code:-true}
+      - VLLM_ALLOW_LONG_MAX_MODEL_LEN=${VLLM_ALLOW_LONG_MAX_MODEL_LEN:-2048}
+      - PYTHONPATH=${PYTHONPATH:-/usr/local/lib/python3.10/dist-packages}
+      - VLLM_LOG_LEVEL=${VLLM_LOG_LEVEL:-DEBUG}
+      - VLLM_BACKEND=${VLLM_BACKEND:-cpu}
+      - VLLM_ENGINE_USE_CPU=${VLLM_ENGINE_USE_CPU:-1}
+      - VLLM_WORKER_USE_CPU=${VLLM_WORKER_USE_CPU:-1}
+    entrypoint: >
+      /bin/bash -c "
+      echo 'Starting vLLM server with enhanced logging...' &&
+      echo 'Environment variables:' &&
+      env | grep -E 'VLLM_|LLM_' &&
+      echo 'Python packages:' &&
+      pip list | grep -E 'vllm|torch' &&
+      echo 'Starting vLLM server with model: ${LLM_MODEL_ID}' &&
+      python3 -u -m vllm.entrypoints.openai.api_server
+      --model ${LLM_MODEL_ID}
+      --host 0.0.0.0
+      --port ${LLM_ENDPOINT_PORT}
+      --trust-remote-code
+      --max-model-len ${VLLM_ALLOW_LONG_MAX_MODEL_LEN}
+      --dtype ${VLLM_DTYPE:-float32}
+      --tensor-parallel-size ${VLLM_TENSOR_PARALLEL_SIZE:-1}
+      --max-num-batched-tokens ${VLLM_MAX_NUM_BATCHED_TOKENS:-2048}
+      --quantization ${VLLM_QUANTIZATION:-None}
+      ${VLLM_ADDITIONAL_ARGS}
+      2>&1 | tee /var/log/vllm.log"
+    ipc: host
+    ulimits:
+      memlock: -1
+      stack: 67108864
+    healthcheck:
+      test: >
+        /bin/bash -c "
+        curl -f http://localhost:${LLM_ENDPOINT_PORT}/health || 
+        (echo 'Health check failed' && 
+         tail -n 50 /var/log/vllm.log && 
+         exit 1)"
+      interval: ${HEALTHCHECK_INTERVAL:-60s}
+      timeout: ${HEALTHCHECK_TIMEOUT:-60s}
+      retries: ${HEALTHCHECK_RETRIES:-40}
+      start_period: 60s
+
+  gptsovits-service:
+    image: ${REGISTRY:-opea}/gpt-sovits:${TAG:-latest}
+    container_name: gpt-sovits-service
+    ports:
+      - "${GPT_SOVITS_PORT:-9880}:9880"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9880/health"]
+      interval: ${HEALTHCHECK_INTERVAL:-60s}
+      timeout: ${HEALTHCHECK_TIMEOUT:-60s}
+      retries: ${HEALTHCHECK_RETRIES:-20}
+  
+  tts-gptsovits:
+    image: ${REGISTRY:-opea}/tts:${TAG:-latest}
+    container_name: tts-gptsovits-service
+    ports:
+      - "${TTS_PORT:-9088}:9088"
+    ipc: host
+    environment:
+      TTS_ENDPOINT: ${TTS_ENDPOINT:-http://gptsovits-service:9880}
+      TTS_COMPONENT_NAME: ${TTS_COMPONENT_NAME:-OPEA_GPTSOVITS_TTS}
+    depends_on:
+      gptsovits-service:
+        condition: service_healthy
+
+  megaservice:
+    image: ${REGISTRY:-opea}/megaservice:${TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: opea-megaservice
+    ports:
+      - "${MEGASERVICE_PORT:-9500}:${MEGASERVICE_PORT:-9500}"
+      - "8501:8501"
+    volumes:
+      - "./logs:/var/log"
+    environment:
+      - LLM_ENDPOINT=${LLM_ENDPOINT:-http://vllm-openvino-arc:8008}
+      - TTS_ENDPOINT=${TTS_ENDPOINT:-http://gptsovits-service:9880}
+      - MEGASERVICE_PORT=${MEGASERVICE_PORT:-9500}
+      - MEGASERVICE_URL=${MEGASERVICE_URL:-http://localhost:9500}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9500/health"]
+      interval: ${HEALTHCHECK_INTERVAL:-60s}
+      timeout: ${HEALTHCHECK_TIMEOUT:-60s}
+      retries: ${HEALTHCHECK_RETRIES:-20}
+      start_period: 30s
+#    depends_on:
+#      vllm-openvino-arc:
+#        condition: service_healthy
+#      gptsovits-service:
+#        condition: service_healthy
+#      tts-gptsovits:
+#        condition: service_started
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
