@@ -21,22 +21,20 @@ RUN echo '#!/bin/bash\n\
 set -e\n\
 \n\
 # Start FastAPI server\n\
-echo "Starting FastAPI server..."\n\
-python server.py > /var/log/fastapi.log 2>&1 &\n\
+python server.py --host 0.0.0.0 --port 9500 > /var/log/server.log 2>&1 &\n\
 FASTAPI_PID=$!\n\
 \n\
 # Wait for FastAPI to be ready\n\
-echo "Waiting for FastAPI to start..."\n\
+echo "Waiting for FastAPI server..."\n\
 for i in {1..30}; do\n\
     if curl -s http://localhost:9500/health > /dev/null; then\n\
-        echo "FastAPI is ready!"\n\
+        echo "FastAPI server is ready!"\n\
         break\n\
     fi\n\
-    if ! ps -p $FASTAPI_PID > /dev/null; then\n\
+    if [ "$i" = 30 ]; then\n\
         echo "FastAPI server failed to start!"\n\
         exit 1\n\
     fi\n\
-    echo "Waiting..."\n\
     sleep 1\n\
 done\n\
 \n\
@@ -57,6 +55,7 @@ done\n\
 
 RUN chmod +x /app/start.sh
 
+# Simplified health check that only checks the FastAPI service
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:9500/health || exit 1
 
