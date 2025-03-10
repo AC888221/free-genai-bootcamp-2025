@@ -180,7 +180,7 @@ And it expects a request body with this structure:
 
 {
   "input": "Hello, this is a test.",
-  "model": "microsoft/speecht5_tts",
+  "model": "GPT_SoVITS/",
   "voice": "default",
   "response_format": "mp3",
   "speed": 1.0
@@ -191,7 +191,7 @@ curl -X POST "http://localhost:9088/v1/audio/speech" \
   -H "Content-Type: application/json" \
   -d '{
     "input": "Hello, this is a test.",
-    "model": "microsoft/speecht5_tts",
+    "model": "mGPT_SoVITS/",
     "voice": "default",
     "response_format": "mp3",
     "speed": 1.0
@@ -202,7 +202,7 @@ curl -X POST "http://localhost:9088/v1/audio/speech" \
   -H "Content-Type: application/json" \
   -d '{
     "input": "Hello, this is a test.",
-    "model": "microsoft/speecht5_tts",
+    "model": "GPT_SoVITS/",
     "voice": "default",
     "response_format": "mp3",
     "speed": 1.0

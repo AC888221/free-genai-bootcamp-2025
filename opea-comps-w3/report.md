@@ -160,3 +160,32 @@ Monitored service logs to confirm successful startup and health status of all co
 Testing:
 Verified the accessibility of the Streamlit frontend and MegaService API endpoints.
 Conducted health checks to ensure all services are operational.
+
+OPEA MegaService Configuration Debugging Report
+Initial Issues
+Docker compose configuration had incorrect naming conventions
+Environment variables were spread across multiple locations
+vLLM OpenVINO configuration had case sensitivity issues
+Actions Taken
+1. File Organization
+Consolidated configuration into MegaService directory
+Renamed files to standard Docker Compose conventions
+Aligned .env and docker-compose.yaml files
+vLLM OpenVINO Configuration
+Fixed device type from 'CPU' to lowercase 'cpu'
+Corrected OpenVINO backend settings
+Added proper OpenVINO environment variables
+Removed ambiguous trust_remote_code variable expansion
+Service Health Checks
+Adjusted healthcheck intervals for long model loading times
+Set appropriate timeout and retry values
+Configured proper container dependencies
+Environment Variables
+Consolidated all environment variables into single .env file
+Fixed case sensitivity in OpenVINO-related variables
+Properly structured configuration sections (LLM, TTS, OpenVINO, etc.)
+Current Status
+Configuration files are properly aligned
+OpenVINO settings match backend requirements
+Environment variables are centralized and correctly cased
+Service dependencies and health checks are properly configured
