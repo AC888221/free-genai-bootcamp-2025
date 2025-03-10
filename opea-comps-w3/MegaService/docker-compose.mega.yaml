@@ -1,0 +1,101 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+version: '3.8'
+
+services:
+  # LLM Service
+  vllm-openvino-arc:
+    image: ${REGISTRY:-opea}/vllm-arc:${TAG:-latest}
+    container_name: vllm-openvino-arc
+    ports:
+      - ${LLM_ENDPOINT_PORT:-8008}:${LLM_ENDPOINT_PORT:-8008}
+    volumes:
+      - "${HF_CACHE_DIR:-$HOME/.cache/huggingface}:/root/.cache/huggingface"
+      - "./logs:/var/log"
+    devices:
+      - "/dev/dri:/dev/dri"
+    group_add:
+      - ${RENDER_GROUP_ID:-110}
+    environment:
+      - HTTPS_PROXY=${http_proxy}
+      - HTTP_PROXY=${https_proxy}
+      - LLM_MODEL_ID=${LLM_MODEL_ID}
+      - LLM_ENDPOINT_PORT=${LLM_ENDPOINT_PORT}
+      - host_ip=${host_ip}
+      - trust_remote_code=${trust_remote_code}
+      - VLLM_ALLOW_LONG_MAX_MODEL_LEN=${VLLM_ALLOW_LONG_MAX_MODEL_LEN}
+      - VLLM_OPENVINO_DEVICE=${VLLM_OPENVINO_DEVICE}
+      - VLLM_OPENVINO_ENABLE_QUANTIZED_WEIGHTS=${VLLM_OPENVINO_ENABLE_QUANTIZED_WEIGHTS}
+      - HF_TOKEN=${HF_TOKEN}
+    entrypoint: >
+      /bin/bash -c "
+      echo 'Starting vLLM server with model: ${LLM_MODEL_ID}' &&
+      echo 'OpenVINO device: ${VLLM_OPENVINO_DEVICE}' &&
+      echo 'Max model length: ${VLLM_ALLOW_LONG_MAX_MODEL_LEN:-2048}' &&
+      python3 -m vllm.entrypoints.openai.api_server
+      --model ${LLM_MODEL_ID}
+      --host 0.0.0.0
+      --port ${LLM_ENDPOINT_PORT}
+      --max_model_len ${VLLM_ALLOW_LONG_MAX_MODEL_LEN:-2048}
+      --trust-remote-code 2>&1 | tee /var/log/vllm.log"
+    ipc: host
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:${LLM_ENDPOINT_PORT}/health || exit 1"]
+      interval: ${HEALTHCHECK_INTERVAL:-60s}
+      timeout: ${HEALTHCHECK_TIMEOUT:-60s}
+      retries: ${HEALTHCHECK_RETRIES:-15}
+
+  # TTS Services
+  gptsovits-service:
+    image: ${REGISTRY:-opea}/gpt-sovits:${TAG:-latest}
+    container_name: gpt-sovits-service
+    ports:
+      - ${GPT_SOVITS_PORT:-9880}:9880
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9880/health"]
+      interval: 10s
+      timeout: 6s
+      retries: 18
+  
+  tts-gptsovits:
+    image: ${REGISTRY:-opea}/tts:${TAG:-latest}
+    container_name: tts-gptsovits-service
+    ports:
+      - ${TTS_PORT:-9088}:9088
+    ipc: host
+    environment:
+      TTS_ENDPOINT: http://gptsovits-service:9880
+      TTS_COMPONENT_NAME: ${TTS_COMPONENT_NAME:-OPEA_GPTSOVITS_TTS}
+    depends_on:
+      gptsovits-service:
+        condition: service_healthy
+
+  # Orchestration Service
+  megaservice:
+    image: ${REGISTRY:-opea}/megaservice:${TAG:-latest}
+    build:
+      context: ./MegaService
+      dockerfile: Dockerfile
+    container_name: opea-megaservice
+    ports:
+      - "9500:9500"
+    environment:
+      - LLM_ENDPOINT=http://vllm-openvino-arc:${LLM_ENDPOINT_PORT:-8008}
+      - TTS_ENDPOINT=http://tts-gptsovits-service:${TTS_PORT:-9088}
+      - MEGASERVICE_PORT=9500
+    depends_on:
+      vllm-openvino-arc:
+        condition: service_healthy
+      tts-gptsovits:
+        condition: service_started
+
+networks:
+  default:
+    driver: bridge 

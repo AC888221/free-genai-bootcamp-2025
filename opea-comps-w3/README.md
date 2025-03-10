@@ -151,6 +151,84 @@ curl http://localhost:9000/api/generate -d '{
 }'
 ```
 
+TTS Services Status
+GPT-SoVITS Service
+Status: Running successfully on port 9880
+Container: gpt-sovits-service
+Health Check: Passing (returning 200 OK responses)
+Model Information:
+Using default SoVITS model: GPT_SoVITS/pretrained_models/s2G488k.pth
+Using default GPT model: GPT_SoVITS/pretrained_models/s1bert25hz-2kh-longer-epoch=68e-step=50232.ckpt
+Default reference audio: ./welcome_cn.wav (Chinese welcome message)
+Model version: v1
+Parameter count: 77.49M
+TTS Frontend Service
+Status: Running successfully on port 9088
+Container: tts-gptsovits-service
+Connected to: GPT-SoVITS service at 172.20.0.3
+
+How to Use These Services
+You can now interact with the TTS system through the frontend service:
+Text-to-Speech API: Available at http://localhost:9088/tts
+You can send POST requests with text to convert to speech
+Health Check: Available at http://localhost:9088/health and http://localhost:9880/health
+Both are returning 200 OK responses, indicating the services are healthy
+
+Perfect! Now I can see the correct endpoint from the OpenAPI documentation. According to the OpenAPI JSON you shared, the correct endpoint for text-to-speech is:
+
+And it expects a request body with this structure:
+
+{
+  "input": "Hello, this is a test.",
+  "model": "microsoft/speecht5_tts",
+  "voice": "default",
+  "response_format": "mp3",
+  "speed": 1.0
+}
+Let's try using this endpoint with the correct request format:
+
+curl -X POST "http://localhost:9088/v1/audio/speech" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "input": "Hello, this is a test.",
+    "model": "microsoft/speecht5_tts",
+    "voice": "default",
+    "response_format": "mp3",
+    "speed": 1.0
+  }'
+
+If you want to save the audio output to a file, you can use:
+curl -X POST "http://localhost:9088/v1/audio/speech" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "input": "Hello, this is a test.",
+    "model": "microsoft/speecht5_tts",
+    "voice": "default",
+    "response_format": "mp3",
+    "speed": 1.0
+  }' \
+  --output test_speech.mp3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Appendices
 
 ### LLM Megaservice Glossory
