@@ -1,0 +1,99 @@
+2025-03-10 23:45:48,306 - __main__ - INFO - Starting MegaTalk application
+2025-03-10 23:45:48,308 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-10 23:46:05,814 - __main__ - INFO - Starting MegaTalk application
+2025-03-10 23:46:05,819 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-10 23:46:18,177 - __main__ - INFO - Starting MegaTalk application
+2025-03-10 23:46:18,179 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-10 23:46:54,888 - __main__ - INFO - Starting MegaTalk application
+2025-03-10 23:46:54,892 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-10 23:46:55,139 - __main__ - INFO - Starting MegaTalk application
+2025-03-10 23:46:55,144 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-10 23:46:55,155 - __main__ - INFO - Sending request to megaservice: hi how are you?...
+2025-03-10 23:46:55,157 - __main__ - INFO - [frontend_1741650415_-7913060482573222253] Sending request to megaservice
+2025-03-10 23:46:55,179 - __main__ - ERROR - [frontend_1741650415_-7913060482573222253] Service error: Service error: name 'time' is not defined
+2025-03-10 23:47:14,618 - __main__ - INFO - Starting MegaTalk application
+2025-03-10 23:47:14,626 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-10 23:47:15,800 - __main__ - INFO - Starting MegaTalk application
+2025-03-10 23:47:15,805 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-10 23:47:15,809 - __main__ - INFO - Sending request to megaservice: hi how are you?...
+2025-03-10 23:47:15,811 - __main__ - INFO - [frontend_1741650435_-7913060482573222253] Sending request to megaservice
+2025-03-10 23:47:15,824 - __main__ - ERROR - [frontend_1741650435_-7913060482573222253] Service error: Service error: name 'time' is not defined
+2025-03-11 00:03:06,755 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 00:03:06,757 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 00:03:34,917 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 00:03:34,931 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 00:03:43,186 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 00:03:43,187 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 00:04:13,458 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 00:04:13,460 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 00:04:13,679 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 00:04:13,681 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 00:04:13,684 - __main__ - INFO - Sending request to megaservice: hi I want to make friends...
+2025-03-11 00:04:13,686 - __main__ - INFO - [frontend_1741651453_-7987334241332628350] Sending request to megaservice
+2025-03-11 00:05:07,581 - __main__ - WARNING - [frontend_1741651453_-7987334241332628350] Audio generation issue: TTS generation failed: 500: TTS request failed: ...
+2025-03-11 00:05:07,583 - __main__ - INFO - [frontend_1741651453_-7987334241332628350] Request completed successfully in 53.90s
+2025-03-11 00:05:07,587 - __main__ - INFO - Successfully received response from megaservice
+2025-03-11 00:05:25,955 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 00:05:25,958 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 00:05:53,464 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 00:05:53,469 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 00:05:53,474 - __main__ - INFO - Sending request to megaservice: hi I want to make friends...
+2025-03-11 00:05:53,475 - __main__ - INFO - [frontend_1741651553_-7987334241332628350] Sending request to megaservice
+2025-03-11 00:06:59,343 - __main__ - WARNING - [frontend_1741651553_-7987334241332628350] Audio generation issue: TTS generation failed: 500: TTS request failed: ...
+2025-03-11 00:06:59,346 - __main__ - INFO - [frontend_1741651553_-7987334241332628350] Request completed successfully in 65.87s
+2025-03-11 00:06:59,352 - __main__ - INFO - Successfully received response from megaservice
+2025-03-11 01:14:35,811 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 01:14:35,814 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 01:14:47,737 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 01:14:47,741 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 01:36:59,602 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 01:36:59,609 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 01:37:31,259 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 01:37:31,263 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 01:37:37,437 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 01:37:37,440 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 01:37:43,745 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 01:37:43,748 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 01:37:46,425 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 01:37:46,433 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 01:37:55,376 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 01:37:55,380 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 01:37:55,579 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 01:37:55,581 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 01:37:55,584 - __main__ - INFO - Sending request to megaservice: hi I want to talk to you...
+2025-03-11 01:37:55,586 - __main__ - INFO - [frontend_1741657075_3070201946551598985] Sending request to megaservice
+2025-03-11 01:38:30,338 - __main__ - WARNING - [frontend_1741657075_3070201946551598985] Audio generation issue: TTS generation failed: 500: TTS request failed: ...
+2025-03-11 01:38:30,339 - __main__ - INFO - [frontend_1741657075_3070201946551598985] Request completed successfully in 34.75s
+2025-03-11 01:38:30,343 - __main__ - INFO - Successfully received response from megaservice
+2025-03-11 01:39:01,694 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 01:39:01,702 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 01:39:02,774 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 01:39:02,776 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 01:39:02,783 - __main__ - INFO - Sending request to megaservice: hi I want to talk to you...
+2025-03-11 01:39:02,785 - __main__ - INFO - [frontend_1741657142_3070201946551598985] Sending request to megaservice
+2025-03-11 01:39:04,311 - __main__ - INFO - [frontend_1741657142_3070201946551598985] Request completed successfully in 1.53s
+2025-03-11 01:39:04,314 - __main__ - INFO - Successfully received response from megaservice
+2025-03-11 01:39:25,377 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 01:39:25,384 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 01:39:49,141 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 01:39:49,144 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 01:39:49,149 - __main__ - INFO - Sending request to megaservice: hi I want to talk to you...
+2025-03-11 01:39:49,151 - __main__ - INFO - [frontend_1741657189_3070201946551598985] Sending request to megaservice
+2025-03-11 01:40:20,774 - __main__ - WARNING - [frontend_1741657189_3070201946551598985] Audio generation issue: TTS generation failed: 500: TTS request failed: ...
+2025-03-11 01:40:20,776 - __main__ - INFO - [frontend_1741657189_3070201946551598985] Request completed successfully in 31.62s
+2025-03-11 01:40:20,779 - __main__ - INFO - Successfully received response from megaservice
+2025-03-11 01:45:41,476 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 01:45:41,478 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 01:59:24,122 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 01:59:24,124 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 01:59:37,218 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 01:59:37,220 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 01:59:42,569 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 01:59:42,572 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 01:59:46,315 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 01:59:46,320 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 01:59:46,325 - __main__ - INFO - Sending request to megaservice: Please tell me how you can help me?...
+2025-03-11 01:59:46,327 - __main__ - INFO - [frontend_1741658386_3010726944694277646] Sending request to megaservice
+2025-03-11 01:59:53,663 - __main__ - WARNING - [frontend_1741658386_3010726944694277646] Audio generation issue: TTS generation failed: name 'AUDIO_DIR' is not defined...
+2025-03-11 01:59:53,664 - __main__ - INFO - [frontend_1741658386_3010726944694277646] Request completed successfully in 7.34s
+2025-03-11 01:59:53,673 - __main__ - INFO - Successfully received response from megaservice
