@@ -55,8 +55,9 @@ done\n\
 
 RUN chmod +x /app/start.sh
 
-# Simplified health check that only checks the FastAPI service
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:9500/health || exit 1
+# More comprehensive health check that verifies both services
+HEALTHCHECK --interval=30s --timeout=30s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:9500/health && \
+        curl -f http://localhost:8501/_stcore/health || exit 1
 
 CMD ["/app/start.sh"] 
