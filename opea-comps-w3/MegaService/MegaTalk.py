@@ -293,10 +293,10 @@ with st.expander("Debug Information", expanded=False):
     if "request_history" in st.session_state and st.session_state.request_history:
         st.subheader("Recent Requests")
         for i, details in enumerate(reversed(st.session_state.request_history[-5:])):
-            with st.expander(f"Request {i+1} - {time.strftime('%H:%M:%S', time.localtime(details.get('timestamp', 0)))}"):
-                # Filter out large data like traceback for display
-                display_details = {k: v for k, v in details.items() if k != 'traceback' and not isinstance(v, bytes)}
-                st.json(display_details)
+            st.write(f"Request {i+1} - {time.strftime('%H:%M:%S', time.localtime(details.get('timestamp', 0)))}")
+            # Filter out large data like traceback for display
+            display_details = {k: v for k, v in details.items() if k != 'traceback' and not isinstance(v, bytes)}
+            st.json(display_details)
     
     if st.button("Run Service Diagnostics"):
         with st.spinner("Running diagnostics..."):

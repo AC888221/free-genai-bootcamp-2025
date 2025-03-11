@@ -9,6 +9,11 @@ from pydantic import BaseModel, Field
 import base64
 import logging.handlers
 import time
+from pathlib import Path
+
+# Define the directory for storing audio files
+AUDIO_DIR = Path("audio")
+AUDIO_DIR.mkdir(parents=True, exist_ok=True)
 
 # Configure logging
 LOG_DIR = "logs"
@@ -50,7 +55,7 @@ http_logger = setup_logger('http', 'http.log')
 
 # Get environment variables
 LLM_ENDPOINT = os.getenv("LLM_ENDPOINT", "http://vllm-openvino-arc:8008")
-TTS_ENDPOINT = os.getenv("TTS_ENDPOINT", "http://gptsovits-service:9880")
+TTS_ENDPOINT = os.getenv("TTS_ENDPOINT", "http://tts-gptsovits-service:9088")
 MEGASERVICE_PORT = int(os.getenv("MEGASERVICE_PORT", 9500))
 TTS_DEFAULT_REF_WAV = os.getenv("TTS_DEFAULT_REF_WAV", "welcome_cn.wav")
 TTS_DEFAULT_PROMPT = os.getenv("TTS_DEFAULT_PROMPT", "欢迎使用")
@@ -97,7 +102,7 @@ app = FastAPI(title="OPEA MegaService",
 # Create HTTP clients
 llm_client = httpx.AsyncClient(base_url=LLM_ENDPOINT)
 tts_client = httpx.AsyncClient(
-    base_url=os.getenv("TTS_ENDPOINT", "http://gptsovits-service:9880"),
+    base_url=TTS_ENDPOINT,
     timeout=30.0
 )
 
@@ -110,7 +115,9 @@ async def root():
         "endpoints": {
             "/v1/chat/completions": "LLM chat completions endpoint",
             "/v1/tts": "Text-to-Speech endpoint",
-            "/v1/megaservice": "Combined LLM and TTS endpoint"
+            "/v1/megaservice": "Combined LLM and TTS endpoint",
+            "/v1/audio/files": "List available audio files",
+            "/audio/{filename}": "Serve audio files"
         }
     }
 
@@ -124,11 +131,9 @@ async def health_check():
     }
     
     try:
-        # Check TTS service health using the endpoint we know works
+        # Check TTS service health
         async with httpx.AsyncClient() as client:
-            tts_endpoint = os.getenv('TTS_ENDPOINT', 'http://tts-gptsovits-service:9088')
-            # Use the v1/audio/speech endpoint that we know works
-            tts_response = await client.get(f"{tts_endpoint}/v1/audio/speech")
+            tts_response = await client.get(f"{TTS_ENDPOINT}/")
             if tts_response.status_code in [200, 404]:  # 404 is okay for GET on POST endpoint
                 status["tts_service"] = "online"
             else:
@@ -141,8 +146,7 @@ async def health_check():
     try:
         # Check LLM service health
         async with httpx.AsyncClient() as client:
-            llm_endpoint = os.getenv("LLM_ENDPOINT", "http://vllm-openvino-arc:8008")
-            llm_response = await client.get(f"{llm_endpoint}/health")
+            llm_response = await client.get(f"{LLM_ENDPOINT}/health")
             if llm_response.status_code == 200:
                 status["llm_service"] = "online"
             else:
@@ -169,83 +173,68 @@ async def chat_completions(request: ChatCompletionRequest):
         main_logger.error(f"Error calling LLM service: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error calling LLM service: {str(e)}")
 
-async def try_tts_endpoints(client: httpx.AsyncClient, text: str) -> tuple[bool, Optional[bytes], Optional[str], Optional[str]]:
-    """Try all TTS endpoints in sequence with detailed logging"""
-    all_errors = []
+async def generate_tts_audio(text_response: str, custom_params: dict = None):
+    """
+    Generate audio from text using TTS service, save to file and return the content
     
-    for endpoint in TTS_ENDPOINTS:
-        tts_logger.info(f"Trying endpoint: {endpoint}")
-        full_url = f"{client.base_url.rstrip('/')}{endpoint}"
-        tts_logger.info(f"Full URL: {full_url}")
+    Args:
+        text_response: The text to convert to speech
+        custom_params: Optional dictionary of parameters to customize the TTS request
         
-        # Different payload formats to try
-        payloads = [
-            {
-                "text": text,
-                "text_language": TTS_DEFAULT_LANGUAGE,
-                "prompt_text": TTS_DEFAULT_PROMPT,
-                "prompt_language": TTS_DEFAULT_LANGUAGE,
-            },
-            {
-                "input": text,
-                "language": TTS_DEFAULT_LANGUAGE,
-            },
-            {
-                "text": text,
-                "language": TTS_DEFAULT_LANGUAGE,
-            }
-        ]
-        
-        for i, payload in enumerate(payloads):
-            try:
-                tts_logger.info(f"Trying endpoint {endpoint} with payload format {i+1}: {json.dumps(payload, indent=2)}")
-                
-                # Log request details
-                http_logger.info(f"TTS Request to {endpoint} with payload format {i+1}:")
-                http_logger.info(f"URL: {full_url}")
-                http_logger.info(f"Headers: {dict(client.headers)}")
-                http_logger.info(f"Payload: {json.dumps(payload, indent=2)}")
-                
-                response = await client.post(
-                    endpoint,
-                    json=payload,
-                    timeout=30.0
-                )
-                
-                # Log response details
-                http_logger.info(f"TTS Response from {endpoint} with payload format {i+1}:")
-                http_logger.info(f"Status: {response.status_code}")
-                http_logger.info(f"Headers: {dict(response.headers)}")
-                
-                if response.status_code == 200:
-                    content = response.content
-                    content_size = len(content)
-                    tts_logger.info(f"Success with endpoint {endpoint}, content size: {content_size} bytes")
-                    
-                    if content_size > 100:  # Basic size validation
-                        return True, content, None, endpoint
-                    else:
-                        tts_logger.warning(f"Response from {endpoint} too small: {content_size} bytes")
-                else:
-                    try:
-                        error_content = response.content.decode('utf-8')[:500]
-                        tts_logger.warning(f"Failed with status {response.status_code} for endpoint {endpoint}")
-                        tts_logger.warning(f"Error response: {error_content}")
-                        http_logger.error(f"Error content from {endpoint}: {error_content}")
-                        all_errors.append(f"Endpoint {endpoint} with payload {i+1}: Status {response.status_code} - {error_content[:100]}...")
-                    except Exception as decode_error:
-                        tts_logger.warning(f"Could not decode error response from {endpoint}: {str(decode_error)}")
-                        all_errors.append(f"Endpoint {endpoint} with payload {i+1}: Decode error - {str(decode_error)}")
-                        
-            except Exception as e:
-                tts_logger.exception(f"Exception with endpoint {endpoint}, payload format {i+1}: {str(e)}")
-                all_errors.append(f"Endpoint {endpoint} with payload {i+1}: Exception - {str(e)}")
-                continue
+    Returns:
+        bytes: The audio content as bytes
+    """
+    tts_logger.info(f"Generating TTS for text: {text_response[:50]}...")
     
-    # If we get here, all endpoints failed
-    error_summary = "\n".join(all_errors)
-    tts_logger.error(f"All TTS endpoints failed:\n{error_summary}")
-    return False, None, error_summary, None
+    # Generate a unique filename based on timestamp
+    timestamp = int(time.time())
+    audio_filename = f"speech_{timestamp}.wav"
+    audio_path = AUDIO_DIR / audio_filename
+    
+    # Base parameters for GPT-SoVITS
+    params = {
+        "text": text_response,
+        "text_language": TTS_DEFAULT_LANGUAGE,
+        "prompt_text": TTS_DEFAULT_PROMPT, 
+        "prompt_language": TTS_DEFAULT_LANGUAGE,
+        "refer_wav_path": TTS_DEFAULT_REF_WAV
+    }
+    
+    # Update with any custom parameters
+    if custom_params:
+        params.update(custom_params)
+    
+    try:
+        # Log request details
+        tts_logger.info(f"TTS Request to {TTS_ENDPOINT}")
+        tts_logger.debug(f"TTS Params: {json.dumps(params, indent=2)}")
+        
+        # Make the request
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(
+                f"{TTS_ENDPOINT}/",  # Using the root endpoint
+                json=params
+            )
+            response.raise_for_status()
+            
+            # Get the audio content
+            audio_content = response.content
+            
+            # Validate content
+            if len(audio_content) < 100:
+                raise ValueError(f"TTS response too small: {len(audio_content)} bytes")
+                
+            # Save the audio file
+            audio_path.write_bytes(audio_content)
+            tts_logger.info(f"Saved audio to {audio_path}")
+            
+            # Return the audio content
+            return audio_content
+            
+    except Exception as e:
+        error_msg = f"TTS generation failed: {str(e)}"
+        tts_logger.error(error_msg)
+        raise HTTPException(status_code=500, detail=error_msg)
 
 @app.post("/v1/tts")
 async def text_to_speech(request: TTSRequest):
@@ -279,10 +268,10 @@ async def tts_info():
         # Try test TTS request
         test_params = {
             "text": "Test",
-            "text_language": os.getenv("TTS_DEFAULT_LANGUAGE", "zh"),
-            "prompt_text": os.getenv("TTS_DEFAULT_PROMPT", "欢迎使用"),
-            "prompt_language": os.getenv("TTS_DEFAULT_LANGUAGE", "zh"),
-            "refer_wav_path": os.getenv("TTS_DEFAULT_REF_WAV", "welcome_cn.wav")
+            "text_language": TTS_DEFAULT_LANGUAGE,
+            "prompt_text": TTS_DEFAULT_PROMPT,
+            "prompt_language": TTS_DEFAULT_LANGUAGE,
+            "refer_wav_path": TTS_DEFAULT_REF_WAV
         }
         
         try:
@@ -302,64 +291,12 @@ async def tts_info():
             "base_url": str(tts_client.base_url)
         }
 
-async def generate_tts_audio(text_response: str, custom_params: dict = None):
-    """Generate audio from text using TTS service and save to file"""
-    tts_logger.info("generate_tts_audio function called")
-    
-    # Generate a unique filename based on timestamp
-    timestamp = int(time.time())
-    audio_filename = f"speech_{timestamp}.mp3"
-    audio_path = AUDIO_DIR / audio_filename
-    
-    # Default parameters matching the working curl command
-    params = {
-        "input": text_response,
-        "model": "microsoft/speecht5_tts",
-        "voice": "default",
-        "response_format": "mp3",
-        "speed": 1.0
-    }
-
-    if custom_params:
-        params.update(custom_params)
-
-    try:
-        tts_endpoint = os.getenv('TTS_ENDPOINT', 'http://tts-gptsovits-service:9088')
-        url = f"{tts_endpoint}/v1/audio/speech"
-
-        main_logger.info(f"TTS Request URL: {url}")
-        main_logger.debug(f"TTS Request Payload: {params}")
-
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                url,
-                json=params,
-                timeout=30.0
-            )
-            response.raise_for_status()
-            
-            # Save the audio file
-            audio_path.write_bytes(response.content)
-            
-            # Return the relative path to the audio file
-            return str(audio_path.relative_to(Path("static")))
-
-    except httpx.HTTPError as e:
-        error_msg = f"TTS request failed: {str(e)}"
-        main_logger.error(error_msg)
-        raise HTTPException(status_code=500, detail=error_msg)
-    except Exception as e:
-        error_msg = f"Unexpected error in TTS generation: {str(e)}"
-        main_logger.exception(error_msg)
-        raise HTTPException(status_code=500, detail=error_msg)
-
 @app.post("/v1/megaservice", response_model=MegaServiceResponse)
 async def megaservice(request: MegaServiceRequest):
     """Combined LLM and TTS endpoint with comprehensive logging"""
     try:
-        request_id = f"req_{int(time.time())}_{id(request)}"
+        request_id = f"req_{int(time.time())}"
         main_logger.info(f"[{request_id}] Received megaservice request")
-        main_logger.info(f"[{request_id}] Request: {request.dict()}")
         
         # Get LLM response first
         llm_request = ChatCompletionRequest(
@@ -370,7 +307,6 @@ async def megaservice(request: MegaServiceRequest):
         )
         
         llm_logger.info(f"[{request_id}] Sending LLM request")
-        llm_logger.debug(f"[{request_id}] Request payload: {llm_request.dict()}")
         
         try:
             llm_response = await llm_client.post(
@@ -396,8 +332,19 @@ async def megaservice(request: MegaServiceRequest):
         if request.generate_audio:
             main_logger.info(f"[{request_id}] Starting TTS generation")
             
+            # Prepare TTS parameters
+            tts_params = {
+                "text_language": TTS_DEFAULT_LANGUAGE,
+                "prompt_text": TTS_DEFAULT_PROMPT,
+                "prompt_language": TTS_DEFAULT_LANGUAGE
+            }
+            
+            # Use custom voice if specified
+            if request.voice and request.voice != "default":
+                tts_params["refer_wav_path"] = f"{request.voice}.wav"
+            
             try:
-                audio_content = await generate_tts_audio(text_response)
+                audio_content = await generate_tts_audio(text_response, tts_params)
                 response.audio_data = base64.b64encode(audio_content).decode("utf-8")
                 response.audio_format = "wav"
             except Exception as e:
@@ -415,10 +362,51 @@ async def megaservice(request: MegaServiceRequest):
         main_logger.exception(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
 
+@app.get("/v1/audio/files")
+async def list_audio_files():
+    """List all available audio files"""
+    try:
+        # Get all audio files
+        audio_files = list(AUDIO_DIR.glob("*.wav"))
+        audio_files.extend(AUDIO_DIR.glob("*.mp3"))
+        
+        # Sort by creation time (newest first)
+        audio_files.sort(key=lambda x: os.path.getctime(x), reverse=True)
+        
+        # Format response
+        files = []
+        for file in audio_files:
+            file_stats = file.stat()
+            files.append({
+                "filename": file.name,
+                "path": f"/audio/{file.name}",
+                "size": file_stats.st_size,
+                "created": os.path.getctime(file)
+            })
+        
+        return {"files": files}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error listing audio files: {str(e)}")
+
+@app.get("/audio/{filename}")
+async def get_audio_file(filename: str):
+    """Serve an audio file from the audio directory"""
+    file_path = AUDIO_DIR / filename
+    
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail=f"File {filename} not found")
+    
+    # Determine content type
+    content_type = "audio/wav"
+    if filename.lower().endswith(".mp3"):
+        content_type = "audio/mpeg"
+    
+    return Response(content=file_path.read_bytes(), media_type=content_type)
+
 @app.on_event("shutdown")
 async def shutdown_event():
     await llm_client.aclose()
     await tts_client.aclose()
 
 if __name__ == "__main__":
-    uvicorn.run("server:app", host="0.0.0.0", port=MEGASERVICE_PORT, log_level="info") 
+    uvicorn.run("server:app", host="0.0.0.0", port=MEGASERVICE_PORT, log_level="info")
