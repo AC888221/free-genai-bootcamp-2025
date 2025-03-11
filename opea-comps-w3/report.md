@@ -305,3 +305,20 @@ Emphasized the importance of robust error handling and logging in the generate_t
 Testing and Validation:
 Recommended testing the TTS service independently using curl to validate the request structure and service response.
 This summary encapsulates the actions taken to address issues and improve the functionality of the OPEA project, particularly focusing on the TTS service integration and Streamlit application.
+
+Progress Report on OPEA Development
+Integration of GPT-SoVITS Test Functionality:
+Integrated a test function for the GPT-SoVITS endpoints, ensuring it matched the expected API format.
+Code Simplification:
+Simplified the TTS endpoint tests to match the working format of the GPT-SoVITS service, using a direct input format.
+Timeout Adjustments:
+Increased the timeout for TTS service requests to 120 seconds to accommodate longer processing times.
+Direct URL Usage:
+Updated the code to use the GPT_SOVITS_URL directly instead of going through a TTS wrapper, streamlining the request process.
+Error Handling Improvements:
+Implemented retry logic in the EndpointTest class to handle potential timeouts during requests.
+Testing and Validation:
+Conducted tests to ensure both TTS and GPT-SoVITS services were functioning correctly, logging results and errors for further analysis.
+Code Cleanup:
+Removed unnecessary complexity by eliminating the TTS wrapper where it was no longer needed, focusing on direct service calls.
+This summary encapsulates the key actions taken to enhance the OPEA project, focusing on improving the integration and testing of the GPT-SoVITS service.

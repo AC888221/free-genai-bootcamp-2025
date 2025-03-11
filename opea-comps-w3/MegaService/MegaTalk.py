@@ -24,7 +24,12 @@ logger = logging.getLogger(__name__)
 
 # Configuration
 MEGASERVICE_URL = os.getenv("MEGASERVICE_URL", "http://localhost:9500")
-REQUEST_TIMEOUT = int(os.getenv("REQUEST_TIMEOUT", "90"))  # Longer timeout
+BASE_TIMEOUT = 300  # Base timeout in seconds
+TIMEOUT_PER_CHAR = 1  # Additional timeout per character in seconds
+
+# Constants
+AUDIO_DIR = Path("audio")
+AUDIO_DIR.mkdir(exist_ok=True)
 
 st.set_page_config(
     page_title="OPEA MegaTalk",
@@ -142,6 +147,10 @@ user_input = st.text_area("Enter your message:", height=150)
 logger.info("Starting MegaTalk application")
 logger.info(f"MEGASERVICE_URL: {MEGASERVICE_URL}")
 
+def calculate_timeout(input_text):
+    """Calculate timeout based on input text length."""
+    return BASE_TIMEOUT + (len(input_text) * TIMEOUT_PER_CHAR)
+
 def call_megaservice(text: str, params: Dict[str, Any]) -> Tuple[Optional[str], Optional[bytes], Optional[str], Dict[str, Any]]:
     """
     Call the megaservice with error handling and retries.
@@ -165,7 +174,7 @@ def call_megaservice(text: str, params: Dict[str, Any]) -> Tuple[Optional[str], 
                     "max_tokens": params.get("max_tokens", 1000),
                     "voice": params.get("voice", "default")
                 },
-                timeout=REQUEST_TIMEOUT
+                timeout=calculate_timeout(text)
             )
             
             details["response_time"] = time.time() - start_time
@@ -222,6 +231,34 @@ def call_megaservice(text: str, params: Dict[str, Any]) -> Tuple[Optional[str], 
         details["traceback"] = traceback.format_exc()
         return None, None, f"Error: {str(e)}", details
 
+def fetch_audio_files():
+    """Fetch list of audio files from the API"""
+    try:
+        response = requests.get(f"{MEGASERVICE_URL}/v1/audio/files")
+        if response.status_code == 200:
+            return response.json()["files"]
+        else:
+            logger.error(f"Failed to fetch audio files: {response.status_code}")
+            return []
+    except Exception as e:
+        logger.error(f"Error fetching audio files: {str(e)}")
+        return []
+
+def download_audio_file(filename):
+    """Download an audio file from the API"""
+    try:
+        response = requests.get(f"{MEGASERVICE_URL}/audio/{filename}")
+        if response.status_code == 200:
+            local_path = AUDIO_DIR / filename
+            local_path.write_bytes(response.content)
+            return local_path
+        else:
+            logger.error(f"Failed to download audio file: {response.status_code}")
+            return None
+    except Exception as e:
+        logger.error(f"Error downloading audio file: {str(e)}")
+        return None
+
 if st.button("Submit"):
     if not user_input.strip():
         st.error("Please enter a message")
@@ -276,6 +313,23 @@ if st.button("Submit"):
                         )
                     else:
                         st.warning("Audio was requested but could not be generated. See server logs for details.")
+                
+                # New section to display and play existing audio files
+                st.header("Existing Audio Files")
+                files = fetch_audio_files()
+                if not files:
+                    st.info("No audio files found.")
+                else:
+                    for file in files:
+                        with st.expander(f"{file['filename']}"):
+                            local_path = AUDIO_DIR / file['filename']
+                            if not local_path.exists():
+                                local_path = download_audio_file(file['filename'])
+                            
+                            if local_path and local_path.exists():
+                                st.audio(local_path.read_bytes(), format=f"audio/{local_path.suffix[1:]}")
+                            else:
+                                st.warning("Audio file not available locally")
                 
                 # Add to chat history
                 if "chat_history" not in st.session_state:

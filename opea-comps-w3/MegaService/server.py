@@ -61,6 +61,10 @@ TTS_DEFAULT_REF_WAV = os.getenv("TTS_DEFAULT_REF_WAV", "welcome_cn.wav")
 TTS_DEFAULT_PROMPT = os.getenv("TTS_DEFAULT_PROMPT", "欢迎使用")
 TTS_DEFAULT_LANGUAGE = os.getenv("TTS_DEFAULT_LANGUAGE", "zh")
 
+# Instead of importing GPT_SOVITS_URL from config.py
+# Use the environment variable directly
+GPT_SOVITS_URL = os.getenv('TTS_ENDPOINT', f"http://localhost:{os.getenv('GPT_SOVITS_PORT', '9880')}")
+
 # Define models
 class ChatMessage(BaseModel):
     role: str
@@ -206,13 +210,13 @@ async def generate_tts_audio(text_response: str, custom_params: dict = None):
     
     try:
         # Log request details
-        tts_logger.info(f"TTS Request to {TTS_ENDPOINT}")
+        tts_logger.info(f"TTS Request to {GPT_SOVITS_URL}/v1/audio/speech")
         tts_logger.debug(f"TTS Params: {json.dumps(params, indent=2)}")
         
-        # Make the request
+        # Make the request directly to GPT_SOVITS_URL
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(
-                f"{TTS_ENDPOINT}/",  # Using the root endpoint
+                f"{GPT_SOVITS_URL}/v1/audio/speech",  # Directly using GPT_SOVITS_URL
                 json=params
             )
             response.raise_for_status()

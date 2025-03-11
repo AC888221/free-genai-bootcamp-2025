@@ -89,7 +89,7 @@ services:
       - "${TTS_PORT:-9088}:9088"
     ipc: host
     environment:
-      TTS_ENDPOINT: ${TTS_ENDPOINT:-http://gptsovits-service:9880}
+      TTS_ENDPOINT: ${TTS_ENDPOINT:-http://tts-gptsovits-service:9088}
       TTS_COMPONENT_NAME: ${TTS_COMPONENT_NAME:-OPEA_GPTSOVITS_TTS}
       PYDANTIC_PROTECTED_NAMESPACES: ""
     depends_on:
@@ -109,7 +109,7 @@ services:
       - "./logs:/var/log"
     environment:
       - LLM_ENDPOINT=${LLM_ENDPOINT:-http://vllm-openvino-arc:8008}
-      - TTS_ENDPOINT=${TTS_ENDPOINT:-http://tts-gptsovits-service:9880}
+      - TTS_ENDPOINT=${TTS_ENDPOINT:-http://tts-gptsovits-service:9088}
       - MEGASERVICE_PORT=${MEGASERVICE_PORT:-9500}
       - MEGASERVICE_URL=${MEGASERVICE_URL:-http://localhost:9500}
     healthcheck:

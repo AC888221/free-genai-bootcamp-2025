@@ -6,61 +6,26 @@ Collecting usage statistics. To deactivate, set browser.gatherUsageStats to fals
 
   URL: http://0.0.0.0:8501
 
-2025-03-11 04:11:14,933 - __main__ - INFO - Starting MegaTalk application
-2025-03-11 04:11:14,934 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
-2025-03-11 04:11:16,109 - __main__ - INFO - Starting MegaTalk application
-2025-03-11 04:11:16,110 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
-2025-03-11 04:11:19,208 - __main__ - INFO - Starting MegaTalk application
-2025-03-11 04:11:19,209 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
-2025-03-11 04:11:22,928 - __main__ - INFO - Starting MegaTalk application
-2025-03-11 04:11:22,929 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
-2025-03-11 04:11:33,351 - __main__ - INFO - Starting MegaTalk application
-2025-03-11 04:11:33,352 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
-2025-03-11 04:11:33,475 - __main__ - INFO - Starting MegaTalk application
-2025-03-11 04:11:33,476 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
-2025-03-11 04:11:33,477 - __main__ - INFO - Sending request to megaservice: hello...
-2025-03-11 04:11:33,477 - __main__ - INFO - [frontend_1741666293_6497828872650924737] Sending request to megaservice
-2025-03-11 04:12:04,989 - __main__ - WARNING - [frontend_1741666293_6497828872650924737] Audio generation issue: TTS generation failed: 500: TTS request failed: ...
-2025-03-11 04:12:04,990 - __main__ - INFO - [frontend_1741666293_6497828872650924737] Request completed successfully in 31.51s
-2025-03-11 04:12:04,994 - __main__ - INFO - Successfully received response from megaservice
-2025-03-11 04:12:04.997 Uncaught app execution
+2025-03-11 11:22:35,531 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 11:22:35,532 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 11:22:38,943 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 11:22:38,946 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 11:22:49,438 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 11:22:49,438 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 11:22:49,569 - __main__ - INFO - Starting MegaTalk application
+2025-03-11 11:22:49,570 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-11 11:22:49,572 - __main__ - INFO - Sending request to megaservice: hi how are you?...
+2025-03-11 11:22:49,573 - __main__ - INFO - [frontend_1741692169_-8888096360349971442] Sending request to megaservice
+2025-03-11 11:22:53,681 - __main__ - WARNING - [frontend_1741692169_-8888096360349971442] Audio generation issue: TTS generation failed: 500: TTS generation failed: Client error '422 Unprocessable Entity' for url 'http://tts-gptsovits-service:9088/v1/audio/speech'
+For more information check: https://developer.moz...
+2025-03-11 11:22:53,681 - __main__ - INFO - [frontend_1741692169_-8888096360349971442] Request completed successfully in 4.11s
+2025-03-11 11:22:53,683 - __main__ - INFO - Successfully received response from megaservice
+2025-03-11 11:22:53.693 Uncaught app execution
 Traceback (most recent call last):
   File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 121, in exec_func_with_error_handling
     result = func()
   File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 593, in code_to_exec
     exec(code, module.__dict__)
-  File "/app/MegaTalk.py", line 296, in <module>
-    with st.expander(f"Request {i+1} - {time.strftime('%H:%M:%S', time.localtime(details.get('timestamp', 0)))}"):
-  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/metrics_util.py", line 410, in wrapped_func
-    result = non_optional_func(*args, **kwargs)
-  File "/usr/local/lib/python3.10/site-packages/streamlit/elements/layouts.py", line 603, in expander
-    return self.dg._block(block_proto=block_proto)
-  File "/usr/local/lib/python3.10/site-packages/streamlit/delta_generator.py", line 518, in _block
-    _check_nested_element_violation(self, block_type, ancestor_block_types)
-  File "/usr/local/lib/python3.10/site-packages/streamlit/delta_generator.py", line 598, in _check_nested_element_violation
-    raise StreamlitAPIException(
-streamlit.errors.StreamlitAPIException: Expanders may not be nested inside other expanders.
-2025-03-11 04:16:01,960 - __main__ - INFO - Starting MegaTalk application
-2025-03-11 04:16:01,961 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
-2025-03-11 04:16:01,962 - __main__ - INFO - Sending request to megaservice: hello...
-2025-03-11 04:16:01,963 - __main__ - INFO - [frontend_1741666561_6497828872650924737] Sending request to megaservice
-2025-03-11 04:16:31,938 - __main__ - WARNING - [frontend_1741666561_6497828872650924737] Audio generation issue: TTS generation failed: 500: TTS request failed: ...
-2025-03-11 04:16:31,939 - __main__ - INFO - [frontend_1741666561_6497828872650924737] Request completed successfully in 29.97s
-2025-03-11 04:16:31,942 - __main__ - INFO - Successfully received response from megaservice
-2025-03-11 04:16:31.945 Uncaught app execution
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 121, in exec_func_with_error_handling
-    result = func()
-  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 593, in code_to_exec
-    exec(code, module.__dict__)
-  File "/app/MegaTalk.py", line 296, in <module>
-    with st.expander(f"Request {i+1} - {time.strftime('%H:%M:%S', time.localtime(details.get('timestamp', 0)))}"):
-  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/metrics_util.py", line 410, in wrapped_func
-    result = non_optional_func(*args, **kwargs)
-  File "/usr/local/lib/python3.10/site-packages/streamlit/elements/layouts.py", line 603, in expander
-    return self.dg._block(block_proto=block_proto)
-  File "/usr/local/lib/python3.10/site-packages/streamlit/delta_generator.py", line 518, in _block
-    _check_nested_element_violation(self, block_type, ancestor_block_types)
-  File "/usr/local/lib/python3.10/site-packages/streamlit/delta_generator.py", line 598, in _check_nested_element_violation
-    raise StreamlitAPIException(
-streamlit.errors.StreamlitAPIException: Expanders may not be nested inside other expanders.
+  File "/app/MegaTalk.py", line 376, in <module>
+    display_conversation()
+NameError: name 'display_conversation' is not defined

@@ -1,3 +1,34 @@
+Key Issues in Your Testing Code
+Looking at your test code and the GPT-SoVITS API documentation:
+
+Your test_endpoints functions aren't specifically testing the GPT-SoVITS endpoints correctly
+The GPT-SoVITS API requires specific parameters that may be missing in your requests
+Your test configuration doesn't match the expected format for the GPT-SoVITS API
+
+GPT-SoVITS Endpoints
+From the first document, here are the main endpoints:
+
+/tts - For text-to-speech conversion
+/control - For service control (restart/exit)
+/set_gpt_weights - To change GPT model weights
+/set_sovits_weights - To change SoVITS model weights
+
+Common Issues and Required Parameters
+Based on the GPT-SoVITS code, here are the mandatory parameters for the TTS endpoint:
+
+text - Text to be synthesized (required)
+text_lang - Language of the text (required, must be in supported languages)
+ref_audio_path - Reference audio path (required)
+prompt_lang - Language of the prompt text (required, must be in supported languages)
+text_split_method - Text split method (must be in supported methods, default is "cut5")
+
+Make sure that:
+
+The audio file referenced by ref_audio_path actually exists in the system
+The languages specified are supported by your GPT-SoVITS installation
+For GET requests, all parameters are properly URL-encoded
+
+
 Overview
 This document aims to introduce how to use our Text-to-Speech API, including making requests via GET and POST methods. This API supports converting text into the voice of specified characters and supports different languages and emotional expressions.
 
