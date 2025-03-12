@@ -55,7 +55,7 @@ http_logger = setup_logger('http', 'http.log')
 
 # Get environment variables
 LLM_ENDPOINT = os.getenv("LLM_ENDPOINT", "http://vllm-openvino-arc:8008")
-TTS_ENDPOINT = os.getenv("TTS_ENDPOINT", "http://tts-gptsovits-service:9088")
+TTS_ENDPOINT = os.getenv("TTS_ENDPOINT", "http://gpt-sovits-service:9880")
 MEGASERVICE_PORT = int(os.getenv("MEGASERVICE_PORT", 9500))
 TTS_DEFAULT_REF_WAV = os.getenv("TTS_DEFAULT_REF_WAV", "welcome_cn.wav")
 TTS_DEFAULT_PROMPT = os.getenv("TTS_DEFAULT_PROMPT", "欢迎使用")
@@ -107,7 +107,7 @@ app = FastAPI(title="OPEA MegaService",
 llm_client = httpx.AsyncClient(base_url=LLM_ENDPOINT)
 tts_client = httpx.AsyncClient(
     base_url=TTS_ENDPOINT,
-    timeout=30.0
+    timeout=60.0
 )
 
 @app.get("/")
@@ -197,11 +197,8 @@ async def generate_tts_audio(text_response: str, custom_params: dict = None):
     
     # Base parameters for GPT-SoVITS
     params = {
-        "text": text_response,
-        "text_language": TTS_DEFAULT_LANGUAGE,
-        "prompt_text": TTS_DEFAULT_PROMPT, 
-        "prompt_language": TTS_DEFAULT_LANGUAGE,
-        "refer_wav_path": TTS_DEFAULT_REF_WAV
+        "input": text_response,  # Make sure this matches what GPT-SoVITS expects
+        # Other parameters as needed
     }
     
     # Update with any custom parameters
@@ -210,13 +207,13 @@ async def generate_tts_audio(text_response: str, custom_params: dict = None):
     
     try:
         # Log request details
-        tts_logger.info(f"TTS Request to {GPT_SOVITS_URL}/v1/audio/speech")
+        tts_logger.info(f"TTS Request to {TTS_ENDPOINT}/v1/audio/speech")
         tts_logger.debug(f"TTS Params: {json.dumps(params, indent=2)}")
         
-        # Make the request directly to GPT_SOVITS_URL
+        # Make the request to the TTS endpoint
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(
-                f"{GPT_SOVITS_URL}/v1/audio/speech",  # Directly using GPT_SOVITS_URL
+                f"{TTS_ENDPOINT}/v1/audio/speech",  # Use the correct endpoint
                 json=params
             )
             response.raise_for_status()

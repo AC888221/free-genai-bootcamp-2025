@@ -259,6 +259,51 @@ def download_audio_file(filename):
         logger.error(f"Error downloading audio file: {str(e)}")
         return None
 
+def display_conversation():
+    """Display the conversation history with audio playback"""
+    for i, details in enumerate(reversed(st.session_state.chat_history)):
+        # Use columns instead of nested expanders
+        col1, col2 = st.columns([3, 1])
+        
+        with col1:
+            st.write(f"### Request {len(st.session_state.chat_history) - i}")
+            
+            # Check if details is a tuple with at least 3 elements and the third element is a dictionary
+            if isinstance(details, tuple) and len(details) >= 3 and isinstance(details[2], dict):
+                timestamp = details[2].get('timestamp', 0)
+                st.write(f"Time: {time.strftime('%H:%M:%S', time.localtime(timestamp))}")
+                
+                # Display the text response (second element in the tuple)
+                st.write("**Response:**")
+                st.write(details[1])
+                
+                # Handle audio playback
+                audio_path = details[2].get("audio_path")
+                if audio_path:
+                    try:
+                        # Construct the full path to the audio file
+                        full_audio_path = Path("static") / audio_path
+                        if full_audio_path.exists():
+                            st.audio(str(full_audio_path), format="audio/mp3")
+                        else:
+                            st.warning("Audio file not found")
+                    except Exception as e:
+                        st.error(f"Error playing audio: {str(e)}")
+                else:
+                    st.info("No audio available for this response")
+            else:
+                # Handle the case where details doesn't have the expected structure
+                st.write("Time: Unknown")
+                st.write("**Response:**")
+                if isinstance(details, tuple) and len(details) >= 2:
+                    st.write(details[1])
+                else:
+                    st.write("Response data not available in the expected format")
+                st.info("No audio available for this response")
+        
+        # Add a divider between conversations
+        st.divider()
+
 if st.button("Submit"):
     if not user_input.strip():
         st.error("Please enter a message")
@@ -375,34 +420,13 @@ if "chat_history" in st.session_state and st.session_state.chat_history:
     st.subheader("Chat History")
     display_conversation()
 
-def display_conversation():
-    """Display the conversation history with audio playback"""
-    for i, details in enumerate(reversed(st.session_state.conversation)):
-        # Use columns instead of nested expanders
-        col1, col2 = st.columns([3, 1])
-        
-        with col1:
-            st.write(f"### Request {len(st.session_state.conversation) - i}")
-            st.write(f"Time: {time.strftime('%H:%M:%S', time.localtime(details.get('timestamp', 0)))}")
-            
-            # Display the text response
-            st.write("**Response:**")
-            st.write(details.get("response", "No response available"))
-            
-            # Handle audio playback
-            audio_path = details.get("audio_path")
-            if audio_path:
-                try:
-                    # Construct the full path to the audio file
-                    full_audio_path = Path("static") / audio_path
-                    if full_audio_path.exists():
-                        st.audio(str(full_audio_path), format="audio/mp3")
-                    else:
-                        st.warning("Audio file not found")
-                except Exception as e:
-                    st.error(f"Error playing audio: {str(e)}")
-            else:
-                st.info("No audio available for this response")
-        
-        # Add a divider between conversations
-        st.divider()
+# Add to your app
+if st.checkbox("Debug Mode"):
+    st.write("Session State:", st.session_state)
+    
+    if st.button("Test Service Connection"):
+        try:
+            response = requests.get(f"{MEGASERVICE_URL}/health", timeout=5)
+            st.json(response.json())
+        except Exception as e:
+            st.error(f"Connection error: {str(e)}")

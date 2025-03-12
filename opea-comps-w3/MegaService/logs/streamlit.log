@@ -6,26 +6,3 @@ Collecting usage statistics. To deactivate, set browser.gatherUsageStats to fals
 
   URL: http://0.0.0.0:8501
 
-2025-03-11 11:22:35,531 - __main__ - INFO - Starting MegaTalk application
-2025-03-11 11:22:35,532 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
-2025-03-11 11:22:38,943 - __main__ - INFO - Starting MegaTalk application
-2025-03-11 11:22:38,946 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
-2025-03-11 11:22:49,438 - __main__ - INFO - Starting MegaTalk application
-2025-03-11 11:22:49,438 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
-2025-03-11 11:22:49,569 - __main__ - INFO - Starting MegaTalk application
-2025-03-11 11:22:49,570 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
-2025-03-11 11:22:49,572 - __main__ - INFO - Sending request to megaservice: hi how are you?...
-2025-03-11 11:22:49,573 - __main__ - INFO - [frontend_1741692169_-8888096360349971442] Sending request to megaservice
-2025-03-11 11:22:53,681 - __main__ - WARNING - [frontend_1741692169_-8888096360349971442] Audio generation issue: TTS generation failed: 500: TTS generation failed: Client error '422 Unprocessable Entity' for url 'http://tts-gptsovits-service:9088/v1/audio/speech'
-For more information check: https://developer.moz...
-2025-03-11 11:22:53,681 - __main__ - INFO - [frontend_1741692169_-8888096360349971442] Request completed successfully in 4.11s
-2025-03-11 11:22:53,683 - __main__ - INFO - Successfully received response from megaservice
-2025-03-11 11:22:53.693 Uncaught app execution
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 121, in exec_func_with_error_handling
-    result = func()
-  File "/usr/local/lib/python3.10/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 593, in code_to_exec
-    exec(code, module.__dict__)
-  File "/app/MegaTalk.py", line 376, in <module>
-    display_conversation()
-NameError: name 'display_conversation' is not defined
