@@ -39,7 +39,7 @@ st.set_page_config(
 
 # Title and description
 st.title("🤖 OPEA MegaTalk")
-st.markdown("### Conversational AI with Voice Response")
+st.markdown("### Your Language Buddy with Voice Response")
 
 # Initialize session state for service status tracking
 if "service_status" not in st.session_state:
@@ -52,6 +52,17 @@ if "service_status" not in st.session_state:
 # Sidebar for configuration
 with st.sidebar:
     st.header("Configuration")
+    
+    # Add HSK level selector first
+    hsk_level = st.selectbox(
+        "Chinese Language Level",
+        ["HSK 1 (Beginner)", "HSK 2 (Elementary)", "HSK 3 (Intermediate)", 
+         "HSK 4 (Advanced Intermediate)", "HSK 5 (Advanced)", "HSK 6 (Mastery)"],
+        index=0,  # Default to HSK 1
+        help="Select the HSK level for Chinese responses"
+    )
+    
+    # Then add other configuration options
     model = st.selectbox(
         "LLM Model",
         ["Qwen/Qwen2.5-0.5B-Instruct", "other-model-1", "other-model-2"],
@@ -151,6 +162,70 @@ def calculate_timeout(input_text):
     """Calculate timeout based on input text length."""
     return BASE_TIMEOUT + (len(input_text) * TIMEOUT_PER_CHAR)
 
+def get_hsk_prompt(hsk_level: str) -> str:
+    """Get the appropriate system prompt for the selected HSK level."""
+    hsk_prompts = {
+        "HSK 1 (Beginner)": """Language Rules:
+1. Only use HSK 1 vocabulary (150 basic words)
+2. Use simple greetings: 你好, 再见
+3. Basic pronouns: 我, 你, 他
+4. Simple verbs: 是, 有, 喜欢
+5. Keep sentences under 5 words
+Example: 你好！我是老师。""",
+        
+        "HSK 2 (Elementary)": """Language Rules:
+1. Use HSK 1-2 vocabulary (300 words)
+2. Simple time expressions: 今天, 明天
+3. Basic questions: 什么, 谁, 哪里
+4. Common actions: 吃, 喝, 说, 看
+5. Keep sentences under 8 words
+Example: 今天天气很好，我很高兴。""",
+        
+        "HSK 3 (Intermediate)": """Language Rules:
+1. Use HSK 1-3 vocabulary (600 words)
+2. Express opinions: 我觉得, 我认为
+3. Time and sequence: 以前, 然后, 最后
+4. Compare things: 比, 更, 最
+5. Keep sentences under 10 words
+Example: 我觉得学习中文很有意思。""",
+        
+        "HSK 4 (Advanced Intermediate)": """Language Rules:
+1. Use HSK 1-4 vocabulary (1200 words)
+2. Complex emotions: 激动, 失望, 担心
+3. Abstract concepts: 经验, 机会, 建议
+4. Use 因为...所以... structures
+5. Keep sentences under 15 words
+Example: 因为你说得很好，所以我很佩服你。""",
+        
+        "HSK 5 (Advanced)": """Language Rules:
+1. Use HSK 1-5 vocabulary (2500 words)
+2. Professional terms: 研究, 调查, 分析
+3. Complex opinions: 据我所知, 在我看来
+4. Use idioms carefully: 马马虎虎, 半途而废
+5. Keep sentences under 20 words
+Example: 在我看来，学习语言需要持之以恒。""",
+        
+        "HSK 6 (Mastery)": """Language Rules:
+1. Use full HSK vocabulary (5000+ words)
+2. Academic language: 理论, 观点, 假设
+3. Literary expressions: 引经据典
+4. Complex structures: 不但...而且..., 即使...也...
+5. Keep sentences under 25 words
+Example: 掌握一门语言不仅需要勤奋，而且要有正确的学习方法。"""
+    }
+    return hsk_prompts.get(hsk_level, hsk_prompts["HSK 1 (Beginner)"])
+
+def save_audio(audio_data: bytes, request_id: str) -> Path:
+    """Save audio data to file and return the path."""
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    filename = f"response_{timestamp}_{request_id[:8]}.wav"
+    audio_path = AUDIO_DIR / filename
+    
+    with open(audio_path, "wb") as f:
+        f.write(audio_data)
+    
+    return audio_path
+
 def call_megaservice(text: str, params: Dict[str, Any]) -> Tuple[Optional[str], Optional[bytes], Optional[str], Dict[str, Any]]:
     """
     Call the megaservice with error handling and retries.
@@ -160,6 +235,23 @@ def call_megaservice(text: str, params: Dict[str, Any]) -> Tuple[Optional[str], 
     request_id = f"frontend_{int(start_time)}_{hash(text)}"
     details = {"request_id": request_id, "timestamp": start_time}
     
+    # Base system prompt
+    system_prompt = """You are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers friendly, and natural.
+    
+    Rules:
+    1. ALWAYS respond in Chinese (no English)
+    2. Keep responses short (under 30 characters)
+    3. Use natural, conversational tone
+    4. One short sentence is best
+    """
+    
+    # Add HSK level-specific instructions
+    hsk_prompt = get_hsk_prompt(params.get("hsk_level", "HSK 1 (Beginner)"))
+    full_system_prompt = f"{system_prompt}\n\n{hsk_prompt}"
+    
+    # Concatenate system prompt with user input
+    full_prompt = f"{full_system_prompt}\n\nUser: {text}\nAssistant:"
+    
     try:
         logger.info(f"[{request_id}] Sending request to megaservice")
         
@@ -167,12 +259,10 @@ def call_megaservice(text: str, params: Dict[str, Any]) -> Tuple[Optional[str], 
             response = requests.post(
                 f"{MEGASERVICE_URL}/v1/megaservice",
                 json={
-                    "text": text,
-                    "generate_audio": params.get("generate_audio", True),
+                    "text": full_prompt,  # Use the concatenated prompt
                     "model": params.get("model", "Qwen/Qwen2.5-0.5B-Instruct"),
                     "temperature": params.get("temperature", 0.7),
                     "max_tokens": params.get("max_tokens", 1000),
-                    "voice": params.get("voice", "default")
                 },
                 timeout=calculate_timeout(text)
             )
@@ -196,23 +286,51 @@ def call_megaservice(text: str, params: Dict[str, Any]) -> Tuple[Optional[str], 
             text_response = data.get("text_response")
             details["response_length"] = len(text_response) if text_response else 0
             
-            # Handle audio data and potential errors
+            # If audio is requested, make a separate call to GPT-SoVITS
             audio_data = None
+            audio_path = None
             if params.get("generate_audio", True):
-                if data.get("audio_data"):
-                    try:
-                        audio_bytes = base64.b64decode(data["audio_data"])
-                        audio_data = audio_bytes
-                        details["audio_size"] = len(audio_bytes)
-                        logger.info(f"[{request_id}] Successfully received audio response ({len(audio_bytes)} bytes)")
-                    except Exception as e:
-                        logger.error(f"[{request_id}] Audio decoding failed: {str(e)}")
-                        details["audio_error"] = str(e)
-                elif data.get("error_message"):
-                    details["tts_error"] = data["error_message"]
-                    logger.warning(f"[{request_id}] Audio generation issue: {data['error_message'][:200]}...")
+                try:
+                    logger.info(f"[{request_id}] Requesting audio from GPT-SoVITS for text: {text_response[:100]}...")
+                    tts_response = requests.post(
+                        "http://gpt-sovits-service:9880/v1/audio/speech",
+                        json={"input": text_response},
+                        timeout=30
+                    )
+                    
+                    if tts_response.status_code == 200:
+                        audio_data = tts_response.content
+                        # Save the audio file
+                        audio_path = save_audio(audio_data, request_id)
+                        details["audio_path"] = str(audio_path)
+                        details["audio_size"] = len(audio_data)
+                        logger.info(f"[{request_id}] Successfully saved audio to {audio_path}")
+                    else:
+                        error_msg = f"TTS request failed: {tts_response.status_code}: {tts_response.text}"
+                        details["tts_error"] = error_msg
+                        logger.warning(f"[{request_id}] {error_msg}")
+                        
+                except Exception as e:
+                    error_msg = f"TTS request failed: {str(e)}"
+                    details["tts_error"] = error_msg
+                    logger.error(f"[{request_id}] {error_msg}")
             
             logger.info(f"[{request_id}] Request completed successfully in {details['response_time']:.2f}s")
+            
+            # Add to chat history with audio path
+            if "chat_history" not in st.session_state:
+                st.session_state.chat_history = []
+            
+            chat_entry = {
+                "timestamp": time.time(),
+                "request_id": request_id,
+                "user_input": text,
+                "response": text_response,
+                "audio_path": str(audio_path) if audio_path else None,
+                "details": details
+            }
+            st.session_state.chat_history.append(chat_entry)
+            
             return text_response, audio_data, None, details
             
     except requests.exceptions.Timeout:
@@ -261,53 +379,35 @@ def download_audio_file(filename):
 
 def display_conversation():
     """Display the conversation history with audio playback"""
-    for i, details in enumerate(reversed(st.session_state.chat_history)):
-        # Use columns instead of nested expanders
-        col1, col2 = st.columns([3, 1])
+    if "chat_history" not in st.session_state:
+        return
+
+    for i, entry in enumerate(reversed(st.session_state.chat_history)):
+        st.write(f"### Request {len(st.session_state.chat_history) - i}")
+        st.write(f"Time: {time.strftime('%H:%M:%S', time.localtime(entry['timestamp']))}")
         
-        with col1:
-            st.write(f"### Request {len(st.session_state.chat_history) - i}")
-            
-            # Check if details is a tuple with at least 3 elements and the third element is a dictionary
-            if isinstance(details, tuple) and len(details) >= 3 and isinstance(details[2], dict):
-                timestamp = details[2].get('timestamp', 0)
-                st.write(f"Time: {time.strftime('%H:%M:%S', time.localtime(timestamp))}")
-                
-                # Display the text response (second element in the tuple)
-                st.write("**Response:**")
-                st.write(details[1])
-                
-                # Handle audio playback
-                audio_path = details[2].get("audio_path")
-                if audio_path:
-                    try:
-                        # Construct the full path to the audio file
-                        full_audio_path = Path("static") / audio_path
-                        if full_audio_path.exists():
-                            st.audio(str(full_audio_path), format="audio/mp3")
-                        else:
-                            st.warning("Audio file not found")
-                    except Exception as e:
-                        st.error(f"Error playing audio: {str(e)}")
-                else:
-                    st.info("No audio available for this response")
-            else:
-                # Handle the case where details doesn't have the expected structure
-                st.write("Time: Unknown")
-                st.write("**Response:**")
-                if isinstance(details, tuple) and len(details) >= 2:
-                    st.write(details[1])
-                else:
-                    st.write("Response data not available in the expected format")
-                st.info("No audio available for this response")
+        # Display the text response
+        st.write("**Response:**")
+        st.write(entry["response"])
         
-        # Add a divider between conversations
+        # Handle audio playback
+        if entry.get("audio_path"):
+            try:
+                audio_file = Path(entry["audio_path"])
+                if audio_file.exists():
+                    st.audio(str(audio_file), format="audio/wav")
+                else:
+                    st.warning(f"Audio file not found: {audio_file}")
+            except Exception as e:
+                st.error(f"Error playing audio: {str(e)}")
+        else:
+            st.info("No audio available for this response")
+        
         st.divider()
 
 if st.button("Submit"):
     if not user_input.strip():
         st.error("Please enter a message")
-        logger.warning("Empty input submitted")
     else:
         try:
             request_params = {
@@ -315,7 +415,8 @@ if st.button("Submit"):
                 "temperature": temperature,
                 "max_tokens": max_tokens,
                 "voice": voice,
-                "generate_audio": generate_audio
+                "generate_audio": generate_audio,
+                "hsk_level": hsk_level
             }
             
             logger.info(f"Sending request to megaservice: {user_input[:100]}...")
@@ -359,27 +460,9 @@ if st.button("Submit"):
                     else:
                         st.warning("Audio was requested but could not be generated. See server logs for details.")
                 
-                # New section to display and play existing audio files
-                st.header("Existing Audio Files")
-                files = fetch_audio_files()
-                if not files:
-                    st.info("No audio files found.")
-                else:
-                    for file in files:
-                        with st.expander(f"{file['filename']}"):
-                            local_path = AUDIO_DIR / file['filename']
-                            if not local_path.exists():
-                                local_path = download_audio_file(file['filename'])
-                            
-                            if local_path and local_path.exists():
-                                st.audio(local_path.read_bytes(), format=f"audio/{local_path.suffix[1:]}")
-                            else:
-                                st.warning("Audio file not available locally")
-                
-                # Add to chat history
-                if "chat_history" not in st.session_state:
-                    st.session_state.chat_history = []
-                st.session_state.chat_history.append((user_input, text_response, audio_data))
+                # Display chat history
+                st.subheader("Chat History")
+                display_conversation()
         
         except Exception as e:
             error_msg = f"Unexpected error in frontend: {str(e)}"
@@ -414,11 +497,6 @@ with st.expander("Debug Information", expanded=False):
                     st.write("TTS Service Info: ❌ Failed to retrieve")
             except Exception as e:
                 st.error(f"Diagnostics failed: {str(e)}")
-
-# Display chat history if it exists
-if "chat_history" in st.session_state and st.session_state.chat_history:
-    st.subheader("Chat History")
-    display_conversation()
 
 # Add to your app
 if st.checkbox("Debug Mode"):

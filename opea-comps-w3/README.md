@@ -212,8 +212,10 @@ curl -X POST "http://localhost:9088/v1/audio/speech" \
 
 Perfect! You've successfully created the script. Now you can use it to update your MegaTalk.py file in the container without rebuilding it.
 To use the script:
-Make your changes to the MegaTalk.py file
-Run the script:
+1. Make your changes to the MegaTalk.py file
+2. Run the script:
+   ./update_megatalk.sh
+
 3. Refresh your browser to see the changes
 
 
