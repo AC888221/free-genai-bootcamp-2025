@@ -91,3 +91,249 @@ INFO:     172.18.0.4:35714 - "GET /health HTTP/1.1" 200 OK
 INFO:     172.18.0.4:41528 - "GET /health HTTP/1.1" 200 OK
 INFO:     172.18.0.4:55870 - "GET /health HTTP/1.1" 200 OK
 INFO:     172.18.0.4:37038 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:56066 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:37030 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:40466 - "GET /health HTTP/1.1" 200 OK
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 02:57:48 logger.py:37] Received request chatcmpl-6876bf48ec2a484e99ff88ffc9c8d7b4: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nhi there<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 02:57:48 engine.py:267] Added request chatcmpl-6876bf48ec2a484e99ff88ffc9c8d7b4.
+INFO:     172.18.0.4:52860 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 02:57:59 metrics.py:467] Avg prompt throughput: 2.4 tokens/s, Avg generation throughput: 0.8 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 02:58:10 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:45738 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:34374 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45858 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:41958 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:55168 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:50320 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:52960 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45318 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:40554 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:35660 - "GET /health HTTP/1.1" 200 OK
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:08:15 logger.py:37] Received request chatcmpl-f6bf6c62eebe4cbda52a5c30af3e5d0d: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nHello, world!<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:08:15 engine.py:267] Added request chatcmpl-f6bf6c62eebe4cbda52a5c30af3e5d0d.
+INFO:     172.18.0.4:35676 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:08:26 metrics.py:467] Avg prompt throughput: 2.3 tokens/s, Avg generation throughput: 0.7 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.1:56066 - "GET /health HTTP/1.1" 200 OK
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:08:32 logger.py:37] Received request chatcmpl-7dead394032c4ad0a004a77c973e0779: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nHello<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=1.0, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=2018, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:08:32 engine.py:267] Added request chatcmpl-7dead394032c4ad0a004a77c973e0779.
+INFO 03-12 03:08:33 metrics.py:467] Avg prompt throughput: 4.2 tokens/s, Avg generation throughput: 0.1 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.1:56066 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:08:33 logger.py:37] Received request cmpl-ab30e1c9d67943a29434916bf8511d5a-0: prompt: 'Hello, world!', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=1.0, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=16, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: [9707, 11, 1879, 0], lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:08:33 engine.py:267] Added request cmpl-ab30e1c9d67943a29434916bf8511d5a-0.
+INFO:     172.18.0.1:56066 - "POST /v1/completions HTTP/1.1" 200 OK
+WARNING 03-12 03:08:34 protocol.py:59] The following fields were present in the request but ignored: {'input'}
+INFO:     172.18.0.1:56066 - "POST /v1/embeddings HTTP/1.1" 200 OK
+INFO 03-12 03:08:44 metrics.py:467] Avg prompt throughput: 0.4 tokens/s, Avg generation throughput: 2.2 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:43164 - "GET /health HTTP/1.1" 200 OK
+INFO 03-12 03:08:54 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:59850 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:36092 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:59456 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45518 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:50806 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:60780 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:53784 - "GET /health HTTP/1.1" 200 OK
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:14:55 logger.py:37] Received request chatcmpl-6e4aef33f4f44a468923c3035b9f0fd6: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nhi there<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:14:55 engine.py:267] Added request chatcmpl-6e4aef33f4f44a468923c3035b9f0fd6.
+INFO:     172.18.0.4:53792 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:15:07 metrics.py:467] Avg prompt throughput: 2.1 tokens/s, Avg generation throughput: 0.7 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:15:17 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:60742 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:40046 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:34942 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:35134 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45552 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:37602 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45092 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:41564 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:54748 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:39590 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:42764 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:51504 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58436 - "GET /health HTTP/1.1" 200 OK
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:28:24 logger.py:37] Received request chatcmpl-8c73d236b9674ecf8cb17dd992b06c66: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\n你是一个友好的AI助手。请用中文回答所有问题。\n    即使用户用英文提问，也请用中文回答。\n    保持回答简短、友好且自然。\n    \n\n请使用HSK1级别的简单词汇和语法。\n只使用最基础的词语，如：你好、谢谢、我、你、是、不是等。\n句子要短而简单。\n\nUser: hi there\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:28:24 engine.py:267] Added request chatcmpl-8c73d236b9674ecf8cb17dd992b06c66.
+INFO:     172.18.0.4:57120 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:28:36 metrics.py:467] Avg prompt throughput: 9.1 tokens/s, Avg generation throughput: 0.8 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:28:46 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:29:04 logger.py:37] Received request chatcmpl-d0c74152a8ea46568d499d43701ea6d7: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\n你是一个友好的AI助手。请用中文回答所有问题。\n    即使用户用英文提问，也请用中文回答。\n    保持回答简短、友好且自然。\n    \n\n请使用HSK4级别的词汇和语法。\n可以讨论较复杂的话题，使用更丰富的表达。\n可以使用一些成语和书面语。\n\nUser: hi there\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:29:04 engine.py:267] Added request chatcmpl-d0c74152a8ea46568d499d43701ea6d7.
+INFO 03-12 03:29:05 metrics.py:467] Avg prompt throughput: 12.0 tokens/s, Avg generation throughput: 0.1 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:56424 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:29:16 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.9 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:55598 - "GET /health HTTP/1.1" 200 OK
+INFO 03-12 03:29:27 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:48450 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:53162 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:55058 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:54042 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:54046 - "GET /health HTTP/1.1" 200 OK
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:33:26 logger.py:37] Received request chatcmpl-1f1f5b4a427647d2a191341d4b02223e: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers short, friendly, and natural.\n    \n\n请使用HSK1级别的简单词汇和语法。\n只使用最基础的词语，如：你好、谢谢、我、你、是、不是等。\n句子要短而简单。\n\nUser: 语提问，也请用普通话回答。\n保持你的回答简短、友善、自然。\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:33:26 engine.py:267] Added request chatcmpl-1f1f5b4a427647d2a191341d4b02223e.
+INFO 03-12 03:33:27 metrics.py:467] Avg prompt throughput: 26.8 tokens/s, Avg generation throughput: 0.2 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:52846 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:33:37 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.8 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:33:48 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:33:51 logger.py:37] Received request chatcmpl-8844aed9164b484ba02b7c8b2817a375: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers short, friendly, and natural.\n    \n\n请使用HSK1级别的简单词汇和语法。\n只使用最基础的词语，如：你好、谢谢、我、你、是、不是等。\n句子要短而简单。\n\nUser: I like speaking in English\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:33:51 engine.py:267] Added request chatcmpl-8844aed9164b484ba02b7c8b2817a375.
+INFO 03-12 03:33:53 metrics.py:467] Avg prompt throughput: 23.9 tokens/s, Avg generation throughput: 0.2 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:52410 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:34:04 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.9 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:34:14 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:34:17 logger.py:37] Received request chatcmpl-859b4fabbdf549b3af7785db39aaa0c7: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers short, friendly, and natural.\n    \n\n请使用HSK1级别的简单词汇和语法。\n只使用最基础的词语，如：你好、谢谢、我、你、是、不是等。\n句子要短而简单。\n\nUser: I like speaking in English\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:34:17 engine.py:267] Added request chatcmpl-859b4fabbdf549b3af7785db39aaa0c7.
+INFO 03-12 03:34:19 metrics.py:467] Avg prompt throughput: 24.3 tokens/s, Avg generation throughput: 0.8 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:33086 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     172.18.0.4:46462 - "GET /health HTTP/1.1" 200 OK
+INFO 03-12 03:34:29 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.5 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:34:39 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:34:42 logger.py:37] Received request chatcmpl-6f95596a392d40a2b05e31b8b1df25ff: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers short, friendly, and natural.\n    \n\n请使用HSK6级别的词汇和语法。\n可以使用高级书面语和专业术语。\n可以运用各种修辞手法和复杂句式。\n\nUser: I like speaking in English\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:34:42 engine.py:267] Added request chatcmpl-6f95596a392d40a2b05e31b8b1df25ff.
+INFO:     172.18.0.4:39610 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:34:55 metrics.py:467] Avg prompt throughput: 7.4 tokens/s, Avg generation throughput: 0.3 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:35:05 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:46442 - "GET /health HTTP/1.1" 200 OK
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:35:34 logger.py:37] Received request chatcmpl-17fa8976c9164687aa2dcd07a78e670d: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers short, friendly, and natural.\n    \n\n请使用HSK6级别的词汇和语法。\n可以使用高级书面语和专业术语。\n可以运用各种修辞手法和复杂句式。\n\nUser: Can you tell me about your house?\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:35:34 engine.py:267] Added request chatcmpl-17fa8976c9164687aa2dcd07a78e670d.
+INFO 03-12 03:35:35 metrics.py:467] Avg prompt throughput: 11.4 tokens/s, Avg generation throughput: 0.1 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:35:40 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 17.1 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.1%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:36026 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:35:54 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 4.2 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:36:04 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:56314 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:32776 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:55960 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:37746 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:37752 - "GET /health HTTP/1.1" 200 OK
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:39:39 logger.py:37] Received request chatcmpl-cf895e521f4649f2b94d03b1814fa61e: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers friendly, and natural.\n    \n    Rules:\n    1. ALWAYS respond in Chinese (no English)\n    2. Keep responses short (under 30 characters)\n    3. Use natural, conversational tone\n    4. One short sentence is best\n    \n\nLanguage Rules:\n1. Only use HSK 1 vocabulary (150 basic words)\n2. Use simple greetings: 你好, 再见\n3. Basic pronouns: 我, 你, 他\n4. Simple verbs: 是, 有, 喜欢\n5. Keep sentences under 5 words\nExample: 你好！我是老师。\n\nUser: can you tell me about your house?\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:39:39 engine.py:267] Added request chatcmpl-cf895e521f4649f2b94d03b1814fa61e.
+INFO 03-12 03:39:44 metrics.py:467] Avg prompt throughput: 42.0 tokens/s, Avg generation throughput: 0.6 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.1%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:38126 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:39:55 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.4 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:40:05 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:40:13 logger.py:37] Received request chatcmpl-4d14aa50ee1b4f32865995509a29586e: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers friendly, and natural.\n    \n    Rules:\n    1. ALWAYS respond in Chinese (no English)\n    2. Keep responses short (under 30 characters)\n    3. Use natural, conversational tone\n    4. One short sentence is best\n    \n\nLanguage Rules:\n1. Use full HSK vocabulary (5000+ words)\n2. Academic language: 理论, 观点, 假设\n3. Literary expressions: 引经据典\n4. Complex structures: 不但...而且..., 即使...也...\n5. Keep sentences under 25 words\nExample: 掌握一门语言不仅需要勤奋，而且要有正确的学习方法。\n\nUser: can you tell me about your house?\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:40:13 engine.py:267] Added request chatcmpl-4d14aa50ee1b4f32865995509a29586e.
+INFO 03-12 03:40:15 metrics.py:467] Avg prompt throughput: 22.8 tokens/s, Avg generation throughput: 0.1 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.1%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:48214 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:40:26 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.8 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:36706 - "GET /health HTTP/1.1" 200 OK
+INFO 03-12 03:40:36 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:37444 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:55510 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:57898 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:57908 - "GET /health HTTP/1.1" 200 OK
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:43:39 logger.py:37] Received request chatcmpl-67778774014a46c68e3c420594bc0fee: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers friendly, and natural.\n    \n    Rules:\n    1. ALWAYS respond in Chinese (no English)\n    2. Keep responses short (under 30 characters)\n    3. Use natural, conversational tone\n    4. One short sentence is best\n    \n\nLanguage Rules:\n1. Only use HSK 1 vocabulary (150 basic words)\n2. Use simple greetings: 你好, 再见\n3. Basic pronouns: 我, 你, 他\n4. Simple verbs: 是, 有, 喜欢\n5. Keep sentences under 5 words\nExample: 你好！我是老师。\n\nUser: CAn you tell me something special about yourself?\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:43:39 engine.py:267] Added request chatcmpl-67778774014a46c68e3c420594bc0fee.
+INFO 03-12 03:43:42 metrics.py:467] Avg prompt throughput: 17.5 tokens/s, Avg generation throughput: 0.1 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.1%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:58882 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:43:53 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 1.7 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:44:03 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:44:18 logger.py:37] Received request chatcmpl-8c833e54f6c04907816b341cb3d02c2d: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers friendly, and natural.\n    \n    Rules:\n    1. ALWAYS respond in Chinese (no English)\n    2. Keep responses short (under 30 characters)\n    3. Use natural, conversational tone\n    4. One short sentence is best\n    \n\nLanguage Rules:\n1. Use full HSK vocabulary (5000+ words)\n2. Academic language: 理论, 观点, 假设\n3. Literary expressions: 引经据典\n4. Complex structures: 不但...而且..., 即使...也...\n5. Keep sentences under 25 words\nExample: 掌握一门语言不仅需要勤奋，而且要有正确的学习方法。\n\nUser: CAn you tell me something special about yourself?\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:44:18 engine.py:267] Added request chatcmpl-8c833e54f6c04907816b341cb3d02c2d.
+INFO 03-12 03:44:22 metrics.py:467] Avg prompt throughput: 28.3 tokens/s, Avg generation throughput: 0.1 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.1%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:54640 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     172.18.0.4:49756 - "GET /health HTTP/1.1" 200 OK
+INFO 03-12 03:44:33 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 1.2 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:44:43 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:60468 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:47502 - "GET /health HTTP/1.1" 200 OK
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:46:42 logger.py:37] Received request chatcmpl-0f80165c225a4b49bfebe0e29c77c821: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers friendly, and natural.\n    \n    Rules:\n    1. ALWAYS respond in Chinese (no English)\n    2. Keep responses short (under 30 characters)\n    3. Use natural, conversational tone\n    4. One short sentence is best\n    \n\nLanguage Rules:\n1. Only use HSK 1 vocabulary (150 basic words)\n2. Use simple greetings: 你好, 再见\n3. Basic pronouns: 我, 你, 他\n4. Simple verbs: 是, 有, 喜欢\n5. Keep sentences under 5 words\nExample: 你好！我是老师。\n\nUser: tel me your favorite thing\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:46:42 engine.py:267] Added request chatcmpl-0f80165c225a4b49bfebe0e29c77c821.
+INFO 03-12 03:46:44 metrics.py:467] Avg prompt throughput: 25.8 tokens/s, Avg generation throughput: 0.1 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.1%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:47516 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:46:55 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.7 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:47:05 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:35140 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:36518 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:49390 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:49396 - "GET /health HTTP/1.1" 200 OK
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:49:16 logger.py:37] Received request chatcmpl-e50457868f2540408f021839f5562471: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers friendly, and natural.\n    \n    Rules:\n    1. ALWAYS respond in Chinese (no English)\n    2. Keep responses short (under 30 characters)\n    3. Use natural, conversational tone\n    4. One short sentence is best\n    \n\nLanguage Rules:\n1. Only use HSK 1 vocabulary (150 basic words)\n2. Use simple greetings: 你好, 再见\n3. Basic pronouns: 我, 你, 他\n4. Simple verbs: 是, 有, 喜欢\n5. Keep sentences under 5 words\nExample: 你好！我是老师。\n\nUser: is thsiworking \nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:49:16 engine.py:267] Added request chatcmpl-e50457868f2540408f021839f5562471.
+INFO 03-12 03:49:18 metrics.py:467] Avg prompt throughput: 20.6 tokens/s, Avg generation throughput: 0.1 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.1%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:34064 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:49:28 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.3 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:49:39 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:49:49 logger.py:37] Received request chatcmpl-dea5801b07ea4da781bdc9793d92a2c6: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers friendly, and natural.\n    \n    Rules:\n    1. ALWAYS respond in Chinese (no English)\n    2. Keep responses short (under 30 characters)\n    3. Use natural, conversational tone\n    4. One short sentence is best\n    \n\nLanguage Rules:\n1. Only use HSK 1 vocabulary (150 basic words)\n2. Use simple greetings: 你好, 再见\n3. Basic pronouns: 我, 你, 他\n4. Simple verbs: 是, 有, 喜欢\n5. Keep sentences under 5 words\nExample: 你好！我是老师。\n\nUser: I want your babies\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:49:49 engine.py:267] Added request chatcmpl-dea5801b07ea4da781bdc9793d92a2c6.
+INFO:     172.18.0.4:52072 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:50:02 metrics.py:467] Avg prompt throughput: 15.9 tokens/s, Avg generation throughput: 0.7 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:50:13 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:60934 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:39222 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45552 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:50890 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:46176 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:39206 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:43894 - "GET /health HTTP/1.1" 200 OK

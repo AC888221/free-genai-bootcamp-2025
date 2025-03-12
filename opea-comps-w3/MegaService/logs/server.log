@@ -9,24 +9,68 @@ INFO:     Started server process [7]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:9500 (Press CTRL+C to quit)
-2025-03-12 02:48:51 [ERROR] megaservice: TTS health check failed: 
-2025-03-12 02:48:51 [ERROR] megaservice: TTS health check failed: 
-INFO:     127.0.0.1:50238 - "GET /health HTTP/1.1" 200 OK
-2025-03-12 02:48:55 [ERROR] megaservice: TTS health check failed: 
-2025-03-12 02:48:55 [ERROR] megaservice: TTS health check failed: 
-INFO:     127.0.0.1:51762 - "GET /health HTTP/1.1" 200 OK
-2025-03-12 02:50:02 [ERROR] megaservice: TTS health check failed: 
-2025-03-12 02:50:02 [ERROR] megaservice: TTS health check failed: 
-INFO:     127.0.0.1:60532 - "GET /health HTTP/1.1" 200 OK
-2025-03-12 02:51:08 [ERROR] megaservice: TTS health check failed: 
-2025-03-12 02:51:08 [ERROR] megaservice: TTS health check failed: 
-INFO:     127.0.0.1:55064 - "GET /health HTTP/1.1" 200 OK
-2025-03-12 02:52:14 [ERROR] megaservice: TTS health check failed: 
-2025-03-12 02:52:14 [ERROR] megaservice: TTS health check failed: 
-INFO:     127.0.0.1:45432 - "GET /health HTTP/1.1" 200 OK
-2025-03-12 02:53:20 [ERROR] megaservice: TTS health check failed: 
-2025-03-12 02:53:20 [ERROR] megaservice: TTS health check failed: 
-INFO:     127.0.0.1:53824 - "GET /health HTTP/1.1" 200 OK
-2025-03-12 02:54:27 [ERROR] megaservice: TTS health check failed: 
-2025-03-12 02:54:27 [ERROR] megaservice: TTS health check failed: 
-INFO:     127.0.0.1:41206 - "GET /health HTTP/1.1" 200 OK
+2025-03-12 03:49:03 [ERROR] megaservice: TTS health check failed: 
+2025-03-12 03:49:03 [ERROR] megaservice: TTS health check failed: 
+INFO:     127.0.0.1:35376 - "GET /health HTTP/1.1" 200 OK
+2025-03-12 03:49:08 [ERROR] megaservice: TTS health check failed: 
+2025-03-12 03:49:08 [ERROR] megaservice: TTS health check failed: 
+INFO:     127.0.0.1:35392 - "GET /health HTTP/1.1" 200 OK
+2025-03-12 03:49:16 [INFO] megaservice: [req_1741751356] Received megaservice request
+2025-03-12 03:49:16 [INFO] megaservice: [req_1741751356] Received megaservice request
+2025-03-12 03:49:16 [INFO] llm: [req_1741751356] Sending LLM request
+2025-03-12 03:49:16 [INFO] llm: [req_1741751356] Sending LLM request
+2025-03-12 03:49:18 [INFO] llm: [req_1741751356] Got LLM response: 正在工作。...
+2025-03-12 03:49:18 [INFO] llm: [req_1741751356] Got LLM response: 正在工作。...
+2025-03-12 03:49:18 [INFO] megaservice: [req_1741751356] Starting TTS generation
+2025-03-12 03:49:18 [INFO] megaservice: [req_1741751356] Starting TTS generation
+2025-03-12 03:49:18 [INFO] tts: Generating TTS for text: 正在工作。...
+2025-03-12 03:49:18 [INFO] tts: Generating TTS for text: 正在工作。...
+2025-03-12 03:49:18 [INFO] tts: TTS Request to http://tts-gptsovits-service:9088/v1/audio/speech
+2025-03-12 03:49:18 [INFO] tts: TTS Request to http://tts-gptsovits-service:9088/v1/audio/speech
+2025-03-12 03:49:26 [ERROR] tts: TTS generation failed: [Errno -3] Temporary failure in name resolution
+2025-03-12 03:49:26 [ERROR] tts: TTS generation failed: [Errno -3] Temporary failure in name resolution
+2025-03-12 03:49:26 [ERROR] megaservice: TTS generation failed: 500: TTS generation failed: [Errno -3] Temporary failure in name resolution
+2025-03-12 03:49:26 [ERROR] megaservice: TTS generation failed: 500: TTS generation failed: [Errno -3] Temporary failure in name resolution
+2025-03-12 03:49:26 [INFO] megaservice: [req_1741751356] Request completed successfully
+2025-03-12 03:49:26 [INFO] megaservice: [req_1741751356] Request completed successfully
+INFO:     127.0.0.1:48184 - "POST /v1/megaservice HTTP/1.1" 200 OK
+2025-03-12 03:49:49 [INFO] megaservice: [req_1741751389] Received megaservice request
+2025-03-12 03:49:49 [INFO] megaservice: [req_1741751389] Received megaservice request
+2025-03-12 03:49:49 [INFO] llm: [req_1741751389] Sending LLM request
+2025-03-12 03:49:49 [INFO] llm: [req_1741751389] Sending LLM request
+2025-03-12 03:49:52 [INFO] llm: [req_1741751389] Got LLM response: 宝宝，我来抱抱你。...
+2025-03-12 03:49:52 [INFO] llm: [req_1741751389] Got LLM response: 宝宝，我来抱抱你。...
+2025-03-12 03:49:52 [INFO] megaservice: [req_1741751389] Starting TTS generation
+2025-03-12 03:49:52 [INFO] megaservice: [req_1741751389] Starting TTS generation
+2025-03-12 03:49:52 [INFO] tts: Generating TTS for text: 宝宝，我来抱抱你。...
+2025-03-12 03:49:52 [INFO] tts: Generating TTS for text: 宝宝，我来抱抱你。...
+2025-03-12 03:49:52 [INFO] tts: TTS Request to http://tts-gptsovits-service:9088/v1/audio/speech
+2025-03-12 03:49:52 [INFO] tts: TTS Request to http://tts-gptsovits-service:9088/v1/audio/speech
+2025-03-12 03:50:00 [ERROR] tts: TTS generation failed: [Errno -3] Temporary failure in name resolution
+2025-03-12 03:50:00 [ERROR] tts: TTS generation failed: [Errno -3] Temporary failure in name resolution
+2025-03-12 03:50:00 [ERROR] megaservice: TTS generation failed: 500: TTS generation failed: [Errno -3] Temporary failure in name resolution
+2025-03-12 03:50:00 [ERROR] megaservice: TTS generation failed: 500: TTS generation failed: [Errno -3] Temporary failure in name resolution
+2025-03-12 03:50:00 [INFO] megaservice: [req_1741751389] Request completed successfully
+2025-03-12 03:50:00 [INFO] megaservice: [req_1741751389] Request completed successfully
+INFO:     127.0.0.1:48502 - "POST /v1/megaservice HTTP/1.1" 200 OK
+2025-03-12 03:50:14 [ERROR] megaservice: TTS health check failed: 
+2025-03-12 03:50:14 [ERROR] megaservice: TTS health check failed: 
+INFO:     127.0.0.1:55010 - "GET /health HTTP/1.1" 200 OK
+2025-03-12 03:51:21 [ERROR] megaservice: TTS health check failed: 
+2025-03-12 03:51:21 [ERROR] megaservice: TTS health check failed: 
+INFO:     127.0.0.1:45134 - "GET /health HTTP/1.1" 200 OK
+2025-03-12 03:52:28 [ERROR] megaservice: TTS health check failed: 
+2025-03-12 03:52:28 [ERROR] megaservice: TTS health check failed: 
+INFO:     127.0.0.1:49454 - "GET /health HTTP/1.1" 200 OK
+2025-03-12 03:53:34 [ERROR] megaservice: TTS health check failed: 
+2025-03-12 03:53:34 [ERROR] megaservice: TTS health check failed: 
+INFO:     127.0.0.1:33084 - "GET /health HTTP/1.1" 200 OK
+2025-03-12 03:54:41 [ERROR] megaservice: TTS health check failed: 
+2025-03-12 03:54:41 [ERROR] megaservice: TTS health check failed: 
+INFO:     127.0.0.1:42334 - "GET /health HTTP/1.1" 200 OK
+2025-03-12 03:55:47 [ERROR] megaservice: TTS health check failed: 
+2025-03-12 03:55:47 [ERROR] megaservice: TTS health check failed: 
+INFO:     127.0.0.1:56902 - "GET /health HTTP/1.1" 200 OK
+2025-03-12 03:56:54 [ERROR] megaservice: TTS health check failed: 
+2025-03-12 03:56:54 [ERROR] megaservice: TTS health check failed: 
+INFO:     127.0.0.1:41280 - "GET /health HTTP/1.1" 200 OK
