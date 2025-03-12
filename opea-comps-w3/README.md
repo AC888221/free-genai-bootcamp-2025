@@ -1,238 +1,209 @@
-OPEA Comps (Week 3)
+# OPEA-Comps: Megaservice
 
-In week 1, I set up Ollama 2.1 B
+[Jump to Bootcamp Week 3: OPEA Megaservice Implementation Report](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps-w3/README.md#bootcamp-week-3-opea-megaservice-implementation-report)
 
+[Jump to LLM Megaservice Glossory](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps/README.md#llm-megaservice-glossory)
 
-This is a table of the supported vLLM models (from 08/03/2025, source: https://docs.vllm.ai/en/latest/models/supported_models.html#) that had a RAM requirement of 16GB or less:
+## MegaService
+
+MegaService is a comprehensive AI service that combines large language model (LLM) capabilities with text-to-speech (TTS) functionality, providing a complete solution for conversational AI applications.
+
+### Overview
+
+MegaService integrates a FastAPI backend with a Streamlit frontend to deliver a user-friendly interface for interacting with AI models. The service uses Qwen2.5 as the language model and GPT-SoVITS for text-to-speech conversion.
+
+### Architecture
+
+The service consists of several components:
+- **FastAPI Server**: Handles API requests and orchestrates the interaction between components (runs on port 9500)
+- **Streamlit Frontend**: Provides a web interface for user interaction (runs on port 8501)
+- **LLM Integration**: Connects to a vLLM-powered language model (runs on port 8008)
+- **TTS Service**: Integrates with GPT-SoVITS for high-quality speech synthesis (runs on ports 9088/9880)
+
+### Features
+
+- Real-time text generation using state-of-the-art language models.
+- High-quality text-to-speech conversion.
+- Multilingual support with a focus on Chinese (Putonghua).
+- Containerized deployment for easy scaling and management.
+- Health monitoring and logging.
+
+### Configuration
+
+The service is configured through environment variables in the `.env` file. Key configurations include:
+
+```env
+# LLM Configuration
+LLM_MODEL_ID="Qwen/Qwen2.5-0.5B-Instruct"
+LLM_ENDPOINT_PORT=8008
+LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
+
+# TTS Configuration
+TTS_PORT=9088
+GPT_SOVITS_PORT=9880
+TTS_ENDPOINT=http://tts-gptsovits-service:9088
+```
+
+### Deployment
+
+#### Prerequisites
+
+- Docker and Docker Compose
+- Python 3.10+
+- Hugging Face token for model access
+
+#### Running with Docker
+
+The service is containerized and can be deployed using Docker:
+
+```bash
+docker-compose up
+```
+
+#### Local Development
+
+For local development:
+
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. Run the server:
+   ```bash
+   uvicorn app.main:app --reload
+   ```
+3. Run the Streamlit frontend:
+   ```bash
+   streamlit run frontend/app.py
+   ```
+
+### Testing
+
+The repository includes a test scripts for testing the MegaService and GPT-SoVITS TTS component end points and functionality.
+
+### Troubleshooting
+
+#### Common Issues
+
+##### TTS Service Connection Issues
+
+If you see errors like `TTS health check failed` or `Temporary failure in name resolution`, check:
+- The TTS service is running and accessible.
+- The hostname in `TTS_ENDPOINT` is correctly configured and resolvable.
+- Network connectivity between the MegaService container and the TTS service.
+
+##### LLM Service Issues
+
+If the language model is not responding:
+- Verify the LLM service is running.
+- Check the `LLM_ENDPOINT` configuration.
+- Ensure the model specified in `LLM_MODEL_ID` is correctly loaded.
+
+### Logs
+
+The servicOPEA Comps (Week 3)e maintains detailed logs in the `logs` directory:
+- `server.log`: FastAPI server logs.
+- `streamlit.log`: Frontend application logs.
+- `vllm.log`: Language model service logs.
+
+#### Known Issues
+
+- The TTS and LLM services are often often flagged as not healty.
+- Despite health check failures, the Streamlit frontend has been able to generate audio responses
+
+### Container Structure
+
+The application consists of multiple containers:
+1. **MegaService container**: Main service with FastAPI and Streamlit
+2. **TTS-GPTSoVITS service**: Handles text-to-speech conversion
+3. **vLLM service**: Provides language model capabilities
+
+Each container has its own health checks and endpoints.
+
+### Development
+
+#### Updating the Frontend
+
+For quick updates to the Streamlit frontend during development, use the provided script. This script copies the updated `MegaTalk.py` file to the running container and restarts the Streamlit application.
+
+```bash
+./update_megatalk.sh
+``` 
+
+## Bootcamp Week 3: OPEA Megaservice Implementation Report]
+
+In week 1, I set up Ollama 2.1 B, so for this week I focused on vLLM.
+
+This is a table of the supported vLLM models (from 08/03/2025, source: https://docs.vllm.ai/en/latest/models/supported_models.html#) that I found had a RAM requirement of 16GB or less:
 
 ```markdown
-| Architecture                  | Models                        | Example HF Models                                                                 | RAM Requirement | Storage Requirement | Release Date |
-|-------------------------------|-------------------------------|----------------------------------------------------------------------------------|-----------------|---------------------|--------------|
-| ArcticForCausalLM             | Arctic                        | Snowflake/snowflake-arctic-base, Snowflake/snowflake-arctic-instruct, etc.       | 16GB            | 50GB                | 2024-01-15   |
-| BartForConditionalGeneration  | BART                          | facebook/bart-base, facebook/bart-large-cnn, etc.                                | 16GB            | 20GB                | 2020-06-25   |
-| DbrxForCausalLM               | DBRX                          | databricks/dbrx-base, databricks/dbrx-instruct, etc.                             | 16GB            | 30GB                | 2023-05-10   |
-| GPT2LMHeadModel               | GPT-2                         | gpt2, gpt2-xl, etc.                                                              | 16GB            | 10GB                | 2019-02-14   |
-| MambaForCausalLM              | Mamba                         | state-spaces/mamba-130m-hf, state-spaces/mamba-790m-hf, state-spaces/mamba-2.8b-hf, etc. | 16GB            | 25GB                | 2023-11-20   |
-| MiniCPMForCausalLM            | MiniCPM                       | openbmb/MiniCPM-2B-sft-bf16, openbmb/MiniCPM-2B-dpo-bf16, openbmb/MiniCPM-S-1B-sft, etc. | 16GB            | 40GB                | 2022-08-30   |
-| OLMoForCausalLM               | OLMo                          | allenai/OLMo-1B-hf, allenai/OLMo-7B-hf, etc.                                     | 16GB            | 15GB                | 2023-03-18   |
-| Phi3SmallForCausalLM          | Phi-3-Small                   | microsoft/Phi-3-small-8k-instruct, microsoft/Phi-3-small-128k-instruct, etc.     | 16GB            | 20GB                | 2024-07-22   |
-```
- ArcticForCausalLM
- Phi3SmallForCausalLM  
-Based on this information, I selected Phi3SmallForCausalLM as it was realtively new and required less storage.
-
-As vLLM is a community-driven project, I think that the model ID will come from a community type source like Hugging Face.
-irst, let's update your docker-compose.yml to use vllm-openvino instead of vllm-server since you're running on CPU:
-t looks like the DBRX model is gated, meaning it requires special access permissions even with your HF token. Let's try a different model that's publicly available. Let's use GPT
-
-
-microsoft/Phi-3-small-8k-instruct model requires the trust_remote_code=True flag to be set.  This flag is necessary for models whose code lives on the Hugging Face hub rather than being natively available in the Transformers library.
-
-Dmytro
-OP
- — 3/2/2025 8:52 PM
-"Thank you for a great suggestion - I was looking for logs, but loading progress is definitely isn't logged. I have switched to the smallest possible model - Qwen/Qwen2.5-0.5B-Instruct and it worked. Took 10 min or so to fully load."
-
-
-added this to the docker_compose.yaml file:
-    command: --model $LLM_MODEL_ID --host 0.0.0.0 --port 80 --trust-remote-code
-
-Update your .env file to ensure proper paths:
-
-rst, let's update your docker-compose.yml to use vllm-openvino ins
-docker-compose -f docker_compose.yaml up vllm-openvino
-
-
-# Install vLLM from pip:
-pip install vllm
-
-Copy
-# Load and run the model:
-vllm serve "microsoft/Phi-3-small-8k-instruct"
-
-Copy
-# Call the server using curl:
-curl -X POST "http://localhost:8000/v1/chat/completions" \
-	-H "Content-Type: application/json" \
-	--data '{
-		"model": "microsoft/Phi-3-small-8k-instruct",
-		"messages": [
-			{
-				"role": "user",
-				"content": "What is the capital of France?"
-			}
-		]
-	}'
-
-Create a README.md file that explains:
-The purpose of each service
-Hardware requirements for each option
-How to choose the right service for different environments
-Step-by-step instructions for starting each service
-3. Provide Example Profiles
-Create example profiles for different common scenarios:
-# CPU-only profile
-LLM_ENDPOINT_PORT=8008
-LLM_MODEL_ID=Qwen/Qwen2.5-0.5B-Instruct
-# OpenVINO CPU profile
-LLM_ENDPOINT_PORT=8008
-LLM_MODEL_ID=Qwen/Qwen2.5-0.5B-Instruct
-VLLM_OPENVINO_DEVICE=CPU
-# OpenVINO Arc GPU profile
-LLM_ENDPOINT_PORT=8008
-LLM_MODEL_ID=Qwen/Qwen2.5-0.5B-Instruct
-VLLM_OPENVINO_DEVICE=GPU
-RENDER_GROUP_ID=110
-
-vllm 15 mins
-
-WARN[0000] The "http_proxy" variable is not set. Defaulting to a blank string.
-WARN[0000] The "https_proxy" variable is not set. Defaulting to a blank string.
-WARN[0000] The "no_proxy" variable is not set. Defaulting to a blank string.
-WARN[0000] The "http_proxy" variable is not set. Defaulting to a blank string.
-WARN[0000] The "no_proxy" variable is not set. Defaulting to a blank string.
-WARN[0000] The "https_proxy" variable is not set. Defaulting to a blank string.
-WARN[0000] The "http_proxy" variable is not set. Defaulting to a blank string.
-WARN[0000] The "https_proxy" variable is not set. Defaulting to a blank string.
-WARN[0000] The "http_proxy" variable is not set. Defaulting to a blank string.
-WARN[0000] The "https_proxy" variable is not set. Defaulting to a blank string.
-
-
-### Updated `README.md`
-
-```markdown
-### Download (pull) a model
-
-To pull a model from the VLLM service, use the following command:
-
-```bash
-curl http://localhost:8008/api/pull -d '{
-"model": "Qwen/Qwen2.5-0.5B-Instruct"
-}'
+| Architecture                  | Models                        | RAM Requirement | Storage Requirement | Release Date |
+|-------------------------------|-------------------------------|-----------------|---------------------|--------------|
+| ArcticForCausalLM             | Arctic                        | 16GB            | 50GB                | 2024-01-15   |
+| BartForConditionalGeneration  | BART                          | 16GB            | 20GB                | 2020-06-25   |
+| DbrxForCausalLM               | DBRX                          | 16GB            | 30GB                | 2023-05-10   |
+| GPT2LMHeadModel               | GPT-2                         | 16GB            | 10GB                | 2019-02-14   |
+| MambaForCausalLM              | Mamba                         | 16GB            | 25GB                | 2023-11-20   |
+| MiniCPMForCausalLM            | MiniCPM                       | 16GB            | 40GB                | 2022-08-30   |
+| OLMoForCausalLM               | OLMo                          | 16GB            | 15GB                | 2023-03-18   |
+| Phi3SmallForCausalLM          | Phi-3-Small                   | 16GB            | 20GB                | 2024-07-22   |
 ```
 
-### Generate a Request
+### OPEA Development Progress Summary
 
-To generate a response using the VLLM service, use the following command:
+#### Initial Setup and Model Selection for vLLM
 
-```bash
-curl http://localhost:8008/api/generate -d '{
-"model": "Qwen/Qwen2.5-0.5B-Instruct",
-"prompt": "Why is the sky blue?"
-}'
-```
+- Analyzed vLLM supported models with lower RAM requirements (targeting ≤16GB)
+- Created comparison table of 8 model architectures but was unable to successfully run any of the shortlisted models
+- Successfully switched to Qwen/Qwen2.5-0.5B-Instruct after seeing Discord comments from user Dmytro, but it still took over 10 minutes to load.
 
-## Port change for Megaservice
+#### Technical Configuration of vLLM
 
-If you need to change the port for the megaservice, you can use the following command:
+- Updated docker-compose.yml for vllm-openvino (CPU support)
+- Consolidated configuration in .env file for better management
+- Fixed case sensitivity issues in OpenVINO-related variables
+- Added essential environment variables for OpenVINO GPU support
+- Corrected configuration settings, including max_model_len setting from initial problematic value of just 1 token to 2048
 
-```bash
-HOST_IP=$(hostname -I | awk '{print $1}') NO_PROXY=localhost LLM_ENDPOINT_PORT=9000 LLM_MODEL_ID="Qwen/Qwen2.5-0.5B-Instruct" docker-compose up
-```
+#### ChatQnA and GPT-SoVITS Service Integration
 
-### Download (pull) a model
+- Successfully migrated FastAPI from Ollama to VLLM service
+- Updated API endpoints from Ollama-specific to OpenAI-compatible format
+- Developed MegaService to orchestrate both LLM and TTS functionalities
+- Integrated GPT-SoVITS for text-to-speech capabilities
+- Created dedicated debug endpoint (/debug/tts-info) for TTS configuration inspection
+- Created a Dockerfile for MegaService to define the build process, including dependencies and entry point
+- Integrated MegaService into docker-compose.yaml for easy deployment
+- Developed update_megatalk.sh to automate copying MegaTalk.py into the Docker container and restarting Streamlit, ensuring efficient handling and quick iterations without rebuilding the container
 
-To pull a model from the megaservice, use the following command:
+#### Error Handling and Robustness
 
-```bash
-curl http://localhost:9000/api/pull -d '{
-"model": "Qwen/Qwen2.5-0.5B-Instruct"
-}'
-```
+- Implemented fallback mechanism to try multiple TTS endpoints
+- Added comprehensive error handling for both LLM and TTS to ensure graceful failures
+- Enhanced logging with detailed request/response information, including payload formats and responses
+- Set up rotating log files to manage disk space effectively
+- Extended timeout values to accommodate model loading and processing times
+- Created a test script to test endpoints for all the components of the MegaService
 
-### Generate a Request
+#### User Interface Development
 
-To generate a response using the megaservice, use the following command:
+- Implemented Streamlit frontend (MegaTalk.py) for user interaction
+- Added audio file saving in /audio directory with playback functionality
+- Developed column layout for improved conversation history display
+- Created update_megatalk.sh script to streamline development workflow
+- Added Chinese language support with HSK level selection (HSK 1-6)
+- Implemented detailed HSK-specific prompts with vocabulary and grammar guidelines
+- Created system prompts to enforce language-specific responses
 
-```bash
-curl http://localhost:9000/api/generate -d '{
-"model": "Qwen/Qwen2.5-0.5B-Instruct",
-"prompt": "Why is the sky blue?"
-}'
-```
+#### Key Takeaways
 
-TTS Services Status
-GPT-SoVITS Service
-Status: Running successfully on port 9880
-Container: gpt-sovits-service
-Health Check: Passing (returning 200 OK responses)
-Model Information:
-Using default SoVITS model: GPT_SoVITS/pretrained_models/s2G488k.pth
-Using default GPT model: GPT_SoVITS/pretrained_models/s1bert25hz-2kh-longer-epoch=68e-step=50232.ckpt
-Default reference audio: ./welcome_cn.wav (Chinese welcome message)
-Model version: v1
-Parameter count: 77.49M
-TTS Frontend Service
-Status: Running successfully on port 9088
-Container: tts-gptsovits-service
-Connected to: GPT-SoVITS service at 172.20.0.3
-
-How to Use These Services
-You can now interact with the TTS system through the frontend service:
-Text-to-Speech API: Available at http://localhost:9088/tts
-You can send POST requests with text to convert to speech
-Health Check: Available at http://localhost:9088/health and http://localhost:9880/health
-Both are returning 200 OK responses, indicating the services are healthy
-
-Perfect! Now I can see the correct endpoint from the OpenAPI documentation. According to the OpenAPI JSON you shared, the correct endpoint for text-to-speech is:
-
-And it expects a request body with this structure:
-
-{
-  "input": "Hello, this is a test.",
-  "model": "GPT_SoVITS/",
-  "voice": "default",
-  "response_format": "mp3",
-  "speed": 1.0
-}
-Let's try using this endpoint with the correct request format:
-
-curl -X POST "http://localhost:9088/v1/audio/speech" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "input": "Hello, this is a test.",
-    "model": "mGPT_SoVITS/",
-    "voice": "default",
-    "response_format": "mp3",
-    "speed": 1.0
-  }'
-
-If you want to save the audio output to a file, you can use:
-curl -X POST "http://localhost:9088/v1/audio/speech" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "input": "Hello, this is a test.",
-    "model": "GPT_SoVITS/",
-    "voice": "default",
-    "response_format": "mp3",
-    "speed": 1.0
-  }' \
-  --output test_speech.mp3
-
-
-Perfect! You've successfully created the script. Now you can use it to update your MegaTalk.py file in the container without rebuilding it.
-To use the script:
-1. Make your changes to the MegaTalk.py file
-2. Run the script:
-   ./update_megatalk.sh
-
-3. Refresh your browser to see the changes
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+- OpenVINO configuration required specific case-sensitive settings
+- The trust_remote_code=True flag in docker-compose files was necessary for the Hugging Face Transformers library to load models with custom code from their repository on the Hugging Face Hub
+- Timeouts had to be extended for health checks and requests were extended due to the long model loading and processing times on my hardware.
+- Direct service communication was more efficient than unnecessary wrapper services
+- Robust error handling and detailed logging were essential for debugging distributed services
+- Environment variable consolidation improved consistency and maintainability
+- Developing scripts to automate the deployment and development workflow was a great way to streamline the development process and reduce the amount of time it took to make changes
 
 
 ## Appendices

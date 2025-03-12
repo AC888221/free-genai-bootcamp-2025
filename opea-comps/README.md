@@ -2,8 +2,6 @@
 
 [Jump to Bootcamp Week 1: OPEA Implementation Report](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps/README.md#bootcamp-week-1-opea-implementation-report)
 
-[Jump to Bootcamp Week 3: OPEA Megaservice Implementation Report](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps/README.md#bootcamp-week-3-opea-megaservice-implementation-report)
-
 [Jump to LLM Megaservice Glossory](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps/README.md#llm-megaservice-glossory)
 
 ## Running Ollama Third-Party Services
