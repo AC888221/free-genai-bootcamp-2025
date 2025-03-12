@@ -1,4 +1,4 @@
-/app/server.py:410: DeprecationWarning: 
+/app/server.py:407: DeprecationWarning: 
         on_event is deprecated, use lifespan event handlers instead.
 
         Read more about it in the
@@ -9,65 +9,24 @@ INFO:     Started server process [7]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:9500 (Press CTRL+C to quit)
-2025-03-11 11:21:05 [ERROR] megaservice: TTS health check failed: 
-2025-03-11 11:21:05 [ERROR] megaservice: TTS health check failed: 
-2025-03-11 11:21:05 [ERROR] megaservice: LLM health check failed: All connection attempts failed
-2025-03-11 11:21:05 [ERROR] megaservice: LLM health check failed: All connection attempts failed
-INFO:     127.0.0.1:56646 - "GET /health HTTP/1.1" 200 OK
-2025-03-11 11:21:07 [ERROR] megaservice: TTS health check failed: 
-2025-03-11 11:21:07 [ERROR] megaservice: TTS health check failed: 
-2025-03-11 11:21:07 [ERROR] megaservice: LLM health check failed: All connection attempts failed
-2025-03-11 11:21:07 [ERROR] megaservice: LLM health check failed: All connection attempts failed
-INFO:     127.0.0.1:56654 - "GET /health HTTP/1.1" 200 OK
-2025-03-11 11:22:07 [ERROR] megaservice: TTS health check failed: All connection attempts failed
-2025-03-11 11:22:07 [ERROR] megaservice: TTS health check failed: All connection attempts failed
-2025-03-11 11:22:07 [ERROR] megaservice: LLM health check failed: All connection attempts failed
-2025-03-11 11:22:07 [ERROR] megaservice: LLM health check failed: All connection attempts failed
-INFO:     127.0.0.1:50780 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51844 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51852 - "GET /debug/tts-info HTTP/1.1" 200 OK
-2025-03-11 11:22:49 [INFO] megaservice: [req_1741692169] Received megaservice request
-2025-03-11 11:22:49 [INFO] megaservice: [req_1741692169] Received megaservice request
-2025-03-11 11:22:49 [INFO] llm: [req_1741692169] Sending LLM request
-2025-03-11 11:22:49 [INFO] llm: [req_1741692169] Sending LLM request
-2025-03-11 11:22:53 [INFO] llm: [req_1741692169] Got LLM response: Hello! I'm Qwen, an artificial intelligence developed by Alibaba Cloud. I'm here to provide informat...
-2025-03-11 11:22:53 [INFO] llm: [req_1741692169] Got LLM response: Hello! I'm Qwen, an artificial intelligence developed by Alibaba Cloud. I'm here to provide informat...
-2025-03-11 11:22:53 [INFO] megaservice: [req_1741692169] Starting TTS generation
-2025-03-11 11:22:53 [INFO] megaservice: [req_1741692169] Starting TTS generation
-2025-03-11 11:22:53 [INFO] tts: Generating TTS for text: Hello! I'm Qwen, an artificial intelligence develo...
-2025-03-11 11:22:53 [INFO] tts: Generating TTS for text: Hello! I'm Qwen, an artificial intelligence develo...
-2025-03-11 11:22:53 [INFO] tts: TTS Request to http://tts-gptsovits-service:9088/v1/audio/speech
-2025-03-11 11:22:53 [INFO] tts: TTS Request to http://tts-gptsovits-service:9088/v1/audio/speech
-2025-03-11 11:22:53 [ERROR] tts: TTS generation failed: Client error '422 Unprocessable Entity' for url 'http://tts-gptsovits-service:9088/v1/audio/speech'
-For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/422
-2025-03-11 11:22:53 [ERROR] tts: TTS generation failed: Client error '422 Unprocessable Entity' for url 'http://tts-gptsovits-service:9088/v1/audio/speech'
-For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/422
-2025-03-11 11:22:53 [ERROR] megaservice: TTS generation failed: 500: TTS generation failed: Client error '422 Unprocessable Entity' for url 'http://tts-gptsovits-service:9088/v1/audio/speech'
-For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/422
-2025-03-11 11:22:53 [ERROR] megaservice: TTS generation failed: 500: TTS generation failed: Client error '422 Unprocessable Entity' for url 'http://tts-gptsovits-service:9088/v1/audio/speech'
-For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/422
-2025-03-11 11:22:53 [INFO] megaservice: [req_1741692169] Request completed successfully
-2025-03-11 11:22:53 [INFO] megaservice: [req_1741692169] Request completed successfully
-INFO:     127.0.0.1:57424 - "POST /v1/megaservice HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53024 - "GET /v1/audio/files HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49818 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:45054 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50634 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46322 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:39662 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54802 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:43094 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51934 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:48488 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56692 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:38132 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44736 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:38184 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47078 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59454 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:37072 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47164 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58952 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36336 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47998 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:32968 - "GET /health HTTP/1.1" 200 OK
+2025-03-12 02:48:51 [ERROR] megaservice: TTS health check failed: 
+2025-03-12 02:48:51 [ERROR] megaservice: TTS health check failed: 
+INFO:     127.0.0.1:50238 - "GET /health HTTP/1.1" 200 OK
+2025-03-12 02:48:55 [ERROR] megaservice: TTS health check failed: 
+2025-03-12 02:48:55 [ERROR] megaservice: TTS health check failed: 
+INFO:     127.0.0.1:51762 - "GET /health HTTP/1.1" 200 OK
+2025-03-12 02:50:02 [ERROR] megaservice: TTS health check failed: 
+2025-03-12 02:50:02 [ERROR] megaservice: TTS health check failed: 
+INFO:     127.0.0.1:60532 - "GET /health HTTP/1.1" 200 OK
+2025-03-12 02:51:08 [ERROR] megaservice: TTS health check failed: 
+2025-03-12 02:51:08 [ERROR] megaservice: TTS health check failed: 
+INFO:     127.0.0.1:55064 - "GET /health HTTP/1.1" 200 OK
+2025-03-12 02:52:14 [ERROR] megaservice: TTS health check failed: 
+2025-03-12 02:52:14 [ERROR] megaservice: TTS health check failed: 
+INFO:     127.0.0.1:45432 - "GET /health HTTP/1.1" 200 OK
+2025-03-12 02:53:20 [ERROR] megaservice: TTS health check failed: 
+2025-03-12 02:53:20 [ERROR] megaservice: TTS health check failed: 
+INFO:     127.0.0.1:53824 - "GET /health HTTP/1.1" 200 OK
+2025-03-12 02:54:27 [ERROR] megaservice: TTS health check failed: 
+2025-03-12 02:54:27 [ERROR] megaservice: TTS health check failed: 
+INFO:     127.0.0.1:41206 - "GET /health HTTP/1.1" 200 OK

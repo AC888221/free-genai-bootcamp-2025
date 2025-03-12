@@ -322,3 +322,18 @@ Conducted tests to ensure both TTS and GPT-SoVITS services were functioning corr
 Code Cleanup:
 Removed unnecessary complexity by eliminating the TTS wrapper where it was no longer needed, focusing on direct service calls.
 This summary encapsulates the key actions taken to enhance the OPEA project, focusing on improving the integration and testing of the GPT-SoVITS service.
+
+Progress Report on OPEA Development
+Identified Issues:
+Encountered connection errors with the TTS and LLM services while running the MegaTalk application.
+Docker Configuration:
+Discussed the need to run multiple services (megaservice, vllm, gpt-sovits) using Docker Compose.
+Created a custom Docker network (megaservice-net) to facilitate communication between containers.
+Service Management:
+Stopped and removed existing containers to ensure a clean environment.
+Successfully connected existing services to the custom network.
+Streamlined Development Workflow:
+Developed a script (update_megatalk.sh) to automate the process of copying the updated MegaTalk.py file into the running Docker container and restarting the Streamlit application.
+Ensured that the script checks for the container's existence and handles the copying and restarting processes efficiently.
+Testing and Iteration:
+Established a workflow that allows for quick iterations on the MegaTalk application without needing to rebuild the Docker container each time changes are made.
