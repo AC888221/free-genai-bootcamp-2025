@@ -164,11 +164,6 @@ curl -X POST http://localhost:8000/v1/example-service \
 2. **Service Integration**: Tested FastAPI service endpoints for correct interaction with Ollama.
 3. **Response Handling**: Ensured proper handling of streaming responses and error conditions.
 
-## Bootcamp Week 3: OPEA Megaservice Implementation Report
-It seems that my understanding of what a megaservice was incomplete and I did not fully implement the megaservice in week 1. While I had a dockerized version of Ollama running that could be called on by my Chatbot QnA app using FastAPI, my understanding now is that I needed  I did not have a  port 8008, I did not have a megaservice that could be called on port 9000.
-
-
-
 ## Appendices
 
 ### LLM Megaservice Glossory

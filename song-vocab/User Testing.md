@@ -4,14 +4,16 @@
 
 Go to http://localhost:8000/docs
 
-1. Test the /api/agent endpoint by providing a song name and artist
+1. Test the welcome message by executing the GET request (no parameters needed).
+
+2. Test the /api/agent endpoint by providing a song name and artist
 ```json
 {
   "message_request": "{\"song_name\": \"好一朵美丽的茉莉花\", \"artist\": \"茉莉花\"}"
 }
 ```
 
-2. Test the /api/get_vocabulary endpoint by providing Chinese text, e.g.:
+3. Test the /api/get_vocabulary endpoint by providing Chinese text, e.g.:
 
 ```json
 {
@@ -19,7 +21,7 @@ Go to http://localhost:8000/docs
 }
 ```
 
-## Using cURL from the command line:
+## Using Curl from the command line:
 
 1. Test the /api/agent endpoint:
 

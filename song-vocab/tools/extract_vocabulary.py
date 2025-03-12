@@ -1,9 +1,21 @@
 import re
 import json
+import os
+import httpx
+from dotenv import load_dotenv
 from typing import List, Dict, Any
-import ollama
+import logging
 
-def extract_vocabulary(text: str) -> List[Dict[str, Any]]:
+# Load environment variables from .env file
+load_dotenv()
+
+# Set the Ollama server address from environment variables
+OLLAMA_API_BASE = os.getenv("OLLAMA_API_BASE", "http://localhost:8008")
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+async def extract_vocabulary(text: str) -> List[Dict[str, Any]]:
     """
     Extract vocabulary from Chinese (Putonghua) text.
     
@@ -13,7 +25,8 @@ def extract_vocabulary(text: str) -> List[Dict[str, Any]]:
     Returns:
         List[Dict[str, Any]]: A list of vocabulary items with word, jiantizi, pinyin, and English translation
     """
-    # Use the LLM to extract vocabulary
+    logging.info("Starting vocabulary extraction.")
+    
     system_prompt = """
     You are a Chinese language vocabulary extractor. Your task is to:
     
@@ -30,63 +43,63 @@ def extract_vocabulary(text: str) -> List[Dict[str, Any]]:
     Limit to a maximum of 30 vocabulary items.
     """
     
-    # Clean the text to focus on Chinese content
     cleaned_text = clean_chinese_text(text)
+    logging.debug(f"Cleaned text: {cleaned_text[:100]}...")  # Log the first 100 characters of the cleaned text
     
     if not contains_chinese(cleaned_text):
+        logging.warning("No Chinese characters found in the text.")
         return []
     
     try:
-        # Call Ollama to process the text
-        response = ollama.chat(
-            model="phi4-mini",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"Extract vocabulary from the following text:\n\n{cleaned_text[:5000]}"}
-            ]
-        )
-        
-        # Extract JSON from the response
-        response_content = response["message"]["content"]
-        
-        # Try to find JSON in the response
-        json_match = re.search(r'```json\s*([\s\S]*?)\s*```', response_content)
-        if json_match:
-            json_str = json_match.group(1)
-        else:
-            # Look for arrays in the text if no JSON code block
-            json_match = re.search(r'\[\s*\{.*\}\s*\]', response_content, re.DOTALL)
+        logging.info("Sending request to LLM.")
+        async with httpx.AsyncClient(base_url=OLLAMA_API_BASE) as client:
+            response = await client.post(
+                "/api/generate",
+                json={
+                    "model": "phi3-mini",
+                    "prompt": f"Extract vocabulary from the following text:\n\n{cleaned_text[:5000]}",
+                    "stream": False
+                }
+            )
+            response.raise_for_status()
+            response_content = response.json().get("message", {}).get("content", "")
+            logging.debug(f"Response content: {response_content[:100]}...")  # Log the first 100 characters of the response
+            
+            json_match = re.search(r'```json\s*([\s\S]*?)\s*```', response_content)
             if json_match:
-                json_str = json_match.group(0)
+                json_str = json_match.group(1)
             else:
-                # Fallback to the entire response
-                json_str = response_content
-        
-        try:
-            # Parse the JSON
-            vocabulary = json.loads(json_str)
+                json_match = re.search(r'\[\s*\{.*\}\s*\]', response_content, re.DOTALL)
+                if json_match:
+                    json_str = json_match.group(0)
+                else:
+                    json_str = response_content
             
-            # Ensure it's a list
-            if not isinstance(vocabulary, list):
-                vocabulary = []
-            
-            # Validate each item
-            validated_vocabulary = []
-            for item in vocabulary:
-                if isinstance(item, dict) and all(k in item for k in ["word", "jiantizi", "pinyin", "english"]):
-                    validated_vocabulary.append({
-                        "word": item["word"],
-                        "jiantizi": item["jiantizi"],
-                        "pinyin": item["pinyin"],
-                        "english": item["english"]
-                    })
-            
-            return validated_vocabulary
-        except json.JSONDecodeError:
-            # If JSON parsing fails, try a simpler approach
-            return fallback_extraction(cleaned_text)
+            try:
+                vocabulary = json.loads(json_str)
+                if not isinstance(vocabulary, list):
+                    vocabulary = []
+                
+                validated_vocabulary = []
+                for item in vocabulary:
+                    if isinstance(item, dict) and all(k in item for k in ["word", "jiantizi", "pinyin", "english"]):
+                        validated_vocabulary.append({
+                            "word": item["word"],
+                            "jiantizi": item["jiantizi"],
+                            "pinyin": item["pinyin"],
+                            "english": item["english"]
+                        })
+                
+                logging.info("Vocabulary extraction successful.")
+                return validated_vocabulary
+            except json.JSONDecodeError as json_err:
+                logging.error(f"JSON decoding error: {json_err}")
+                return fallback_extraction(cleaned_text)
+    except httpx.HTTPError as http_err:
+        logging.error(f"HTTP error occurred: {str(http_err)}")
+        return fallback_extraction(cleaned_text)
     except Exception as e:
-        print(f"Error in extract_vocabulary: {str(e)}")
+        logging.error(f"Error in extract_vocabulary: {str(e)}")
         return fallback_extraction(cleaned_text)
 
 def clean_chinese_text(text: str) -> str:

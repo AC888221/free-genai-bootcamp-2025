@@ -558,3 +558,7 @@ INFO:     172.18.0.4:45900 - "GET /health HTTP/1.1" 200 OK
 INFO:     172.18.0.4:58228 - "GET /health HTTP/1.1" 200 OK
 INFO:     172.18.0.4:39250 - "GET /health HTTP/1.1" 200 OK
 INFO:     172.18.0.4:50780 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:57178 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:39638 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45846 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:54874 - "GET /health HTTP/1.1" 200 OK

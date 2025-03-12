@@ -7,6 +7,7 @@ Small size (3.8B parameters)
 Includes function calling capability
 Good balance of performance and resource requirements
 Phi3-mini (3.8B)
+https://ollama.com/library/phi3
 Small, efficient model
 Good performance for its size
 Updated 10 months ago

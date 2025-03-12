@@ -2,13 +2,21 @@ import os
 import json
 from typing import Dict, List, Optional, Any, Union
 import ollama
+import httpx
+from dotenv import load_dotenv
 from tools.search_web import search_web
 from tools.get_page_content import get_page_content
 from tools.extract_vocabulary import extract_vocabulary
 from tools.generate_song_id import generate_song_id
 
+# Load environment variables from .env file
+load_dotenv()
+
+# Set the Ollama server address from environment variables
+OLLAMA_API_BASE = os.getenv("OLLAMA_API_BASE", "http://localhost:8008")
+
 class LyricsAgent:
-    def __init__(self, model_name: str = "phi4-mini"):
+    def __init__(self, model_name: str = "phi3-mini"):
         """Initialize the LyricsAgent with the specified model."""
         self.model_name = model_name
         self.prompt_file = os.path.join("prompts", "lyrics-agent.md")
@@ -120,6 +128,20 @@ Return a JSON object with:
                     })
         
         return results
+
+    async def _call_ollama(self, prompt: str) -> Dict[str, Any]:
+        """Make a call to the Ollama API."""
+        async with httpx.AsyncClient(base_url=OLLAMA_API_BASE) as client:
+            response = await client.post(
+                "/api/generate",
+                json={
+                    "model": self.model_name,
+                    "prompt": prompt,
+                    "stream": False
+                }
+            )
+            response.raise_for_status()
+            return response.json()
 
     def run(self, message_request: str, artist_name: Optional[str] = None) -> Dict[str, Any]:
         """Run the agent to find lyrics and extract vocabulary."""
