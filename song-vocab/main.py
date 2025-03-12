@@ -1,10 +1,23 @@
+import logging
+import httpx
+import os
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 import uvicorn
-import os
+from dotenv import load_dotenv
 from agent import LyricsAgent
 from database import Database
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Set the Ollama server address from environment variables
+OLLAMA_API_BASE = os.getenv("OLLAMA_API_BASE", "http://localhost:8008")
 
 app = FastAPI(title="Song Vocabulary API", 
               description="An API to get lyrics and extract vocabulary from songs in Putonghua")
@@ -37,6 +50,7 @@ async def startup_event():
 async def root():
     return {"message": "Welcome to the Song Vocabulary API"}
 
+# LyricsAgent class to interact process requests using the LLM
 @app.post("/api/agent", response_model=LyricsResponse)
 async def get_lyrics(request: LyricsRequest):
     try:
@@ -53,15 +67,30 @@ async def get_lyrics(request: LyricsRequest):
         
         return result
     except Exception as e:
+        logger.error(f"Error in get_lyrics: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# Request to the LLM to analyze the provided text and extract vocabulary items
 @app.post("/api/get_vocabulary")
 async def get_vocabulary(request: TextRequest):
     try:
-        agent = LyricsAgent()
-        vocabulary = agent.extract_vocabulary(request.text)
-        return {"vocabulary": vocabulary}
+        async with httpx.AsyncClient(base_url=OLLAMA_API_BASE) as client:
+            response = await client.post(
+                "/api/generate",
+                json={
+                    "model": "phi3-mini",
+                    "prompt": f"Extract vocabulary from the following text:\n\n{request.text}",
+                    "stream": False
+                }
+            )
+            response.raise_for_status()
+            vocabulary = response.json().get("vocabulary", [])
+            return {"vocabulary": vocabulary}
+    except httpx.HTTPError as http_err:
+        logger.error(f"HTTP error occurred: {str(http_err)}")
+        raise HTTPException(status_code=500, detail=f"HTTP error: {str(http_err)}")
     except Exception as e:
+        logger.error(f"Error in get_vocabulary: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
