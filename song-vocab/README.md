@@ -73,7 +73,20 @@ curl http://localhost:8008/api/generate -d '{
     "prompt": "Why is the sky blue?"
 }'
 
-
+Explanation of the Implementation:
+Streamlit Frontend (streamlit_app.py):
+Creates a user-friendly interface with two main tabs:
+Search Songs: Allows users to search for songs by name and artist
+Extract from Text: Lets users paste Chinese text to extract vocabulary
+Displays vocabulary in a table format with download options
+Includes a sidebar with information about the app and learning tips
+Uses async functions to communicate with your FastAPI backend
+Run Script (run_app.py):
+Provides a convenient way to start both the backend and frontend together
+Handles proper shutdown of both applications
+Requirements Update:
+Adds Streamlit and pandas for the frontend interface
+This implementation showcases your agent's workflow while providing a practical tool for Putonghua learners. The interface is clean and focused on the core functionality of searching for songs and extracting vocabulary.
 
 
 

@@ -246,6 +246,56 @@ Prompt Engineering: The impact of prompt design on the quality of LLM outputs, e
 6. Next Steps:
 We discussed the possibility of further refining the prompt and examining the raw LLM responses to better understand the discrepancies. This would involve checking the actual content returned by the LLM to identify any patterns or issues that could be addressed.
 
-
+Summary of Actions Taken
+In this project, we developed a Streamlit frontend for an existing Song Vocabulary application that uses an AI agent to extract vocabulary from Chinese (Putonghua) song lyrics. The implementation process involved several iterations to address various technical challenges.
+Key Accomplishments
+Created a Streamlit Frontend:
+Developed a user-friendly interface with tabs for searching lyrics and inputting custom text
+Implemented vocabulary display with downloadable CSV export
+Added informative sidebar with learning tips for Putonghua students
+Integrated with Backend API:
+Established communication between Streamlit frontend and FastAPI backend
+Implemented proper request formatting to match backend expectations
+Created helper functions to handle asynchronous operations in Streamlit
+Implemented Robust Error Handling:
+Added comprehensive logging for debugging
+Created specific error handlers for different types of exceptions
+Provided user-friendly error messages
+Resolved Technical Challenges:
+Fixed timeout issues with LLM processing
+Addressed asynchronous execution in Streamlit
+Improved UI feedback during long-running operations
+Domain Knowledge Applied
+Understanding LLM Processing Requirements:
+Identified that LLM-based vocabulary extraction requires significantly longer timeouts (increased from 30s to 300s)
+Recognized the pattern in error logs indicating timeout issues rather than connection problems
+Example: ERROR:__main__:Error type: <class 'httpx.ReadTimeout'> led to implementing specific timeout handling
+Streamlit's Asynchronous Limitations:
+Discovered that st.experimental_run_async is no longer available in current Streamlit versions
+Implemented a custom run_async function using asyncio to properly handle event loops
+Example: Created a solution that maintains compatibility with Streamlit's synchronous nature while allowing async API calls
+API Integration Patterns:
+Analyzed backend logs to understand the expected request format
+Identified that the backend expects specific JSON structures for different endpoints
+Example: Formatted requests with {"message_request": song_name} for lyrics search and {"text": text} for vocabulary extraction
+User Experience for AI-Powered Applications:
+Recognized the need for clear user expectations when working with LLM-based tools
+Implemented informative messages about processing times
+Example: Added notices like "Processing may take up to 5 minutes as the AI analyzes the lyrics"
+Technical Challenges Overcome
+Timeout Issues:
+Problem: Initial requests to the backend were timing out
+Solution: Increased timeout settings and added specific error handling for timeout exceptions
+Result: Successfully processed longer texts without timeouts
+Asynchronous Execution in Streamlit:
+Problem: Streamlit's synchronous nature conflicted with async API calls
+Solution: Implemented a custom asyncio wrapper to handle event loops properly
+Result: Maintained responsive UI while performing long-running backend operations
+Error Visibility:
+Problem: Initial error messages were not informative enough for debugging
+Solution: Added comprehensive logging including response content, status codes, and full tracebacks
+Result: Quickly identified and resolved connection and timeout issues
+Conclusion
+The implementation successfully showcases the agentic workflow of the Song Vocabulary application. The frontend now provides an intuitive interface for users to access the AI agent's capabilities for searching lyrics and extracting vocabulary, with appropriate handling of the inherent latency of LLM-based processing. The application demonstrates effective integration between a modern Streamlit frontend and an AI-powered FastAPI backend.
 
 
