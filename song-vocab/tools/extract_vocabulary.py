@@ -6,101 +6,105 @@ from dotenv import load_dotenv
 from typing import List, Dict, Any
 import logging
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Load environment variables from .env file
 load_dotenv()
 
 # Set the Ollama server address from environment variables
 OLLAMA_API_BASE = os.getenv("OLLAMA_API_BASE", "http://localhost:8008")
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-async def extract_vocabulary(text: str) -> List[Dict[str, Any]]:
-    """
-    Extract vocabulary from Chinese (Putonghua) text.
-    
-    Args:
-        text (str): The text to extract vocabulary from
-        
-    Returns:
-        List[Dict[str, Any]]: A list of vocabulary items with word, jiantizi, pinyin, and English translation
-    """
-    logging.info("Starting vocabulary extraction.")
-    
-    system_prompt = """
-    You are a Chinese language vocabulary extractor. Your task is to:
-    
-    1. Identify unique Chinese words and characters in the given text
-    2. For each word, provide:
-       - word: The original Chinese word
-       - jiantizi: The simplified Chinese form
-       - pinyin: The pinyin romanization with tone marks
-       - english: The English translation
-    
-    Return the results as a JSON array containing objects with these four fields.
-    Focus on words that would be valuable for a Chinese language learner.
-    Ignore common words like pronouns, conjunctions, and particles unless they're important.
-    Limit to a maximum of 30 vocabulary items.
-    """
-    
-    cleaned_text = clean_chinese_text(text)
-    logging.debug(f"Cleaned text: {cleaned_text[:100]}...")  # Log the first 100 characters of the cleaned text
-    
-    if not contains_chinese(cleaned_text):
-        logging.warning("No Chinese characters found in the text.")
-        return []
-    
+async def extract_vocabulary(text: str) -> List[Dict[str, str]]:
+    """Extract vocabulary from text using LLM."""
     try:
-        logging.info("Sending request to LLM.")
-        async with httpx.AsyncClient(base_url=OLLAMA_API_BASE) as client:
+        logger.info("Starting vocabulary extraction")
+        
+        # Prepare the prompt with JSON delimiters
+        prompt = f"""Extract Chinese vocabulary from the following text and provide the output in JSON format. 
+        Return only the JSON content between [START_JSON] and [END_JSON] tags.
+        
+        For each word, provide:
+        - word: The Chinese characters
+        - jiantizi: Simplified form
+        - pinyin: Pronunciation in pinyin
+        - english: English translation
+        
+        Text: {text}
+        
+        Format the output exactly like this:
+        [START_JSON]
+        [
+            {{"word": "你好", "jiantizi": "你好", "pinyin": "nǐ hǎo", "english": "hello"}},
+            {{"word": "再见", "jiantizi": "再见", "pinyin": "zài jiàn", "english": "goodbye"}}
+        ]
+        [END_JSON]
+        """
+        
+        logger.info("Sending request to LLM.")
+        async with httpx.AsyncClient() as client:
             response = await client.post(
-                "/api/generate",
-                json={
-                    "model": "Phi-3-mini-4k-instruct",
-                    "prompt": f"Extract vocabulary from the following text:\n\n{cleaned_text[:5000]}",
-                    "stream": False
-                }
+                f"{OLLAMA_API_BASE}/api/generate",
+                json={"model": "phi3:3.8b", "prompt": prompt},
+                timeout=30.0
             )
-            response.raise_for_status()
-            response_content = response.json().get("message", {}).get("content", "")
-            logging.debug(f"Response content: {response_content[:100]}...")  # Log the first 100 characters of the response
             
-            json_match = re.search(r'```json\s*([\s\S]*?)\s*```', response_content)
-            if json_match:
-                json_str = json_match.group(1)
-            else:
-                json_match = re.search(r'\[\s*\{.*\}\s*\]', response_content, re.DOTALL)
-                if json_match:
-                    json_str = json_match.group(0)
-                else:
-                    json_str = response_content
+            response.raise_for_status()
+            response_text = response.text
+            
+            logger.debug(f"Raw LLM response: {response_text}")
+            
+            # Extract content between JSON tags
+            start_idx = response_text.find("[START_JSON]")
+            end_idx = response_text.find("[END_JSON]")
+            
+            if start_idx == -1 or end_idx == -1:
+                logger.error("JSON tags not found in response")
+                # Log a sample of the response for debugging
+                capped_content = response_text[:500] + '...' if len(response_text) > 500 else response_text
+                logger.debug(f"Response content (capped): {capped_content}")
+                return fallback_extraction(text)
+            
+            # Extract and clean the JSON content
+            json_str = response_text[start_idx + len("[START_JSON]"):end_idx].strip()
             
             try:
-                vocabulary = json.loads(json_str)
-                if not isinstance(vocabulary, list):
-                    vocabulary = []
+                data = json.loads(json_str)
+                if not isinstance(data, list):
+                    logger.error("LLM response is not a list")
+                    return fallback_extraction(text)
                 
-                validated_vocabulary = []
-                for item in vocabulary:
+                # Validate and clean each vocabulary item
+                validated_vocab = []
+                for item in data:
                     if isinstance(item, dict) and all(k in item for k in ["word", "jiantizi", "pinyin", "english"]):
-                        validated_vocabulary.append({
-                            "word": item["word"],
-                            "jiantizi": item["jiantizi"],
-                            "pinyin": item["pinyin"],
-                            "english": item["english"]
-                        })
+                        # Clean and validate each field
+                        cleaned_item = {
+                            "word": str(item["word"]).strip(),
+                            "jiantizi": str(item["jiantizi"]).strip(),
+                            "pinyin": str(item["pinyin"]).strip(),
+                            "english": str(item["english"]).strip()
+                        }
+                        # Only include items that have actual Chinese characters
+                        if contains_chinese(cleaned_item["word"]):
+                            validated_vocab.append(cleaned_item)
                 
-                logging.info("Vocabulary extraction successful.")
-                return validated_vocabulary
-            except json.JSONDecodeError as json_err:
-                logging.error(f"JSON decoding error: {json_err}")
-                return fallback_extraction(cleaned_text)
-    except httpx.HTTPError as http_err:
-        logging.error(f"HTTP error occurred: {str(http_err)}")
-        return fallback_extraction(cleaned_text)
+                if not validated_vocab:
+                    logger.warning("No valid vocabulary items found in LLM response")
+                    return fallback_extraction(text)
+                
+                logger.info(f"Successfully extracted {len(validated_vocab)} vocabulary items")
+                return validated_vocab
+                
+            except json.JSONDecodeError as e:
+                logger.error(f"JSON decode error: {str(e)}")
+                logger.debug(f"Failed JSON: {json_str}")
+                return fallback_extraction(text)
+                
     except Exception as e:
-        logging.error(f"Error in extract_vocabulary: {str(e)}")
-        return fallback_extraction(cleaned_text)
+        logger.error(f"Error in extract_vocabulary: {str(e)}")
+        return fallback_extraction(text)
 
 def clean_chinese_text(text: str) -> str:
     """Clean the text to focus on Chinese content."""
