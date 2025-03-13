@@ -165,7 +165,7 @@ The Song Vocabulary project implements an AI agent that extracts vocabulary from
 The system follows a multi-component architecture:
 - **FastAPI Backend**: Provides API endpoints for lyrics retrieval and vocabulary extraction
 - **Ollama Integration**: Runs a local LLM (Phi-3 3.8B) for text processing
-- **Database**: Stores processed songs and vocabulary items
+- **Database**: Uses SQLite for storing processed songs and vocabulary items
 - **Streamlit Frontend**: Offers a user-friendly interface for searching songs and extracting vocabulary
 
 ### Key Technical Implementations
@@ -174,12 +174,16 @@ The system follows a multi-component architecture:
 
 The core of the system is the `LyricsAgent` class that orchestrates a workflow using specialized tools:
 ```
-1. Input Processing → 2. Web Search → 3. Content Retrieval → 4. LLM Processing → 5. Result Formatting
+1. Input Processing: Initial handling of user input
+2. Web Search: Retrieving relevant song lyrics
+3. Content Retrieval: Fetching the actual lyrics
+4. LLM Processing: Extracting vocabulary using the LLM
+5. Result Formatting: Preparing the output for the user
 ```
 
 This demonstrates agency through:
 - Chaining multiple tools to accomplish complex tasks
-- Making decisions about which tools to use based on current state
+- Making decisions about which tools to use based on the current state
 - Implementing fallback mechanisms when primary methods fail
 - Coordinating between different systems (web search, content fetching, LLM processing)
 
@@ -206,7 +210,7 @@ if "[START_JSON]" not in response and "[END_JSON]" not in response:
 
 #### 3. Asynchronous Processing
 
-Implemented asynchronous HTTP requests using `httpx.AsyncClient` for efficient I/O operations:
+Implemented asynchronous HTTP requests using `httpx.AsyncClient` for efficient I/O operations, improving performance and responsiveness:
 ```python
 async with httpx.AsyncClient(base_url=OLLAMA_API_BASE) as client:
     response = await client.post("/api/generate", json=payload, timeout=300)
@@ -240,158 +244,61 @@ for i in {1..5}; do
 done
 ```
 
-### Domain Knowledge Acquired
+## Challenges, Lessons Learned, and Unresolved Issues
 
-#### 1. Language Model Response Handling
+### 1. Language Model Response Handling
 
-The project revealed critical insights about working with LLMs in production environments:
+LLMs occasionally fail to follow formatting instructions consistently due to their probabilistic nature and the complexity of natural language processing. A multi-layered extraction approach was adopted:
+- Initially, content is extracted between delimiters (`[START_JSON]` and `[END_JSON]`).
+- If missing, regex is used to find any JSON-like structures.
+- If still unsuccessful, a fallback to simple character extraction is employed.
 
-- **Response Formatting Challenges**: LLMs often fail to follow formatting instructions consistently, even with explicit prompts. When requesting JSON output, we found that approximately 30% of responses omitted the requested delimiters.
+### 2. Asynchronous Operations in Web Applications
 
-Example issue:
-```
-ERROR:__main__:Extraction failed: JSONDecodeError('Expecting value: line 1 column 1 (char 0)')
-```
+Event loop management was crucial for maintaining application stability, especially when mixing synchronous and asynchronous code. A custom solution using thread-based async execution was implemented to bridge Streamlit's synchronous architecture with FastAPI's async endpoints.
 
-- **Solution Pattern**: Implemented a multi-layered extraction approach:
-  1. First attempt to extract content between delimiters (`[START_JSON]` and `[END_JSON]`)
-  2. If missing, use regex to find any JSON-like structures
-  3. If still unsuccessful, fall back to simple character extraction
+### 3. LLM Reliability and Response Quality
 
-This pattern is applicable across many LLM-based applications, not just vocabulary extraction.
+To improve LLM response consistency, refined prompt engineering techniques were considered, such as clearer instructions and examples. Implementations included:
+- Clear delimiter tags in prompts (`[START_JSON]`, `[END_JSON]`).
+- Regex-based extraction for inconsistent responses.
+- Fallback mechanisms for degraded but functional service.
 
-#### 2. Asynchronous Operations in Web Applications
+### 4. Asynchronous Processing Complexities
 
-- **Event Loop Management**: Discovered that mixing synchronous and asynchronous code requires careful event loop management.
+Trade-offs between timeout duration and user experience were addressed. Increasing timeouts from 30s to 300s reduced timeout errors by 85% but increased average wait time to 180s. Strategies like optimizing prompt efficiency or parallel processing were considered to mitigate long wait times.
 
-When implementing the Streamlit frontend, we encountered this key limitation:
-```
-ERROR:__main__:Error executing async operation: RuntimeError('Cannot run the event loop while another loop is running')
-```
+### 5. Docker Service Orchestration
 
-- **Applied Knowledge**: Created a custom solution using thread-based async execution to bridge Streamlit's synchronous architecture with FastAPI's async endpoints.
+Docker-compose was modified to automate Ollama's model pull. However, docker-compose starts services in order but doesn't ensure readiness, leading to premature connection attempts to Ollama. To address this, a polling mechanism was added in startup.sh (Commit 516fefe) to check service availability, but it failed as the service wasn't ready and the container wasn't fully initialized. Despite this failure, further investigateion may enable integration of Ollama's model pull into the docker initialization process.
 
-#### 3. Docker Service Orchestration
+### 6. Database Utilization Gap
 
-- **Service Dependencies**: Learned that Docker Compose's `depends_on` only ensures services start in order but doesn't guarantee service readiness.
+One current challenge is that the database is used only for storing data, not retrieving it, resulting in redundant processing. An opportunity to improve efficiency is by implementing caching logic to check for previously processed songs before performing web searches. Also, integrating the app with the Lang-portal database could provide a more seamless learning experience.
 
-- **Practical Solution**: Implemented a polling mechanism in `startup.sh` that checks service availability before proceeding:
+### 7. Local LLM Deployment Constraints
 
-```bash
-# Wait for Ollama service to be available
-attempt=0
-max_attempts=10
-until curl -s http://localhost:8008 > /dev/null || [ $attempt -eq $max_attempts ]
-do
-    attempt=$((attempt+1))
-    echo "Waiting for Ollama service... ($attempt/$max_attempts)"
-    sleep 5
-done
-```
+The system resources include an Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz 2.11 GHz with 32.0 GB (31.4 GB usable) and only an integrated GPU. Recommendations for optimizing hardware resources included:
+- Ensuring sufficient RAM (16GB+ recommended for stable performance).
+- Considering external GPU options for faster processing.
+- Optimizing code to reduce computational load.
 
-This approach is broadly applicable to any multi-container application with service dependencies.
+## Technical Debt and Future Improvements
 
-#### 4. Local LLM Deployment Constraints
+1. **Database Retrieval**: Develop API endpoints to retrieve stored songs and implement caching mechanisms to minimize redundant processing.
 
-- **Resource Requirements**: Discovered that running Phi-3 (3.8B) locally requires careful hardware consideration:
-  - Minimum 8GB RAM for basic operation
-  - 16GB+ recommended for stable performance
-  - CPU-only operation causes 5-10x slower response times than GPU
+2. **Prompt Engineering**: Enhance LLM prompts to improve the consistency of JSON responses, thereby reducing the dependency on fallback extraction methods.
 
-- **Practical Impact**: On our test system (Intel i7-8650U, 32GB RAM, no GPU), response times averaged 2-3 minutes for vocabulary extraction, making UX considerations critical.
+3. **Iterative Agentive Workflow**: Establish a process where the agent iteratively refines the JSON response until it meets acceptance criteria or, after a predefined number of attempts, defaults to the fallback mechanism. This will improve the agent's autonomous capabilities.
 
-### Challenges and Lessons Learned
+4. **Frontend Features**: Upgrade the Streamlit application to include history features, allowing users to access previously processed songs.
 
-#### 1. LLM Reliability Issues
+5. **Error Monitoring**: Implement detailed error tracking to identify and analyze patterns in LLM failures, facilitating more effective troubleshooting and improvements.
 
-**Challenge**: The LLM frequently failed to return properly formatted JSON responses, triggering fallback extraction.
+## Conclusion
 
-**Lesson**: When working with LLMs, always implement:
-- Clear delimiter tags in prompts (`[START_JSON]`, `[END_JSON]`)
-- Regex-based extraction for inconsistent responses
-- Fallback mechanisms for degraded but functional service
+The Song Vocabulary project successfully implements an AI agent using agentic workflow principles. The system demonstrates key agent characteristics through its modular tools, decision-making capability, and fallback mechanisms. The project illustrates how to build resilient AI-powered applications capable of recovering from failures at various stages.
 
-#### 2. Asynchronous Processing Complexities
-
-**Challenge**: Timeout issues with LLM processing and Streamlit's synchronous nature caused operational failures.
-
-**Lesson**: Increased timeouts from 30s to 300s and implemented custom async handling for Streamlit compatibility.
-
-#### 3. Docker Service Dependencies
-
-**Challenge**: Services in Docker Compose started in parallel, causing the application to attempt connecting to Ollama before it was ready.
-
-**Solution**: Implemented a startup script with retry logic to wait for service availability:
-```bash
-# Check if Ollama is responding before attempting to pull the model
-if ! curl -s http://localhost:8008 > /dev/null; then
-    echo "Ollama service is not available"
-    exit 1
-fi
-```
-
-#### 4. Incomplete Database Integration
-
-**Challenge**: The database is used for storing data but not for retrieving it, leading to redundant processing.
-
-**Opportunity**: Implementing caching logic to check for previously processed songs before performing web searches would improve efficiency.
-
-### Unresolved Issues & Warnings
-
-#### 1. Timeout vs. Quality Tradeoff
-
-**Issue**: Increasing timeouts improved completion rates but created poor user experience.
-
-**Current Status**: Implemented a 5-minute timeout that resolves most timeout errors but results in lengthy processing times.
-
-**Warning for Future Implementations**: Consider this tradeoff carefully when designing LLM-powered applications:
-```
-WARNING: Increasing timeout from 30s → 300s reduced timeout errors by 85% but increased average wait time to 180s
-```
-
-#### 2. Inconsistent LLM Response Quality
-
-**Issue**: Even with identical prompts, response quality varied significantly between requests.
-
-**Evidence**: In testing with 50 identical prompts:
-- 60% returned well-formatted JSON with 10+ vocabulary items
-- 30% returned malformed JSON requiring fallback processing
-- 10% timed out completely
-
-**Unresolved Question**: Is this inherent to the model or could prompt engineering techniques further improve consistency?
-
-#### 3. Database Utilization Gap
-
-**Issue**: The system writes to the database but rarely reads from it, creating redundant processing.
-
-```python
-# This code saves results but doesn't check if they already exist
-@app.post("/api/agent")
-async def agent_endpoint(request: Request):
-    # Process request with LLM...
-    # Save to database after processing
-    db.add_song(song_name, artist_name, lyrics, vocabulary)
-    # No check if song is already in database before processing
-```
-
-**Potential Impact**: Each identical search triggers the entire pipeline, wasting resources and time.
-
-**Future Direction**: Implement a caching layer that checks the database before initiating web searches and LLM processing.
-
-### Technical Debt and Future Improvements
-
-1. **Database Retrieval**: Add API endpoints to retrieve stored songs and implement caching to avoid redundant processing.
-
-2. **Prompt Engineering**: Refine LLM prompts to improve consistency of JSON responses, reducing reliance on fallback extraction.
-
-3. **Frontend Features**: Enhance the Streamlit app with history features to access previously processed songs.
-
-4. **Error Monitoring**: Implement more granular error tracking to identify patterns in LLM failures.
-
-### Conclusion
-
-The Song Vocabulary project successfully implements an AI agent using agentic workflow principles. The system demonstrates key agent characteristics through its modular tools, decision-making capability, and fallback mechanisms. The project exemplifies how to build resilient AI-powered applications that can recover from failures at various stages.
-
-The most significant insights came from handling LLM response inconsistencies and implementing multi-layered fallback mechanisms. While several challenges remain unresolved—particularly around optimizing the timeout vs. quality tradeoff and improving database utilization—the project established effective patterns for building resilient AI agents that can recover from failures at various stages.
+Significant insights were gained from handling LLM response inconsistencies and implementing multi-layered fallback mechanisms. While several challenges remain unresolved—particularly around optimizing the timeout vs. quality tradeoff and improving database utilization—the project established effective patterns for building resilient AI agents that can recover from failures at various stages.
 
 These lessons extend beyond this specific application and offer guidance for any system integrating LLMs into production workflows.
