@@ -56,7 +56,7 @@ async def extract_vocabulary(text: str) -> List[Dict[str, Any]]:
             response = await client.post(
                 "/api/generate",
                 json={
-                    "model": "phi3-mini",
+                    "model": "Phi-3-mini-4k-instruct",
                     "prompt": f"Extract vocabulary from the following text:\n\n{cleaned_text[:5000]}",
                     "stream": False
                 }

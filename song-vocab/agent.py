@@ -16,7 +16,7 @@ load_dotenv()
 OLLAMA_API_BASE = os.getenv("OLLAMA_API_BASE", "http://localhost:8008")
 
 class LyricsAgent:
-    def __init__(self, model_name: str = "phi3-mini"):
+    def __init__(self, model_name: str = "Phi-3-mini-4k-instruct"):
         """Initialize the LyricsAgent with the specified model."""
         self.model_name = model_name
         self.prompt_file = os.path.join("prompts", "lyrics-agent.md")

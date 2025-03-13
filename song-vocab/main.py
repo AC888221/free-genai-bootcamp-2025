@@ -78,7 +78,7 @@ async def get_vocabulary(request: TextRequest):
             response = await client.post(
                 "/api/generate",
                 json={
-                    "model": "phi3-mini",
+                    "model": "Phi-3-mini-4k-instruct",
                     "prompt": f"Extract vocabulary from the following text:\n\n{request.text}",
                     "stream": False
                 }
