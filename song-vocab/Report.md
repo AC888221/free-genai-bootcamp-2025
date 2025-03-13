@@ -226,3 +226,26 @@ Automated Error Handling: Implemented a retry mechanism to avoid unnecessary fai
 Debugging Best Practices: Used process monitoring (ps aux), network checks (ss -tulnp), and verbose logs (curl -v).
 
 
+Summary of Actions Taken
+Initial Issue Identification:
+The initial problem was identified when the vocabulary extraction process was failing during the tests, specifically in the extract_vocabulary function. The logs indicated that the LLM was not returning properly formatted JSON, leading to fallback extraction.
+2. Code Modifications:
+Error Handling Improvements: We enhanced the error handling in the extract_vocabulary.py file to provide more detailed logging and validation of the LLM's response. This included:
+Adding checks for the presence of JSON tags in the response.
+Implementing a regex-based extraction method to capture JSON content between [START_JSON] and [END_JSON] tags.
+Validating the structure of the JSON response to ensure it contained the expected fields.
+Prompt Optimization:
+We modified the prompt sent to the LLM to include explicit instructions for formatting the output as JSON, including examples of the expected structure. This aimed to improve the consistency of the LLM's responses.
+Testing and Validation:
+After implementing the changes, we ran tests to validate the functionality of the vocabulary extraction process. The tests showed that while the fallback extraction was working, the LLM still failed to provide the expected structured output.
+5. Domain Knowledge Acquisition:
+Throughout the process, we gained insights into:
+LLM Response Handling: Understanding how to effectively parse and validate JSON responses from LLMs, including the importance of using delimiters to ensure clean extraction.
+Error Logging: The significance of detailed logging for debugging purposes, which helps in identifying issues with LLM responses.
+Prompt Engineering: The impact of prompt design on the quality of LLM outputs, emphasizing the need for clear and structured requests to achieve desired results.
+6. Next Steps:
+We discussed the possibility of further refining the prompt and examining the raw LLM responses to better understand the discrepancies. This would involve checking the actual content returned by the LLM to identify any patterns or issues that could be addressed.
+
+
+
+
