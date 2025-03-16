@@ -130,7 +130,7 @@ For quick updates to the Streamlit frontend during development, use the provided
 ./update_megatalk.sh
 ``` 
 
-## Bootcamp Week 3: OPEA Megaservice Implementation Report]
+## Bootcamp Week 3: OPEA Megaservice Implementation Report
 
 In week 1, I set up Ollama 2.1 B, so for this week I focused on vLLM.
 
