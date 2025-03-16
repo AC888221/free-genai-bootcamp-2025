@@ -134,7 +134,7 @@ def load(app):
         JOIN word_review_items wri ON wri.word_id = w.id
         WHERE wri.study_session_id = ?
         GROUP BY w.id
-        ORDER BY w.kanji
+        ORDER BY w.jiantizi
         LIMIT ? OFFSET ?
       ''', (id, per_page, offset))
       
