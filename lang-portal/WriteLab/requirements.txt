@@ -1,0 +1,21 @@
+# Setup tools (needed for Python 3.12)
+setuptools>=65.5.0
+
+# Core dependencies
+numpy==1.26.0
+pandas==2.1.1
+streamlit==1.27.0
+
+# API and data handling
+requests==2.31.0
+boto3==1.28.62
+botocore>=1.31.62
+flask==2.3.3
+flask-cors==4.0.0
+
+# Image processing
+Pillow==9.5.0
+pytesseract==0.3.13
+
+# Audio processing
+gtts==2.3.2
