@@ -1,0 +1,30 @@
+
+Collecting usage statistics. To deactivate, set browser.gatherUsageStats to false.
+
+
+  You can now view your Streamlit app in your browser.
+
+  URL: http://0.0.0.0:8501
+
+2025-03-12 03:49:06,439 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:49:06,440 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:49:15,917 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:49:15,919 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:49:16,060 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:49:16,061 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:49:16,062 - __main__ - INFO - Sending request to megaservice: is thsiworking ...
+2025-03-12 03:49:16,063 - __main__ - INFO - [frontend_1741751356_-4886484679342031215] Sending request to megaservice
+2025-03-12 03:49:26,586 - __main__ - INFO - [frontend_1741751356_-4886484679342031215] Requesting audio from GPT-SoVITS for text: 正在工作。...
+2025-03-12 03:49:29,672 - __main__ - INFO - [frontend_1741751356_-4886484679342031215] Successfully saved audio to audio/response_20250312_034929_frontend.wav
+2025-03-12 03:49:29,673 - __main__ - INFO - [frontend_1741751356_-4886484679342031215] Request completed successfully in 10.52s
+2025-03-12 03:49:29,676 - __main__ - INFO - Successfully received response from megaservice
+2025-03-12 03:49:49,809 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:49:49,812 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:49:49,930 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:49:49,931 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:49:49,932 - __main__ - INFO - Sending request to megaservice: I want your babies...
+2025-03-12 03:49:49,932 - __main__ - INFO - [frontend_1741751389_5993545132836603485] Sending request to megaservice
+2025-03-12 03:50:00,420 - __main__ - INFO - [frontend_1741751389_5993545132836603485] Requesting audio from GPT-SoVITS for text: 宝宝，我来抱抱你。...
+2025-03-12 03:50:04,242 - __main__ - INFO - [frontend_1741751389_5993545132836603485] Successfully saved audio to audio/response_20250312_035004_frontend.wav
+2025-03-12 03:50:04,244 - __main__ - INFO - [frontend_1741751389_5993545132836603485] Request completed successfully in 10.49s
+2025-03-12 03:50:04,246 - __main__ - INFO - Successfully received response from megaservice

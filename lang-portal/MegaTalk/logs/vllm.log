@@ -1,0 +1,564 @@
+/usr/lib/python3.10/importlib/util.py:247: DeprecationWarning: The `openvino.runtime` module is deprecated and will be removed in the 2026.0 release. Please replace `openvino.runtime` with `openvino`.
+  self.__spec__.loader.exec_module(self)
+INFO 03-12 01:16:42 api_server.py:712] vLLM API server version 0.6.6.post1
+INFO 03-12 01:16:42 api_server.py:713] args: Namespace(host='0.0.0.0', port=8008, uvicorn_log_level='info', allow_credentials=False, allowed_origins=['*'], allowed_methods=['*'], allowed_headers=['*'], api_key=None, lora_modules=None, prompt_adapters=None, chat_template=None, chat_template_content_format='auto', response_role='assistant', ssl_keyfile=None, ssl_certfile=None, ssl_ca_certs=None, ssl_cert_reqs=0, root_path=None, middleware=[], return_tokens_as_token_ids=False, disable_frontend_multiprocessing=False, enable_request_id_headers=False, enable_auto_tool_choice=False, tool_call_parser=None, tool_parser_plugin='', model='Qwen/Qwen2.5-0.5B-Instruct', task='auto', tokenizer=None, skip_tokenizer_init=False, revision=None, code_revision=None, tokenizer_revision=None, tokenizer_mode='auto', trust_remote_code=True, allowed_local_media_path=None, download_dir=None, load_format='auto', config_format=<ConfigFormat.AUTO: 'auto'>, dtype='float32', kv_cache_dtype='auto', quantization_param_path=None, max_model_len=2048, guided_decoding_backend='xgrammar', logits_processor_pattern=None, distributed_executor_backend=None, worker_use_ray=False, pipeline_parallel_size=1, tensor_parallel_size=1, max_parallel_loading_workers=None, ray_workers_use_nsight=False, block_size=None, enable_prefix_caching=None, disable_sliding_window=False, use_v2_block_manager=True, num_lookahead_slots=0, seed=0, swap_space=4, cpu_offload_gb=0, gpu_memory_utilization=0.9, num_gpu_blocks_override=None, max_num_batched_tokens=2048, max_num_seqs=None, max_logprobs=20, disable_log_stats=False, quantization=None, rope_scaling=None, rope_theta=None, hf_overrides=None, enforce_eager=False, max_seq_len_to_capture=8192, disable_custom_all_reduce=False, tokenizer_pool_size=0, tokenizer_pool_type='ray', tokenizer_pool_extra_config=None, limit_mm_per_prompt=None, mm_processor_kwargs=None, disable_mm_preprocessor_cache=False, enable_lora=False, enable_lora_bias=False, max_loras=1, max_lora_rank=16, lora_extra_vocab_size=256, lora_dtype='auto', long_lora_scaling_factors=None, max_cpu_loras=None, fully_sharded_loras=False, enable_prompt_adapter=False, max_prompt_adapters=1, max_prompt_adapter_token=0, device='auto', num_scheduler_steps=1, multi_step_stream_outputs=True, scheduler_delay_factor=0.0, enable_chunked_prefill=None, speculative_model=None, speculative_model_quantization=None, num_speculative_tokens=None, speculative_disable_mqa_scorer=False, speculative_draft_tensor_parallel_size=None, speculative_max_model_len=None, speculative_disable_by_batch_size=None, ngram_prompt_lookup_max=None, ngram_prompt_lookup_min=None, spec_decoding_acceptance_method='rejection_sampler', typical_acceptance_sampler_posterior_threshold=None, typical_acceptance_sampler_posterior_alpha=None, disable_logprobs_during_spec_decoding=None, model_loader_extra_config=None, ignore_patterns=[], preemption_mode=None, served_model_name=None, qlora_adapter_name_or_path=None, otlp_traces_endpoint=None, collect_detailed_traces=None, disable_async_output_proc=False, scheduling_policy='fcfs', override_neuron_config=None, override_pooler_config=None, compilation_config=None, kv_transfer_config=None, worker_cls='auto', generation_config=None, disable_log_requests=False, max_log_len=None, disable_fastapi_docs=False, enable_prompt_tokens_details=False)
+INFO 03-12 01:16:42 api_server.py:199] Started engine process with PID 43
+INFO 03-12 01:16:46 config.py:2268] Upcasting torch.bfloat16 to torch.float32.
+/usr/lib/python3.10/importlib/util.py:247: DeprecationWarning: The `openvino.runtime` module is deprecated and will be removed in the 2026.0 release. Please replace `openvino.runtime` with `openvino`.
+  self.__spec__.loader.exec_module(self)
+INFO 03-12 01:16:53 config.py:510] This model supports multiple tasks: {'generate', 'classify', 'score', 'embed', 'reward'}. Defaulting to 'generate'.
+WARNING 03-12 01:16:53 config.py:642] Async output processing is not supported on the current platform type openvino.
+WARNING 03-12 01:16:53 openvino.py:82] CUDA graph is not supported on OpenVINO backend, fallback to the eager mode.
+INFO 03-12 01:16:53 openvino.py:116] OpenVINO CPU optimal block size is 32, overriding currently set 16
+WARNING 03-12 01:16:53 openvino.py:131] Environment variable VLLM_OPENVINO_KVCACHE_SPACE (GB) for OpenVINO backend is not set, using 4 by default.
+INFO 03-12 01:16:58 config.py:2268] Upcasting torch.bfloat16 to torch.float32.
+INFO 03-12 01:17:05 config.py:510] This model supports multiple tasks: {'reward', 'generate', 'embed', 'classify', 'score'}. Defaulting to 'generate'.
+WARNING 03-12 01:17:05 config.py:642] Async output processing is not supported on the current platform type openvino.
+WARNING 03-12 01:17:05 openvino.py:82] CUDA graph is not supported on OpenVINO backend, fallback to the eager mode.
+INFO 03-12 01:17:05 openvino.py:116] OpenVINO CPU optimal block size is 32, overriding currently set 16
+WARNING 03-12 01:17:05 openvino.py:131] Environment variable VLLM_OPENVINO_KVCACHE_SPACE (GB) for OpenVINO backend is not set, using 4 by default.
+INFO 03-12 01:17:05 llm_engine.py:234] Initializing an LLM engine (v0.6.6.post1) with config: model='Qwen/Qwen2.5-0.5B-Instruct', speculative_config=None, tokenizer='Qwen/Qwen2.5-0.5B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.float32, max_seq_len=2048, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=True, kv_cache_dtype=<Type: 'float16'>, quantization_param_path=None, device_config=cpu, decoding_config=DecodingConfig(guided_decoding_backend='xgrammar'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=Qwen/Qwen2.5-0.5B-Instruct, num_scheduler_steps=1, multi_step_stream_outputs=True, enable_prefix_caching=False, chunked_prefill_enabled=False, use_async_output_proc=False, disable_mm_preprocessor_cache=False, mm_processor_kwargs=None, pooler_config=None, compilation_config={"splitting_ops":["vllm.unified_attention","vllm.unified_attention_with_output"],"candidate_compile_sizes":[],"compile_sizes":[],"capture_sizes":[256,248,240,232,224,216,208,200,192,184,176,168,160,152,144,136,128,120,112,104,96,88,80,72,64,56,48,40,32,24,16,8,4,2,1],"max_capture_size":256}, use_cached_outputs=True, 
+INFO 03-12 01:17:08 openvino.py:33] Cannot use _Backend.FLASH_ATTN backend on OpenVINO.
+INFO 03-12 01:17:08 selector.py:145] Using OpenVINO Attention backend.
+WARNING 03-12 01:17:08 _custom_ops.py:19] Failed to import from vllm._C with ModuleNotFoundError("No module named 'vllm._C'")
+WARNING 03-12 01:17:08 openvino.py:114] Provided model id Qwen/Qwen2.5-0.5B-Instruct does not contain OpenVINO IR, the model will be converted to IR with default options. If you need to use specific options for model conversion, use optimum-cli export openvino with desired options.
+`loss_type=None` was set in the config but it is unrecognised.Using the default loss: `ForCausalLMLoss`.
+/usr/local/lib/python3.10/dist-packages/transformers/cache_utils.py:460: TracerWarning: Using len to get tensor shape might cause the trace to be incorrect. Recommended usage would be tensor.shape[0]. Passing a tensor of different shape might lead to errors or silently give incorrect results.
+  or len(self.key_cache[layer_idx]) == 0  # the layer has no cache
+/usr/local/lib/python3.10/dist-packages/optimum/exporters/openvino/model_patcher.py:515: TracerWarning: Converting a tensor to a Python boolean might cause the trace to be incorrect. We can't record the data flow of Python values, so this value will be treated as a constant in the future. This means that the trace might not generalize to other inputs!
+  if sequence_length != 1:
+/usr/local/lib/python3.10/dist-packages/transformers/cache_utils.py:444: TracerWarning: Using len to get tensor shape might cause the trace to be incorrect. Recommended usage would be tensor.shape[0]. Passing a tensor of different shape might lead to errors or silently give incorrect results.
+  len(self.key_cache[layer_idx]) == 0
+INFO 03-12 01:17:54 openvino_executor.py:69] OpenVINO CPU: # device blocks: 10922; # swap blocks: 0
+INFO 03-12 01:17:57 llm_engine.py:431] init engine (profile, create kv cache, warmup model) took 3.12 seconds
+INFO 03-12 01:17:58 api_server.py:640] Using supplied chat template:
+INFO 03-12 01:17:58 api_server.py:640] None
+INFO 03-12 01:17:58 launcher.py:19] Available routes are:
+INFO 03-12 01:17:58 launcher.py:27] Route: /openapi.json, Methods: HEAD, GET
+INFO 03-12 01:17:58 launcher.py:27] Route: /docs, Methods: HEAD, GET
+INFO 03-12 01:17:58 launcher.py:27] Route: /docs/oauth2-redirect, Methods: HEAD, GET
+INFO 03-12 01:17:58 launcher.py:27] Route: /redoc, Methods: HEAD, GET
+INFO 03-12 01:17:58 launcher.py:27] Route: /health, Methods: GET
+INFO 03-12 01:17:58 launcher.py:27] Route: /tokenize, Methods: POST
+INFO 03-12 01:17:58 launcher.py:27] Route: /detokenize, Methods: POST
+INFO 03-12 01:17:58 launcher.py:27] Route: /v1/models, Methods: GET
+INFO 03-12 01:17:58 launcher.py:27] Route: /version, Methods: GET
+INFO 03-12 01:17:58 launcher.py:27] Route: /v1/chat/completions, Methods: POST
+INFO 03-12 01:17:58 launcher.py:27] Route: /v1/completions, Methods: POST
+INFO 03-12 01:17:58 launcher.py:27] Route: /v1/embeddings, Methods: POST
+INFO 03-12 01:17:58 launcher.py:27] Route: /pooling, Methods: POST
+INFO 03-12 01:17:58 launcher.py:27] Route: /score, Methods: POST
+INFO 03-12 01:17:58 launcher.py:27] Route: /v1/score, Methods: POST
+/usr/local/lib/python3.10/dist-packages/websockets/legacy/__init__.py:6: DeprecationWarning: websockets.legacy is deprecated; see https://websockets.readthedocs.io/en/stable/howto/upgrade.html for upgrade instructions
+  warnings.warn(  # deprecated in 14.0 - 2024-11-09
+/usr/local/lib/python3.10/dist-packages/uvicorn/protocols/websockets/websockets_impl.py:17: DeprecationWarning: websockets.server.WebSocketServerProtocol is deprecated
+  from websockets.server import WebSocketServerProtocol
+INFO:     Started server process [11]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8008 (Press CTRL+C to quit)
+INFO:     172.18.0.4:42454 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:42456 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:54846 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:47494 - "GET /health HTTP/1.1" 200 OK
+INFO 03-12 02:39:54 chat_utils.py:333] Detected the chat template content format to be 'string'. You can set `--chat-template-content-format` to override this.
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 02:39:54 logger.py:37] Received request chatcmpl-a06e54217783446c9e0f9e5af8f75a26: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nhi there<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 02:39:54 engine.py:267] Added request chatcmpl-a06e54217783446c9e0f9e5af8f75a26.
+WARNING 03-12 02:39:56 openvino.py:58] Pin memory is not supported on OpenViNO.
+INFO 03-12 02:39:56 metrics.py:467] Avg prompt throughput: 3.1 tokens/s, Avg generation throughput: 0.1 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:56600 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     172.18.0.4:37146 - "GET /health HTTP/1.1" 200 OK
+INFO 03-12 02:40:07 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.8 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 02:40:17 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:57384 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:46036 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:33370 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:50300 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:42242 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:54576 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:56480 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:41688 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:60930 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:60940 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:40840 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:40856 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:43748 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:35714 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:41528 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:55870 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:37038 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:56066 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:37030 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:40466 - "GET /health HTTP/1.1" 200 OK
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 02:57:48 logger.py:37] Received request chatcmpl-6876bf48ec2a484e99ff88ffc9c8d7b4: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nhi there<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 02:57:48 engine.py:267] Added request chatcmpl-6876bf48ec2a484e99ff88ffc9c8d7b4.
+INFO:     172.18.0.4:52860 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 02:57:59 metrics.py:467] Avg prompt throughput: 2.4 tokens/s, Avg generation throughput: 0.8 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 02:58:10 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:45738 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:34374 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45858 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:41958 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:55168 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:50320 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:52960 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45318 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:40554 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:35660 - "GET /health HTTP/1.1" 200 OK
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:08:15 logger.py:37] Received request chatcmpl-f6bf6c62eebe4cbda52a5c30af3e5d0d: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nHello, world!<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:08:15 engine.py:267] Added request chatcmpl-f6bf6c62eebe4cbda52a5c30af3e5d0d.
+INFO:     172.18.0.4:35676 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:08:26 metrics.py:467] Avg prompt throughput: 2.3 tokens/s, Avg generation throughput: 0.7 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.1:56066 - "GET /health HTTP/1.1" 200 OK
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:08:32 logger.py:37] Received request chatcmpl-7dead394032c4ad0a004a77c973e0779: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nHello<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=1.0, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=2018, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:08:32 engine.py:267] Added request chatcmpl-7dead394032c4ad0a004a77c973e0779.
+INFO 03-12 03:08:33 metrics.py:467] Avg prompt throughput: 4.2 tokens/s, Avg generation throughput: 0.1 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.1:56066 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:08:33 logger.py:37] Received request cmpl-ab30e1c9d67943a29434916bf8511d5a-0: prompt: 'Hello, world!', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=1.0, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=16, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: [9707, 11, 1879, 0], lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:08:33 engine.py:267] Added request cmpl-ab30e1c9d67943a29434916bf8511d5a-0.
+INFO:     172.18.0.1:56066 - "POST /v1/completions HTTP/1.1" 200 OK
+WARNING 03-12 03:08:34 protocol.py:59] The following fields were present in the request but ignored: {'input'}
+INFO:     172.18.0.1:56066 - "POST /v1/embeddings HTTP/1.1" 200 OK
+INFO 03-12 03:08:44 metrics.py:467] Avg prompt throughput: 0.4 tokens/s, Avg generation throughput: 2.2 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:43164 - "GET /health HTTP/1.1" 200 OK
+INFO 03-12 03:08:54 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:59850 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:36092 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:59456 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45518 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:50806 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:60780 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:53784 - "GET /health HTTP/1.1" 200 OK
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:14:55 logger.py:37] Received request chatcmpl-6e4aef33f4f44a468923c3035b9f0fd6: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nhi there<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:14:55 engine.py:267] Added request chatcmpl-6e4aef33f4f44a468923c3035b9f0fd6.
+INFO:     172.18.0.4:53792 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:15:07 metrics.py:467] Avg prompt throughput: 2.1 tokens/s, Avg generation throughput: 0.7 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:15:17 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:60742 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:40046 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:34942 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:35134 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45552 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:37602 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45092 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:41564 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:54748 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:39590 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:42764 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:51504 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58436 - "GET /health HTTP/1.1" 200 OK
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:28:24 logger.py:37] Received request chatcmpl-8c73d236b9674ecf8cb17dd992b06c66: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\n你是一个友好的AI助手。请用中文回答所有问题。\n    即使用户用英文提问，也请用中文回答。\n    保持回答简短、友好且自然。\n    \n\n请使用HSK1级别的简单词汇和语法。\n只使用最基础的词语，如：你好、谢谢、我、你、是、不是等。\n句子要短而简单。\n\nUser: hi there\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:28:24 engine.py:267] Added request chatcmpl-8c73d236b9674ecf8cb17dd992b06c66.
+INFO:     172.18.0.4:57120 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:28:36 metrics.py:467] Avg prompt throughput: 9.1 tokens/s, Avg generation throughput: 0.8 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:28:46 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:29:04 logger.py:37] Received request chatcmpl-d0c74152a8ea46568d499d43701ea6d7: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\n你是一个友好的AI助手。请用中文回答所有问题。\n    即使用户用英文提问，也请用中文回答。\n    保持回答简短、友好且自然。\n    \n\n请使用HSK4级别的词汇和语法。\n可以讨论较复杂的话题，使用更丰富的表达。\n可以使用一些成语和书面语。\n\nUser: hi there\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:29:04 engine.py:267] Added request chatcmpl-d0c74152a8ea46568d499d43701ea6d7.
+INFO 03-12 03:29:05 metrics.py:467] Avg prompt throughput: 12.0 tokens/s, Avg generation throughput: 0.1 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:56424 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:29:16 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.9 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:55598 - "GET /health HTTP/1.1" 200 OK
+INFO 03-12 03:29:27 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:48450 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:53162 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:55058 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:54042 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:54046 - "GET /health HTTP/1.1" 200 OK
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:33:26 logger.py:37] Received request chatcmpl-1f1f5b4a427647d2a191341d4b02223e: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers short, friendly, and natural.\n    \n\n请使用HSK1级别的简单词汇和语法。\n只使用最基础的词语，如：你好、谢谢、我、你、是、不是等。\n句子要短而简单。\n\nUser: 语提问，也请用普通话回答。\n保持你的回答简短、友善、自然。\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:33:26 engine.py:267] Added request chatcmpl-1f1f5b4a427647d2a191341d4b02223e.
+INFO 03-12 03:33:27 metrics.py:467] Avg prompt throughput: 26.8 tokens/s, Avg generation throughput: 0.2 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:52846 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:33:37 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.8 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:33:48 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:33:51 logger.py:37] Received request chatcmpl-8844aed9164b484ba02b7c8b2817a375: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers short, friendly, and natural.\n    \n\n请使用HSK1级别的简单词汇和语法。\n只使用最基础的词语，如：你好、谢谢、我、你、是、不是等。\n句子要短而简单。\n\nUser: I like speaking in English\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:33:51 engine.py:267] Added request chatcmpl-8844aed9164b484ba02b7c8b2817a375.
+INFO 03-12 03:33:53 metrics.py:467] Avg prompt throughput: 23.9 tokens/s, Avg generation throughput: 0.2 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:52410 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:34:04 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.9 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:34:14 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:34:17 logger.py:37] Received request chatcmpl-859b4fabbdf549b3af7785db39aaa0c7: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers short, friendly, and natural.\n    \n\n请使用HSK1级别的简单词汇和语法。\n只使用最基础的词语，如：你好、谢谢、我、你、是、不是等。\n句子要短而简单。\n\nUser: I like speaking in English\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:34:17 engine.py:267] Added request chatcmpl-859b4fabbdf549b3af7785db39aaa0c7.
+INFO 03-12 03:34:19 metrics.py:467] Avg prompt throughput: 24.3 tokens/s, Avg generation throughput: 0.8 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:33086 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     172.18.0.4:46462 - "GET /health HTTP/1.1" 200 OK
+INFO 03-12 03:34:29 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.5 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:34:39 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:34:42 logger.py:37] Received request chatcmpl-6f95596a392d40a2b05e31b8b1df25ff: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers short, friendly, and natural.\n    \n\n请使用HSK6级别的词汇和语法。\n可以使用高级书面语和专业术语。\n可以运用各种修辞手法和复杂句式。\n\nUser: I like speaking in English\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:34:42 engine.py:267] Added request chatcmpl-6f95596a392d40a2b05e31b8b1df25ff.
+INFO:     172.18.0.4:39610 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:34:55 metrics.py:467] Avg prompt throughput: 7.4 tokens/s, Avg generation throughput: 0.3 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:35:05 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:46442 - "GET /health HTTP/1.1" 200 OK
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:35:34 logger.py:37] Received request chatcmpl-17fa8976c9164687aa2dcd07a78e670d: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers short, friendly, and natural.\n    \n\n请使用HSK6级别的词汇和语法。\n可以使用高级书面语和专业术语。\n可以运用各种修辞手法和复杂句式。\n\nUser: Can you tell me about your house?\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:35:34 engine.py:267] Added request chatcmpl-17fa8976c9164687aa2dcd07a78e670d.
+INFO 03-12 03:35:35 metrics.py:467] Avg prompt throughput: 11.4 tokens/s, Avg generation throughput: 0.1 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:35:40 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 17.1 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.1%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:36026 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:35:54 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 4.2 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:36:04 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:56314 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:32776 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:55960 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:37746 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:37752 - "GET /health HTTP/1.1" 200 OK
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:39:39 logger.py:37] Received request chatcmpl-cf895e521f4649f2b94d03b1814fa61e: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers friendly, and natural.\n    \n    Rules:\n    1. ALWAYS respond in Chinese (no English)\n    2. Keep responses short (under 30 characters)\n    3. Use natural, conversational tone\n    4. One short sentence is best\n    \n\nLanguage Rules:\n1. Only use HSK 1 vocabulary (150 basic words)\n2. Use simple greetings: 你好, 再见\n3. Basic pronouns: 我, 你, 他\n4. Simple verbs: 是, 有, 喜欢\n5. Keep sentences under 5 words\nExample: 你好！我是老师。\n\nUser: can you tell me about your house?\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:39:39 engine.py:267] Added request chatcmpl-cf895e521f4649f2b94d03b1814fa61e.
+INFO 03-12 03:39:44 metrics.py:467] Avg prompt throughput: 42.0 tokens/s, Avg generation throughput: 0.6 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.1%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:38126 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:39:55 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.4 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:40:05 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:40:13 logger.py:37] Received request chatcmpl-4d14aa50ee1b4f32865995509a29586e: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers friendly, and natural.\n    \n    Rules:\n    1. ALWAYS respond in Chinese (no English)\n    2. Keep responses short (under 30 characters)\n    3. Use natural, conversational tone\n    4. One short sentence is best\n    \n\nLanguage Rules:\n1. Use full HSK vocabulary (5000+ words)\n2. Academic language: 理论, 观点, 假设\n3. Literary expressions: 引经据典\n4. Complex structures: 不但...而且..., 即使...也...\n5. Keep sentences under 25 words\nExample: 掌握一门语言不仅需要勤奋，而且要有正确的学习方法。\n\nUser: can you tell me about your house?\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:40:13 engine.py:267] Added request chatcmpl-4d14aa50ee1b4f32865995509a29586e.
+INFO 03-12 03:40:15 metrics.py:467] Avg prompt throughput: 22.8 tokens/s, Avg generation throughput: 0.1 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.1%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:48214 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:40:26 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.8 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:36706 - "GET /health HTTP/1.1" 200 OK
+INFO 03-12 03:40:36 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:37444 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:55510 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:57898 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:57908 - "GET /health HTTP/1.1" 200 OK
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:43:39 logger.py:37] Received request chatcmpl-67778774014a46c68e3c420594bc0fee: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers friendly, and natural.\n    \n    Rules:\n    1. ALWAYS respond in Chinese (no English)\n    2. Keep responses short (under 30 characters)\n    3. Use natural, conversational tone\n    4. One short sentence is best\n    \n\nLanguage Rules:\n1. Only use HSK 1 vocabulary (150 basic words)\n2. Use simple greetings: 你好, 再见\n3. Basic pronouns: 我, 你, 他\n4. Simple verbs: 是, 有, 喜欢\n5. Keep sentences under 5 words\nExample: 你好！我是老师。\n\nUser: CAn you tell me something special about yourself?\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:43:39 engine.py:267] Added request chatcmpl-67778774014a46c68e3c420594bc0fee.
+INFO 03-12 03:43:42 metrics.py:467] Avg prompt throughput: 17.5 tokens/s, Avg generation throughput: 0.1 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.1%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:58882 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:43:53 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 1.7 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:44:03 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:44:18 logger.py:37] Received request chatcmpl-8c833e54f6c04907816b341cb3d02c2d: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers friendly, and natural.\n    \n    Rules:\n    1. ALWAYS respond in Chinese (no English)\n    2. Keep responses short (under 30 characters)\n    3. Use natural, conversational tone\n    4. One short sentence is best\n    \n\nLanguage Rules:\n1. Use full HSK vocabulary (5000+ words)\n2. Academic language: 理论, 观点, 假设\n3. Literary expressions: 引经据典\n4. Complex structures: 不但...而且..., 即使...也...\n5. Keep sentences under 25 words\nExample: 掌握一门语言不仅需要勤奋，而且要有正确的学习方法。\n\nUser: CAn you tell me something special about yourself?\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:44:18 engine.py:267] Added request chatcmpl-8c833e54f6c04907816b341cb3d02c2d.
+INFO 03-12 03:44:22 metrics.py:467] Avg prompt throughput: 28.3 tokens/s, Avg generation throughput: 0.1 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.1%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:54640 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     172.18.0.4:49756 - "GET /health HTTP/1.1" 200 OK
+INFO 03-12 03:44:33 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 1.2 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:44:43 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:60468 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:47502 - "GET /health HTTP/1.1" 200 OK
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:46:42 logger.py:37] Received request chatcmpl-0f80165c225a4b49bfebe0e29c77c821: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers friendly, and natural.\n    \n    Rules:\n    1. ALWAYS respond in Chinese (no English)\n    2. Keep responses short (under 30 characters)\n    3. Use natural, conversational tone\n    4. One short sentence is best\n    \n\nLanguage Rules:\n1. Only use HSK 1 vocabulary (150 basic words)\n2. Use simple greetings: 你好, 再见\n3. Basic pronouns: 我, 你, 他\n4. Simple verbs: 是, 有, 喜欢\n5. Keep sentences under 5 words\nExample: 你好！我是老师。\n\nUser: tel me your favorite thing\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:46:42 engine.py:267] Added request chatcmpl-0f80165c225a4b49bfebe0e29c77c821.
+INFO 03-12 03:46:44 metrics.py:467] Avg prompt throughput: 25.8 tokens/s, Avg generation throughput: 0.1 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.1%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:47516 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:46:55 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.7 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:47:05 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:35140 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:36518 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:49390 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:49396 - "GET /health HTTP/1.1" 200 OK
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:49:16 logger.py:37] Received request chatcmpl-e50457868f2540408f021839f5562471: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers friendly, and natural.\n    \n    Rules:\n    1. ALWAYS respond in Chinese (no English)\n    2. Keep responses short (under 30 characters)\n    3. Use natural, conversational tone\n    4. One short sentence is best\n    \n\nLanguage Rules:\n1. Only use HSK 1 vocabulary (150 basic words)\n2. Use simple greetings: 你好, 再见\n3. Basic pronouns: 我, 你, 他\n4. Simple verbs: 是, 有, 喜欢\n5. Keep sentences under 5 words\nExample: 你好！我是老师。\n\nUser: is thsiworking \nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:49:16 engine.py:267] Added request chatcmpl-e50457868f2540408f021839f5562471.
+INFO 03-12 03:49:18 metrics.py:467] Avg prompt throughput: 20.6 tokens/s, Avg generation throughput: 0.1 tokens/s, Running: 1 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.1%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:34064 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:49:28 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.3 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:49:39 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/serving_engine.py:303: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = request.max_completion_tokens or request.max_tokens
+/usr/local/lib/python3.10/dist-packages/vllm/entrypoints/openai/protocol.py:400: DeprecationWarning: max_tokens is deprecated in favor of the max_completion_tokens field
+  max_tokens = self.max_completion_tokens or self.max_tokens
+INFO 03-12 03:49:49 logger.py:37] Received request chatcmpl-dea5801b07ea4da781bdc9793d92a2c6: prompt: '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nYou are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers friendly, and natural.\n    \n    Rules:\n    1. ALWAYS respond in Chinese (no English)\n    2. Keep responses short (under 30 characters)\n    3. Use natural, conversational tone\n    4. One short sentence is best\n    \n\nLanguage Rules:\n1. Only use HSK 1 vocabulary (150 basic words)\n2. Use simple greetings: 你好, 再见\n3. Basic pronouns: 我, 你, 他\n4. Simple verbs: 是, 有, 喜欢\n5. Keep sentences under 5 words\nExample: 你好！我是老师。\n\nUser: I want your babies\nAssistant:<|im_end|>\n<|im_start|>assistant\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.7, top_p=1.0, top_k=-1, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=1000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None), prompt_token_ids: None, lora_request: None, prompt_adapter_request: None.
+INFO 03-12 03:49:49 engine.py:267] Added request chatcmpl-dea5801b07ea4da781bdc9793d92a2c6.
+INFO:     172.18.0.4:52072 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO 03-12 03:50:02 metrics.py:467] Avg prompt throughput: 15.9 tokens/s, Avg generation throughput: 0.7 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO 03-12 03:50:13 metrics.py:467] Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Swapped: 0 reqs, Pending: 0 reqs, GPU KV cache usage: 0.0%, CPU KV cache usage: 0.0%.
+INFO:     172.18.0.4:60934 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:39222 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45552 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:50890 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:46176 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:39206 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:43894 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:43356 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:57790 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:57492 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:37056 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:49294 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:35690 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:56516 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:43714 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:35462 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:53396 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:54916 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:50854 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:43612 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:52976 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:42958 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:51738 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:36124 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:54704 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:44158 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:36880 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:59344 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:55680 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:59970 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:44318 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:57056 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:35532 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:47988 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:35450 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:47364 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:52682 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:46296 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58630 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:42590 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:36084 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:42022 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:52308 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:54172 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:56918 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:33270 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:60968 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:41326 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:55984 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:44642 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:53310 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:35976 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:54210 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45082 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:42658 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:52746 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45884 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:37792 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:34284 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:59256 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:37090 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:57014 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:57724 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:41160 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:42940 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:40230 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:48438 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:55792 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:32996 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45374 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58314 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:47854 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:44668 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:52054 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:54078 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:39978 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:43022 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:50456 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:52856 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:33714 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:51602 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:47014 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:44958 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:46348 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:49052 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:42890 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:54378 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:39628 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:42620 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58892 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:47398 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:53778 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:52040 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:42516 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:46276 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:46578 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:34852 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:52564 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:37444 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:43808 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:41820 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:42558 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:56744 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58230 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:52328 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:39854 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:57620 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58984 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:46898 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:54994 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:50926 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:47264 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:51278 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:59244 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:53576 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45854 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:35732 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:60698 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:59728 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45224 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:50826 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:50606 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:60744 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:56080 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:43032 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:46140 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:48456 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:40250 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:55724 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:57200 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:56894 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:46246 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:52078 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:51766 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:53764 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58670 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:54626 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:59994 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:37190 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:40980 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:38610 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:44618 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:42902 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:36520 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:54926 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:43604 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45584 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:52486 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:50726 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:49176 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:41060 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:52664 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:50572 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58034 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:55212 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:52108 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58172 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:49334 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:52532 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:42424 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:56136 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:54016 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:43802 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:42640 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:38502 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:34690 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:49914 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:44768 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:55464 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:48228 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:35544 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:35138 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:60788 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:32930 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:56640 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:57996 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58360 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58346 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:46106 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:41232 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:50900 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:51788 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:37114 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:35460 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:34576 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:43934 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:36538 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:53886 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:57246 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45742 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:59336 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:38348 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:57212 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:37734 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:33266 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:40406 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:43000 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:59612 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:32818 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:50634 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:47000 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:47296 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:33936 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:57444 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:39158 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:55706 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:36304 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:52062 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:54600 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:60330 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:57030 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:57528 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:39718 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:46946 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:54954 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:52590 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:51166 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:40188 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:43810 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45588 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:36664 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:39054 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:47052 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:52310 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45900 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58228 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:39250 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:50780 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:57178 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:39638 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45846 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.18.0.4:54874 - "GET /health HTTP/1.1" 200 OK
