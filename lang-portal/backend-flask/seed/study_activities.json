@@ -1,4 +1,7 @@
 [
   {"name": "Typing Tutor", "url": "http://localhost:8080", "preview_url": "/assets/study_activities/typing-tutor.png"},
-  {"name": "Writing Practice", "url": "http://localhost:8081", "preview_url": ""}
+  {"name": "WriteLab", "url": "http://localhost:8081", "preview_url": "/assets/study_activities/writelab.png"},
+  {"name": "MegaTalk", "url": "http://localhost:8082", "preview_url": "/assets/study_activities/megatalk.png"},
+  {"name": "SongWords", "url": "http://localhost:8083", "preview_url": "/assets/study_activities/songwords.png"},
+  {"name": "TubeQuiz", "url": "http://localhost:8084", "preview_url": "/assets/study_activities/tubequiz.png"}
 ]
