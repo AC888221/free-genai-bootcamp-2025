@@ -11,10 +11,10 @@ COPY . /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Make port 8083 available to the world outside this container
-EXPOSE 8083
+EXPOSE 8084
 
 # Define environment variable
-ENV NAME SongWords
+ENV NAME TubeQuiz
 
 # Run streamlit when the container launches
-CMD ["streamlit", "run", "SongWords.py", "--server.port=8083", "--server.address=0.0.0.0"] 
+CMD ["streamlit", "run", "TubeQuiz.py", "--server.port=8084", "--server.address=0.0.0.0"] 
