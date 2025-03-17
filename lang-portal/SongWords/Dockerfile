@@ -1,0 +1,1 @@
+CMD ["streamlit", "run", "SongWords.py", "--server.port=8083", "--server.address=0.0.0.0"] 

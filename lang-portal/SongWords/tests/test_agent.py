@@ -3,143 +3,112 @@ import os
 import sys
 import asyncio
 import logging
+import pytest
+from unittest.mock import Mock, patch
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from agent import LyricsAgent
-from tools.search_web import search_web
-from tools.get_page_content import get_page_content
-from tools.extract_vocabulary import extract_vocabulary
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-async def test_search_web():
-    """Test the web search functionality."""
-    logger.info("\nTesting web search...")
-    
-    search_query = "月亮代表我的心 lyrics 邓丽君"
-    try:
-        results = await search_web(search_query)
-        if results and len(results) > 0:
-            logger.info(f"Found {len(results)} search results")
-            logger.info(f"First result: {results[0]['url']}")
-            return True
-        else:
-            logger.error("No search results found")
-            return False
-    except Exception as e:
-        logger.error(f"Error in web search: {str(e)}")
-        return False
+@pytest.fixture
+async def agent():
+    """Create a test agent instance."""
+    return LyricsAgent()
 
-async def test_get_page_content():
-    """Test the page content extraction."""
-    logger.info("\nTesting page content extraction...")
+@pytest.mark.asyncio
+async def test_validate_chinese_content():
+    """Test Chinese content validation."""
+    agent = LyricsAgent()
     
-    # First get a URL from search
-    search_results = await search_web("月亮代表我的心 lyrics 邓丽君")
-    if not search_results:
-        logger.error("No search results to test content extraction")
-        return False
+    # Test valid Chinese content
+    valid_text = "你好世界"
+    is_valid, error = await agent.validate_chinese_content(valid_text)
+    assert is_valid == True
+    assert error == ""
     
-    try:
-        lyrics_url = search_results[0]['url']
-        logger.info(f"Fetching content from: {lyrics_url}")
-        content = await get_page_content(lyrics_url)
-        
-        if content:
-            logger.info(f"Successfully extracted content ({len(content)} characters)")
-            logger.info("Sample of content:")
-            logger.info(content[:200] + "..." if len(content) > 200 else content)
-            return True
-        else:
-            logger.error("No content extracted")
-            return False
-    except Exception as e:
-        logger.error(f"Error in content extraction: {str(e)}")
-        return False
+    # Test invalid content
+    invalid_text = "Hello world"
+    is_valid, error = await agent.validate_chinese_content(invalid_text)
+    assert is_valid == False
+    assert "Insufficient Chinese content" in error
 
-async def test_vocabulary_extraction():
-    """Test vocabulary extraction with a sample text."""
-    logger.info("\nTesting vocabulary extraction...")
+@pytest.mark.asyncio
+async def test_clean_lyrics():
+    """Test lyrics cleaning."""
+    agent = LyricsAgent()
     
-    # Sample Chinese text
-    sample_text = """
-    月亮代表我的心
-    你问我爱你有多深
-    我爱你有几分
-    你去想一想
-    你去看一看
-    月亮代表我的心
+    raw_lyrics = """
+    你好 (Hello)
+    世界 (World)
+    [00:01] Some timestamp
     """
     
-    try:
-        vocabulary = await extract_vocabulary(sample_text)
-        
-        logger.info("\n=== EXTRACTED VOCABULARY ===")
-        for i, vocab in enumerate(vocabulary[:5]):  # Show first 5 items
-            logger.info(f"{i+1}. {vocab['word']} ({vocab['jiantizi']}) - {vocab['pinyin']} - {vocab['english']}")
-        
-        logger.info(f"\nTotal vocabulary items: {len(vocabulary)}")
-        return True
-    except Exception as e:
-        logger.error(f"Error testing vocabulary extraction: {str(e)}")
-        return False
+    cleaned = await agent.clean_lyrics(raw_lyrics)
+    assert "Hello" not in cleaned
+    assert "World" not in cleaned
+    assert "[00:01]" not in cleaned
+    assert "你好" in cleaned
+    assert "世界" in cleaned
 
-async def test_full_agent():
-    """Test the complete agent workflow."""
-    logger.info("\nTesting full agent workflow...")
-    
+@pytest.mark.asyncio
+async def test_extract_vocabulary():
+    """Test vocabulary extraction."""
     agent = LyricsAgent()
-    song_request = "月亮代表我的心"
-    artist_name = "邓丽君"
     
-    logger.info(f"Processing song: {song_request} by {artist_name}")
+    text = "你好世界"
+    vocabulary = await agent.extract_vocabulary(text)
     
-    try:
-        result = await agent.run(song_request, artist_name)
-        
-        logger.info("\n=== LYRICS ===")
-        logger.info(result["lyrics"][:200] + "..." if len(result["lyrics"]) > 200 else result["lyrics"])
-        
-        logger.info("\n=== VOCABULARY SAMPLE ===")
-        for i, vocab in enumerate(result["vocabulary"][:5]):
-            logger.info(f"{i+1}. {vocab['word']} ({vocab['jiantizi']}) - {vocab['pinyin']} - {vocab['english']}")
-        
-        logger.info(f"\nTotal vocabulary items: {len(result['vocabulary'])}")
-        
-        # Save results
-        output_dir = "outputs"
-        os.makedirs(output_dir, exist_ok=True)
-        output_file = os.path.join(output_dir, f"{song_request}.json")
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(result, f, ensure_ascii=False, indent=2)
-        
-        logger.info(f"\nResults saved to {output_file}")
-        return True
-    except Exception as e:
-        logger.error(f"Error in full agent test: {str(e)}")
-        return False
+    assert isinstance(vocabulary, list)
+    assert len(vocabulary) > 0
+    for item in vocabulary:
+        assert "word" in item
+        assert "pinyin" in item
+        assert "english" in item
+        assert "hsk_level" in item
+
+@pytest.mark.asyncio
+async def test_full_agent_workflow():
+    """Test the complete agent workflow."""
+    agent = LyricsAgent()
+    
+    result = await agent.run("月亮代表我的心", "邓丽君")
+    
+    assert "session_id" in result
+    assert "lyrics" in result
+    assert "vocabulary" in result
+    assert "source" in result
+    assert "metadata" in result
+    assert len(result["vocabulary"]) > 0
+
+@pytest.mark.asyncio
+async def test_error_handling():
+    """Test agent error handling."""
+    agent = LyricsAgent()
+    
+    # Test with invalid input
+    result = await agent.run("", "")
+    assert "error" in result
+    
+    # Test with non-existent song
+    result = await agent.run("ThisSongDoesNotExist12345", "NonExistentArtist")
+    assert "error" in result
 
 async def run_tests():
     """Run all tests."""
     logger.info("Starting tests...")
     
-    # Run tests in sequence
-    search_success = await test_search_web()
-    content_success = await test_get_page_content()
-    vocab_success = await test_vocabulary_extraction()
-    agent_success = await test_full_agent()
+    # Run tests
+    await test_validate_chinese_content()
+    await test_clean_lyrics()
+    await test_extract_vocabulary()
+    await test_full_agent_workflow()
+    await test_error_handling()
     
-    # Report results
-    logger.info("\n=== TEST RESULTS ===")
-    logger.info(f"Web Search: {'✓' if search_success else '✗'}")
-    logger.info(f"Content Extraction: {'✓' if content_success else '✗'}")
-    logger.info(f"Vocabulary Extraction: {'✓' if vocab_success else '✗'}")
-    logger.info(f"Full Agent: {'✓' if agent_success else '✗'}")
-    
-    success = all([search_success, content_success, vocab_success, agent_success])
-    logger.info(f"\nOverall test success: {'✓' if success else '✗'}")
-    return success
+    logger.info("All tests completed successfully!")
+    return True
 
 if __name__ == "__main__":
     success = asyncio.run(run_tests())

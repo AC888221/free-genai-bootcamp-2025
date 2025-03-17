@@ -18,16 +18,15 @@ async def get_page_content(url: str) -> Optional[str]:
             
             # Convert HTML to text
             h = HTML2Text()
-            h.ignore_links = False
+            h.ignore_links = True
+            h.ignore_images = True
             content = h.handle(response.text)
             
-            # Truncate if content is too long
-            if len(content) > 4000:
-                logger.info("Content truncated to 4000 characters")
-                content = content[:4000]
+            # Clean up the content
+            content = content.strip()
             
             if content:
-                logger.info(f"Successfully extracted {len(content)} characters of content")
+                logger.info(f"Successfully extracted {len(content)} characters")
                 return content
             else:
                 logger.warning("No content found in webpage")
@@ -35,4 +34,4 @@ async def get_page_content(url: str) -> Optional[str]:
                 
     except Exception as e:
         logger.error(f"Error fetching page content: {str(e)}")
-        raise Exception(f"Failed to get page content: {str(e)}")
+        return None
