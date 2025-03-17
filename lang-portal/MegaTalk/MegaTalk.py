@@ -10,6 +10,8 @@ import time
 import json
 import traceback
 from pathlib import Path
+import boto3
+from botocore.config import Config
 
 # Configure logging
 logging.basicConfig(
@@ -31,6 +33,26 @@ TIMEOUT_PER_CHAR = 1  # Additional timeout per character in seconds
 AUDIO_DIR = Path("audio")
 AUDIO_DIR.mkdir(exist_ok=True)
 
+# Add Bedrock configuration after other configurations
+BEDROCK_CONFIG = Config(
+    region_name=os.getenv("AWS_REGION", "us-east-1"),
+    retries={
+        'max_attempts': 3,
+        'mode': 'standard'
+    }
+)
+
+# Initialize Bedrock client
+try:
+    bedrock_runtime = boto3.client(
+        service_name='bedrock-runtime',
+        config=BEDROCK_CONFIG
+    )
+    logger.info("Successfully initialized Bedrock client")
+except Exception as e:
+    logger.error(f"Failed to initialize Bedrock client: {str(e)}")
+    bedrock_runtime = None
+
 st.set_page_config(
     page_title="OPEA MegaTalk",
     page_icon="🤖",
@@ -44,9 +66,7 @@ st.markdown("### Your Language Buddy with Voice Response")
 # Initialize session state for service status tracking
 if "service_status" not in st.session_state:
     st.session_state.service_status = {
-        "llm_service": {"status": "unknown", "last_check": None},
-        "tts_service": {"status": "unknown", "last_check": None},
-        "megaservice": {"status": "unknown", "last_check": None}
+        "bedrock_service": {"status": "unknown", "last_check": None}
     }
 
 # Sidebar for configuration
@@ -226,156 +246,96 @@ def save_audio(audio_data: bytes, request_id: str) -> Path:
     
     return audio_path
 
+def call_bedrock_model(prompt: str, model_id: str = "anthropic.claude-v2") -> str:
+    """Call AWS Bedrock model for text generation."""
+    try:
+        body = json.dumps({
+            "prompt": prompt,
+            "max_tokens_to_sample": 1000,
+            "temperature": 0.7,
+            "top_p": 0.9,
+        })
+        
+        response = bedrock_runtime.invoke_model(
+            modelId=model_id,
+            body=body
+        )
+        
+        response_body = json.loads(response.get('body').read())
+        return response_body.get('completion', '')
+    except Exception as e:
+        logger.error(f"Bedrock API error: {str(e)}")
+        raise
+
+def call_bedrock_tts(text: str, voice_id: str = "amazon.neural-text-to-speech") -> bytes:
+    """Call AWS Bedrock for text-to-speech."""
+    try:
+        body = json.dumps({
+            "text": text,
+            "voice_id": voice_id,
+            "engine": "neural"
+        })
+        
+        response = bedrock_runtime.invoke_model(
+            modelId=voice_id,
+            body=body
+        )
+        
+        return response.get('body').read()
+    except Exception as e:
+        logger.error(f"Bedrock TTS API error: {str(e)}")
+        raise
+
 def call_megaservice(text: str, params: Dict[str, Any]) -> Tuple[Optional[str], Optional[bytes], Optional[str], Dict[str, Any]]:
-    """
-    Call the megaservice with error handling and retries.
-    Returns: (text_response, audio_data, error_message, details)
-    """
+    """Modified to use Bedrock instead of custom service"""
     start_time = time.time()
     request_id = f"frontend_{int(start_time)}_{hash(text)}"
     details = {"request_id": request_id, "timestamp": start_time}
     
-    # Base system prompt
-    system_prompt = """You are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers friendly, and natural.
-    
-    Rules:
-    1. ALWAYS respond in Chinese (no English)
-    2. Keep responses short (under 30 characters)
-    3. Use natural, conversational tone
-    4. One short sentence is best
-    """
-    
-    # Add HSK level-specific instructions
-    hsk_prompt = get_hsk_prompt(params.get("hsk_level", "HSK 1 (Beginner)"))
-    full_system_prompt = f"{system_prompt}\n\n{hsk_prompt}"
-    
-    # Concatenate system prompt with user input
-    full_prompt = f"{full_system_prompt}\n\nUser: {text}\nAssistant:"
-    
     try:
-        logger.info(f"[{request_id}] Sending request to megaservice")
+        # Prepare the prompt with HSK level
+        system_prompt = """You are a friendly AI Putonghua buddy. Please answer all questions in Putonghua. Even if the user asks in English, please answer in Putonghua. Keep your answers friendly, and natural."""
+        hsk_prompt = get_hsk_prompt(params.get("hsk_level", "HSK 1 (Beginner)"))
+        full_prompt = f"{system_prompt}\n\n{hsk_prompt}\n\nUser: {text}\nAssistant:"
         
-        with st.spinner("Processing request..."):
-            response = requests.post(
-                f"{MEGASERVICE_URL}/v1/megaservice",
-                json={
-                    "text": full_prompt,  # Use the concatenated prompt
-                    "model": params.get("model", "Qwen/Qwen2.5-0.5B-Instruct"),
-                    "temperature": params.get("temperature", 0.7),
-                    "max_tokens": params.get("max_tokens", 1000),
-                },
-                timeout=calculate_timeout(text)
-            )
-            
-            details["response_time"] = time.time() - start_time
-            details["status_code"] = response.status_code
-            
-            if response.status_code != 200:
-                error_detail = "Unknown error"
-                try:
-                    error_data = response.json()
-                    error_detail = error_data.get('detail', str(response.content))
-                    details["error_data"] = error_data
-                except:
-                    error_detail = str(response.content)
-                
-                logger.error(f"[{request_id}] Service error: {error_detail}")
-                return None, None, f"Service error ({response.status_code}): {error_detail}", details
-            
-            data = response.json()
-            text_response = data.get("text_response")
-            details["response_length"] = len(text_response) if text_response else 0
-            
-            # If audio is requested, make a separate call to GPT-SoVITS
-            audio_data = None
-            audio_path = None
-            if params.get("generate_audio", True):
-                try:
-                    logger.info(f"[{request_id}] Requesting audio from GPT-SoVITS for text: {text_response[:100]}...")
-                    tts_response = requests.post(
-                        "http://gpt-sovits-service:9880/v1/audio/speech",
-                        json={"input": text_response},
-                        timeout=30
-                    )
-                    
-                    if tts_response.status_code == 200:
-                        audio_data = tts_response.content
-                        # Save the audio file
-                        audio_path = save_audio(audio_data, request_id)
-                        details["audio_path"] = str(audio_path)
-                        details["audio_size"] = len(audio_data)
-                        logger.info(f"[{request_id}] Successfully saved audio to {audio_path}")
-                    else:
-                        error_msg = f"TTS request failed: {tts_response.status_code}: {tts_response.text}"
-                        details["tts_error"] = error_msg
-                        logger.warning(f"[{request_id}] {error_msg}")
-                        
-                except Exception as e:
-                    error_msg = f"TTS request failed: {str(e)}"
-                    details["tts_error"] = error_msg
-                    logger.error(f"[{request_id}] {error_msg}")
-            
-            logger.info(f"[{request_id}] Request completed successfully in {details['response_time']:.2f}s")
-            
-            # Add to chat history with audio path
-            if "chat_history" not in st.session_state:
-                st.session_state.chat_history = []
-            
-            chat_entry = {
-                "timestamp": time.time(),
-                "request_id": request_id,
-                "user_input": text,
-                "response": text_response,
-                "audio_path": str(audio_path) if audio_path else None,
-                "details": details
-            }
-            st.session_state.chat_history.append(chat_entry)
-            
-            return text_response, audio_data, None, details
-            
-    except requests.exceptions.Timeout:
-        logger.error(f"[{request_id}] Request timed out after {time.time() - start_time:.2f}s")
-        details["error_type"] = "timeout"
-        return None, None, f"Request timed out after {int(time.time() - start_time)}s. The service might be busy.", details
-    except requests.exceptions.ConnectionError as e:
-        logger.error(f"[{request_id}] Connection error: {str(e)}")
-        details["error_type"] = "connection"
+        # Get text response from Bedrock
+        text_response = call_bedrock_model(full_prompt)
+        details["response_time"] = time.time() - start_time
+        
+        # Generate audio if requested
+        audio_data = None
+        if params.get("generate_audio", True):
+            try:
+                audio_data = call_bedrock_tts(text_response)
+                if audio_data:
+                    audio_path = save_audio(audio_data, request_id)
+                    details["audio_path"] = str(audio_path)
+                    details["audio_size"] = len(audio_data)
+            except Exception as e:
+                logger.error(f"TTS generation failed: {str(e)}")
+                details["tts_error"] = str(e)
+        
+        # Add to chat history
+        if "chat_history" not in st.session_state:
+            st.session_state.chat_history = []
+        
+        chat_entry = {
+            "timestamp": time.time(),
+            "request_id": request_id,
+            "user_input": text,
+            "response": text_response,
+            "audio_path": details.get("audio_path"),
+            "details": details
+        }
+        st.session_state.chat_history.append(chat_entry)
+        
+        return text_response, audio_data, None, details
+        
+    except Exception as e:
+        logger.exception(f"[{request_id}] Bedrock API error")
+        details["error_type"] = "bedrock_api"
         details["error"] = str(e)
-        return None, None, "Could not connect to the service. Please check if it's running.", details
-    except Exception as e:
-        logger.exception(f"[{request_id}] Unexpected error")
-        details["error_type"] = "unexpected"
-        details["error"] = str(e)
-        details["traceback"] = traceback.format_exc()
-        return None, None, f"Error: {str(e)}", details
-
-def fetch_audio_files():
-    """Fetch list of audio files from the API"""
-    try:
-        response = requests.get(f"{MEGASERVICE_URL}/v1/audio/files")
-        if response.status_code == 200:
-            return response.json()["files"]
-        else:
-            logger.error(f"Failed to fetch audio files: {response.status_code}")
-            return []
-    except Exception as e:
-        logger.error(f"Error fetching audio files: {str(e)}")
-        return []
-
-def download_audio_file(filename):
-    """Download an audio file from the API"""
-    try:
-        response = requests.get(f"{MEGASERVICE_URL}/audio/{filename}")
-        if response.status_code == 200:
-            local_path = AUDIO_DIR / filename
-            local_path.write_bytes(response.content)
-            return local_path
-        else:
-            logger.error(f"Failed to download audio file: {response.status_code}")
-            return None
-    except Exception as e:
-        logger.error(f"Error downloading audio file: {str(e)}")
-        return None
+        return None, None, f"Bedrock API Error: {str(e)}", details
 
 def display_conversation():
     """Display the conversation history with audio playback"""
@@ -476,25 +436,20 @@ with st.expander("Debug Information", expanded=False):
         st.subheader("Recent Requests")
         for i, details in enumerate(reversed(st.session_state.request_history[-5:])):
             st.write(f"Request {i+1} - {time.strftime('%H:%M:%S', time.localtime(details.get('timestamp', 0)))}")
-            # Filter out large data like traceback for display
             display_details = {k: v for k, v in details.items() if k != 'traceback' and not isinstance(v, bytes)}
             st.json(display_details)
     
     if st.button("Run Service Diagnostics"):
         with st.spinner("Running diagnostics..."):
             try:
-                # Basic health check
-                health_response = requests.get(f"{MEGASERVICE_URL}/health", timeout=5)
-                st.write("Health Check:", "✅ OK" if health_response.status_code == 200 else "❌ Failed")
+                # Test Bedrock connectivity
+                test_response = call_bedrock_model("Test connection")
+                st.write("Bedrock LLM Service:", "✅ OK")
                 
-                # TTS info
-                tts_info_response = requests.get(f"{MEGASERVICE_URL}/debug/tts-info", timeout=10)
-                if tts_info_response.status_code == 200:
-                    tts_info = tts_info_response.json()
-                    st.write("TTS Service Info:")
-                    st.json(tts_info)
-                else:
-                    st.write("TTS Service Info: ❌ Failed to retrieve")
+                # Test TTS
+                test_audio = call_bedrock_tts("Test audio")
+                st.write("Bedrock TTS Service:", "✅ OK")
+                
             except Exception as e:
                 st.error(f"Diagnostics failed: {str(e)}")
 
