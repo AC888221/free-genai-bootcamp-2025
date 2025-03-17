@@ -121,6 +121,36 @@ class Database:
             "vocabulary": vocabulary
         }
 
+    def get_song_history(self):
+        """Get all songs with their vocabulary."""
+        self.ensure_connection()
+        cursor = self.conn.cursor()
+        
+        cursor.execute("""
+            SELECT s.*, GROUP_CONCAT(json_object(
+                'word', v.word,
+                'jiantizi', v.jiantizi,
+                'pinyin', v.pinyin,
+                'english', v.english
+            )) as vocab_json
+            FROM songs s
+            LEFT JOIN vocabulary v ON s.song_id = v.song_id
+            GROUP BY s.id
+            ORDER BY s.created_at DESC
+        """)
+        
+        results = []
+        for row in cursor.fetchall():
+            song_dict = dict(row)
+            if song_dict['vocab_json']:
+                song_dict['vocabulary'] = json.loads(f"[{song_dict['vocab_json']}]")
+            else:
+                song_dict['vocabulary'] = []
+            del song_dict['vocab_json']
+            results.append(song_dict)
+        
+        return results
+
     def close(self):
         """Close the database connection."""
         if self.conn:
