@@ -67,7 +67,7 @@ def setup_streamlit():
     try:
         # Set page config - MUST BE THE FIRST STREAMLIT COMMAND
         st.set_page_config(
-            page_title="Putonghua Learning App",
+            page_title="WriteLab",
             page_icon="🀄",
             layout="wide"  # Change layout to 'wide'
         )
@@ -203,7 +203,7 @@ def display_sidebar(config_obj):
 
 def display_word_collection(config_obj):
     """Display the word collection page."""
-    st.markdown('<h1 class="main-header">Word Collection</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-header">WriteLab: Word Collection</h1>', unsafe_allow_html=True)
     
     # Fetch words from the API
     logger.info(f"Fetching words from API: {config_obj.LANG_PORTAL_URL}/words")
@@ -270,7 +270,7 @@ def display_writing_practice(config_obj, reader):
     """Display the writing practice page."""
     try:
         # Writing Practice Stage
-        st.markdown('<h1 class="main-header">Putonghua Learning App</h1>', unsafe_allow_html=True)
+        st.markdown('<h1 class="main-header">WriteLab: Writing Practice</h1>', unsafe_allow_html=True)
         logger.info("Entering writing practice stage")
         
         # Word Selection - Ensure unique Chinese characters
@@ -400,7 +400,7 @@ def display_writing_practice(config_obj, reader):
 
         # Display Sentence for Translation
         if 'current_sentence' in st.session_state and st.session_state['current_sentence'] and 'chinese' in st.session_state['current_sentence']:
-            st.markdown(f'<h2 class="sub-header">Translate this sentence:</h2>', unsafe_allow_html=True)
+            st.markdown(f'<h2 class="sub-header">Translate this sentence into Putonghua:</h2>', unsafe_allow_html=True)
             st.markdown(f'<div class="instruction-text">{st.session_state["current_sentence"]["english"]}</div>', unsafe_allow_html=True)
             
             # Show Pinyin toggle
@@ -458,7 +458,7 @@ def generate_sentence_for_app(_word=None):
 def display_review(config_obj, reader):
     """Display the review and grading page."""
     # Grading and Review Stage
-    st.markdown('<h1 class="main-header">Putonghua Learning App</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-header">WriteLab: Review and Grading</h1>', unsafe_allow_html=True)
     
     # Add custom sentence input option
     st.markdown('<h2 class="sub-header">Review Options</h2>', unsafe_allow_html=True)

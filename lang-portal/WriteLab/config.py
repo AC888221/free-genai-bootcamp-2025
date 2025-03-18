@@ -19,9 +19,9 @@ Created for language learning bootcamp.
 """
 
 WELCOME_TEXT = """
-Welcome to the Putonghua Learning App! This app will help you practice writing Chinese characters.
+Welcome to WriteLab! This app will help you practice writing Putonghua characters.
 
 1. Look at your word collection (synced with lang-portal)
-2. Practice writing your Chinese characters
+2. Practice writing Putonghua characters
 3. Submit your writing for grading and feedback
 """
