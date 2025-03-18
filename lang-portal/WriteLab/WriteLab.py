@@ -22,6 +22,7 @@ from datetime import datetime
 from typing import Optional
 import boto3
 from botocore.exceptions import ProfileNotFound
+import requests  # Add this import for making API calls
 
 # Configure logging
 log_file = f"writelab_{datetime.now().strftime('%Y%m%d')}.log"
@@ -145,6 +146,20 @@ def check_environment():
         """)
         return False
 
+def fetch_words_from_api(page=1, sort_by='jiantizi', order='asc'):
+    """Fetch words from the API."""
+    try:
+        response = requests.get(f"{config.LANG_PORTAL_URL}/words", params={
+            'page': page,
+            'sort_by': sort_by,
+            'order': order
+        })
+        response.raise_for_status()  # Raise an error for bad responses
+        return response.json()  # Return the JSON response
+    except Exception as e:
+        logger.error(f"Error fetching words from API: {str(e)}")
+        return []
+
 def main():
     """Main application function."""
     logger.info("Starting WriteLab application")
@@ -219,26 +234,19 @@ def main():
                 # Word Collection State
                 st.markdown('<h1 class="main-header">Word Collection</h1>', unsafe_allow_html=True)
                 
-                # Fetch words from the desired source (either 'db' or 'bedrock')
-                source = 'lang-portal'  # Use 'lang-portal' to fetch from lang-portal server
-                logger.info(f"Fetching words from lang-portal server: {config.LANG_PORTAL_URL}")
-                word_collection = fetch_word_collection(source, api_url=config.LANG_PORTAL_URL)
+                # Fetch words from the API
+                logger.info(f"Fetching words from API: {config.LANG_PORTAL_URL}/words")
+                api_response = fetch_words_from_api()
+                word_collection = api_response.get('words', [])
                 
                 # Filter out unnecessary columns and remove duplicates based on 'jiantizi'
                 unique_words = set()
                 filtered_word_collection = []
                 
                 for word in word_collection:
-                    # Extract the relevant fields
-                    if isinstance(word, dict):
-                        chinese_word = word.get('jiantizi', '')
-                        english = word.get('english', '')
-                        pinyin = word.get('pinyin', '')
-                    else:
-                        # Handle case where word might be a tuple from DB
-                        chinese_word = word[1] if len(word) > 1 else ''
-                        english = word[3] if len(word) > 3 else ''
-                        pinyin = word[2] if len(word) > 2 else ''
+                    chinese_word = word.get('jiantizi', '')
+                    english = word.get('english', '')
+                    pinyin = word.get('pinyin', '')
                     
                     if chinese_word and chinese_word not in unique_words:
                         unique_words.add(chinese_word)
