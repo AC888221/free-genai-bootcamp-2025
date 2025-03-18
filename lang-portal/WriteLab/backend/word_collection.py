@@ -58,19 +58,25 @@ def fetch_word_from_db(db_path, word_id):
     return word
 
 @st.cache_data(ttl=3600)
-def fetch_words_from_api(api_url):
-    response = requests.get(f"{api_url}/words?page=1")
-    if response.status_code == 200:
-        return response.json().get('words', [])
-    else:
-        st.error("Failed to fetch words from the API.")
-        return []
+def fetch_words_from_api(page=1, words_per_page=50, sort_by='jiantizi', order='asc'):
+    """Fetch words from the API."""
+    try:
+        response = requests.get(f"{config.LANG_PORTAL_URL}/words", params={
+            'page': page,
+            'sort_by': sort_by,
+            'order': order
+        })
+        response.raise_for_status()  # Raise an error for bad responses
+        return response.json().get('words', []), response.json().get('total_pages', 0), response.json().get('total_words', 0)
+    except Exception as e:
+        logger.error(f"Error fetching words from API: {str(e)}")
+        return [], 0, 0
 
 def fetch_word_collection(source, db_path=None, api_url=None):
     if source == 'db' and db_path:
         return fetch_words_from_db(db_path)
     elif source == 'api' and api_url:
-        return fetch_words_from_api(api_url)
+        return fetch_words_from_api()
     else:
         st.error("Invalid source or missing parameters.")
         return []
