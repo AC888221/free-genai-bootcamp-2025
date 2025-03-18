@@ -2,10 +2,12 @@
 
 import json
 import requests
-from bedrock_client import BedrockClient  # Import the class
+from bedrock_client import BedrockClient
 import sys
 import os
 import logging
+import time
+import traceback
 
 # Add the parent directory to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -24,9 +26,25 @@ except ImportError:
 class SentenceGenerator:
     def __init__(self):
         """Initialize Sentence Generator"""
-        self.bedrock_client = BedrockClient(model_id=config.CLAUDE_MODEL_ID)
-        if self.bedrock_client.get_client() is None:
-            raise ValueError("Failed to create Bedrock client.")
+        try:
+            # Explicitly pass the model ID from config to ensure consistency
+            logger.info(f"Initializing SentenceGenerator with model ID: {config.CLAUDE_MODEL_ID}")
+            self.bedrock_client = BedrockClient(model_id=config.CLAUDE_MODEL_ID)
+            
+            if self.bedrock_client.get_client() is None:
+                logger.warning("Failed to create Bedrock client. Using fallback mode.")
+                self.fallback_mode = True
+                if use_streamlit:
+                    st.warning("⚠️ Failed to initialize Bedrock client. Using fallback mode with pre-defined sentences.")
+            else:
+                self.fallback_mode = False
+        except Exception as e:
+            logger.warning(f"Error initializing Bedrock client: {str(e)}")
+            logger.warning(traceback.format_exc())
+            self.fallback_mode = True
+            self.bedrock_client = None
+            if use_streamlit:
+                st.warning("⚠️ Error initializing Bedrock client. Using fallback mode with pre-defined sentences.")
 
     def generate_sentence(self, _word):
         """
