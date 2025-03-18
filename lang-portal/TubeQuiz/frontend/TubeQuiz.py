@@ -425,7 +425,7 @@ def render_interactive_stage():
     
     query = st.text_input(
         "Custom Input",
-        placeholder="Optional customized input (otherwise click here and press enter).",
+        placeholder="Optional customized input (if none, enter a blank space and press enter).",
         key="interactive_query_input"
     )
     
