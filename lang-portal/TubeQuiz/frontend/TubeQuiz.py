@@ -29,8 +29,8 @@ from backend.tts import process_text_files
 
 # Page config
 st.set_page_config(
-    page_title="Putonghua Learning Assistant", # Bootcamp Week 2: Adapt to Putonghua
-    page_icon="assets/china_flag.png", # Bootcamp Week 2: Use image instead of emoji
+    page_title="TubeQuiz", # Bootcamp Week 2: Adapt to Putonghua
+    page_icon=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "cn.png"),
     layout="wide"
 )
 
@@ -42,11 +42,50 @@ if 'messages' not in st.session_state:
 
 def render_header():
     """Render the header section"""
-    st.title("🇨🇳 Putonghua Learning Assistant") # Bootcamp Week 2: Adapt to Putonghua
-    st.markdown("""
-    Transform YouTube transcripts into interactive Putonghua learning experiences.  
-    [Featuring: **Base LLM Capabilities**, **RAG (Retrieval Augmented Generation)**, **Amazon Bedrock Integration**, and **Agent-based Learning Systems**.]
-    """) # Bootcamp Week 2: Takes up less space
+    # Create a container for the header with custom styling
+    with st.container():
+        # Get the path to the assets directory (one level up from frontend)
+        assets_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets")
+        flag_path = os.path.join(assets_dir, "cn.png")
+        
+        # Create columns with specific pixel widths and vertical alignment using CSS
+        st.markdown(
+            """
+            <style>
+            [data-testid="column"]:nth-of-type(1) {
+                width: 220px !important;
+                flex: none !important;
+                display: flex !important;
+                align-items: center !important;
+                padding-right: 0px !important;
+            }
+            [data-testid="column"]:nth-of-type(2) {
+                padding-left: 0px !important;
+            }
+            .header-text {
+                margin-top: 0;
+                margin-bottom: 0;
+                padding-top: 0;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+        
+        col1, col2 = st.columns([1, 4])
+        with col1:
+            if os.path.exists(flag_path):
+                st.image(flag_path, width=200)
+            else:
+                st.write("🇨🇳")
+        with col2:
+            st.markdown('<h1 class="header-text">TubeQuiz</h1>', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="header-text">Transform YouTube transcripts into interactive Putonghua learning experiences.<br>'
+                '[Featuring: <b>Base LLM Capabilities</b>, <b>RAG (Retrieval Augmented Generation)</b>, '
+                '<b>Amazon Bedrock Integration</b>, and <b>Agent-based Learning Systems</b>.]</div>',
+                unsafe_allow_html=True
+            )
 
 def render_sidebar():
     """Render the sidebar with component selection"""
@@ -554,6 +593,7 @@ def render_interactive_response_audio():
 
 def main():
     """Main function to render the selected stage"""
+    render_header()  # Add this line to show the header
     selected_stage = render_sidebar()
     
     if selected_stage == "1. Chat with Nova":

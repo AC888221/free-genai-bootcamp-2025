@@ -1,37 +1,37 @@
-import httpx
+import aiohttp
 import logging
-from html2text import HTML2Text
-from typing import Optional
+import re
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-async def get_page_content(url: str) -> Optional[str]:
-    """Get and parse content from a webpage."""
+async def get_page_content(url: str) -> str:
+    """Get and parse webpage content."""
     try:
-        logger.info(f"Fetching content from: {url}")
-        
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url)
-            response.raise_for_status()
-            
-            # Convert HTML to text
-            h = HTML2Text()
-            h.ignore_links = True
-            h.ignore_images = True
-            content = h.handle(response.text)
-            
-            # Clean up the content
-            content = content.strip()
-            
-            if content:
-                logger.info(f"Successfully extracted {len(content)} characters")
-                return content
-            else:
-                logger.warning("No content found in webpage")
-                return None
-                
+        logger.info(f"Attempting to fetch content from: {url}")
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, timeout=10) as response:
+                if response.status == 200:
+                    content = await response.text()
+                    
+                    # Clean up the content
+                    content = re.sub(r'\s+', ' ', content)  # Normalize whitespace
+                    content = re.sub(r'[\r\n]+', '\n', content)  # Normalize newlines
+                    
+                    # Extract Chinese characters and newlines
+                    chinese_chars = re.findall(r'[\u4e00-\u9fff]+|\n', content)
+                    content = ' '.join(chinese_chars)
+                    
+                    if content:
+                        logger.info(f"Successfully extracted {len(content)} characters from {url}")
+                    else:
+                        logger.warning(f"No Chinese content found in {url}")
+                    
+                    return content.strip()
+                else:
+                    logger.warning(f"Failed to fetch {url}: Status {response.status}")
+                    return ""
     except Exception as e:
-        logger.error(f"Error fetching page content: {str(e)}")
-        return None
+        logger.error(f"Error fetching {url}: {str(e)}")
+        return ""

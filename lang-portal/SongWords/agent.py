@@ -9,6 +9,7 @@ from tools.get_page_content import get_page_content
 from tools.extract_vocabulary import extract_vocabulary, fallback_extraction
 from tools.generate_song_id import generate_song_id
 from database import Database
+from tools.lyrics_extractor import get_lyrics
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -105,48 +106,29 @@ class LyricsAgent:
             return fallback_extraction(text)
     
     async def run(self, song_name: str, artist: str = "", hsk_level: str = "HSK 1") -> Dict[str, Any]:
-        """Enhanced workflow with better error handling and HSK level support."""
         try:
             session_id = generate_song_id(artist, song_name)
             self.logger.info(f"Starting session {session_id}")
             
-            # Search multiple sources
-            search_queries = [
-                f"{song_name} {artist} 歌词",
-                f"{song_name} lyrics chinese",
-                f"{artist} {song_name} 中文歌词"
-            ]
+            # Get lyrics
+            lyrics_result = await get_lyrics(song_name, artist)
             
-            content = None
-            source_url = None
+            if "error" in lyrics_result:
+                raise Exception(lyrics_result["error"])
             
-            for query in search_queries:
-                search_results = await search_web(query)
-                
-                for result in search_results[:3]:  # Try first 3 results
-                    page_content = await get_page_content(result['url'])
-                    if page_content:
-                        is_valid, error = await self.validate_chinese_content(page_content)
-                        if is_valid:
-                            content = page_content
-                            source_url = result['url']
-                            break
-                
-                if content:
-                    break
+            cleaned_lyrics = lyrics_result.get("lyrics", "")
+            initial_vocabulary = lyrics_result.get("vocabulary", [])
             
-            if not content:
-                raise Exception("No valid Chinese lyrics found")
-            
-            # Clean and process lyrics
-            cleaned_lyrics = await self.clean_lyrics(content)
-            vocabulary = await self.extract_vocabulary(cleaned_lyrics, hsk_level)
+            # Extract additional vocabulary if needed
+            if not initial_vocabulary:
+                vocabulary = await extract_vocabulary(cleaned_lyrics)
+            else:
+                vocabulary = initial_vocabulary
             
             result = {
                 "session_id": session_id,
                 "lyrics": cleaned_lyrics,
                 "vocabulary": vocabulary,
-                "source": source_url,
                 "metadata": {
                     "song_name": song_name,
                     "artist": artist,
@@ -154,29 +136,26 @@ class LyricsAgent:
                 }
             }
             
-            # Save to database
-            self.db.save_song(artist, song_name, cleaned_lyrics, vocabulary)
-            
-            # Store in history
-            self.history.append(result)
+            # Save to database using a new connection
+            with self.db.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "INSERT INTO songs (id, title, artist, lyrics, vocabulary) VALUES (?, ?, ?, ?, ?)",
+                    (session_id, song_name, artist, cleaned_lyrics, json.dumps(vocabulary))
+                )
+                conn.commit()
             
             return result
             
         except Exception as e:
-            error_result = {
-                "session_id": generate_song_id(artist, song_name),
+            error_msg = str(e)
+            self.logger.error(f"Error in run: {error_msg}")
+            return {
+                "error": error_msg,
+                "session_id": session_id,
                 "lyrics": "",
-                "vocabulary": [],
-                "source": "",
-                "error": str(e),
-                "metadata": {
-                    "song_name": song_name,
-                    "artist": artist,
-                    "hsk_level": hsk_level
-                }
+                "vocabulary": []
             }
-            self.history.append(error_result)
-            return error_result
     
     def get_history(self) -> List[Dict[str, Any]]:
         """Get the agent's interaction history."""
