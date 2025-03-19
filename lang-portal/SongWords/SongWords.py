@@ -12,7 +12,7 @@ from database import Database
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def display_vocabulary(vocabulary: List[Dict[str, str]]):
+def display_vocabulary(vocabulary: List[Dict[str, str]], key_suffix: str = ""):
     """Display vocabulary in a nice format."""
     if not vocabulary:
         st.warning("No vocabulary items found.")
@@ -29,17 +29,18 @@ def display_vocabulary(vocabulary: List[Dict[str, str]]):
         label="Download Vocabulary as CSV",
         data=csv,
         file_name="vocabulary.csv",
-        mime="text/csv"
+        mime="text/csv",
+        key=f"download_btn_{key_suffix}"
     )
 
 async def main():
     st.set_page_config(
-        page_title="Putonghua Song Vocabulary",
+        page_title="SongWords",
         page_icon="🎵",
         layout="wide"
     )
     
-    st.title("🎵 Putonghua Song Vocabulary")
+    st.title("🎵 SongWords")
     st.markdown("""
     This application helps you learn Putonghua by extracting vocabulary from songs. 
     You can search for song lyrics or input your own text to extract vocabulary.
@@ -60,6 +61,8 @@ async def main():
         
         if 'agent' not in st.session_state:
             st.session_state.agent = LyricsAgent()
+            # Force database initialization in main thread
+            st.session_state.agent.db.initialize()
         
         if st.button("Search", key="search_button"):
             if not song_name:
@@ -77,11 +80,11 @@ async def main():
                     
                     # Display vocabulary
                     st.subheader("Vocabulary")
-                    display_vocabulary(result.get("vocabulary", []))
+                    display_vocabulary(result.get("vocabulary", []), "search")
     
     with tab2:
         st.header("Input Your Own Song Lyrics")
-        st.info("Note: Processing may take a few seconds as the AI analyzes the text.")
+        st.info("Note: Processing may take a some time as the AI analyzes the text.")
         
         text_input = st.text_area("Enter Putonghua text", height=300, placeholder="Paste Putonghua text here...")
         
@@ -96,16 +99,32 @@ async def main():
                     st.error(f"Error: {result['error']}")
                 else:
                     st.subheader("Extracted Vocabulary")
-                    display_vocabulary(result.get("vocabulary", []))
+                    display_vocabulary(result.get("vocabulary", []), "extract")
 
     with tab3:
         st.header("Search History")
         if 'agent' in st.session_state:
-            history = st.session_state.agent.db.get_song_history()  # You'll need to add this method to Database class
-            for song in history:
-                with st.expander(f"{song['title']} - {song['artist']}"):
-                    st.text(song['lyrics'])
-                    display_vocabulary(song['vocabulary'])
+            try:
+                # Create a new connection for this operation
+                with st.session_state.agent.db.get_connection() as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT * FROM songs ORDER BY timestamp DESC")
+                    history = [
+                        {
+                            'title': row[1],
+                            'artist': row[2],
+                            'lyrics': row[3],
+                            'vocabulary': eval(row[4])  # Assuming vocabulary is stored as string
+                        }
+                        for row in cursor.fetchall()
+                    ]
+                    
+                for i, song in enumerate(history):
+                    with st.expander(f"{song['title']} - {song['artist']}"):
+                        st.text(song['lyrics'])
+                        display_vocabulary(song['vocabulary'], f"history_{i}")
+            except Exception as e:
+                st.error(f"Error loading history: {str(e)}")
 
     # Add information about the application
     st.sidebar.title("Features")

@@ -2,6 +2,7 @@ import sqlite3
 import json
 import os
 from typing import List, Dict, Any
+from contextlib import contextmanager
 
 class Database:
     def __init__(self, db_path: str = "songs.db"):
@@ -156,3 +157,29 @@ class Database:
         if self.conn:
             self.conn.close()
             self.conn = None
+
+    def initialize(self):
+        """Initialize the database connection in the main thread"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            # Create your tables here
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS songs (
+                    id TEXT PRIMARY KEY,
+                    title TEXT,
+                    artist TEXT,
+                    lyrics TEXT,
+                    vocabulary TEXT,
+                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            conn.commit()
+
+    @contextmanager
+    def get_connection(self):
+        """Get a thread-safe database connection"""
+        conn = sqlite3.connect('songs.db')
+        try:
+            yield conn
+        finally:
+            conn.close()

@@ -54,13 +54,13 @@ except Exception as e:
     bedrock_runtime = None
 
 st.set_page_config(
-    page_title="OPEA MegaTalk",
+    page_title="MegaTalk",
     page_icon="🤖",
     layout="wide",
 )
 
 # Title and description
-st.title("🤖 OPEA MegaTalk")
+st.title("MegaTalk")
 st.markdown("### Your Language Buddy with Voice Response")
 
 # Initialize session state for service status tracking
