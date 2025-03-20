@@ -66,12 +66,16 @@ class LyricsAgent:
                     vocabulary=result["vocabulary"]
                 )
                 
-                # Add to search history
-                self.db.save_to_history(
-                    query=f"{song_name} - {artist_name}" if artist_name else song_name,
-                    lyrics=result["lyrics"],
-                    vocab=json.dumps(result["vocabulary"])
-                )
+                # Save to history with source='search'
+                try:
+                    self.db.save_to_history(
+                        query=song_name,
+                        lyrics=lyrics,
+                        vocabulary=str(result["vocabulary"]),
+                        source='search'
+                    )
+                except Exception as e:
+                    logger.error(f"Error saving to history: {str(e)}")
             
             return {
                 "lyrics": result.get("lyrics", ""),

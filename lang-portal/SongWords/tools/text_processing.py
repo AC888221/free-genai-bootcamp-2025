@@ -80,8 +80,14 @@ def deduplicate_translations(translations: List[Dict[str, str]]) -> List[Dict[st
     seen = set()
     unique_translations = []
     for t in translations:
+        # Get the Chinese character value, handling different possible key names
+        # Prioritize 'jiantizi' as the primary key name
+        chinese = t.get('jiantizi', t.get('Chinese', ''))
+        pinyin = t.get('pinyin', t.get('Pinyin', ''))
+        english = t.get('english', t.get('English', ''))
+        
         # Create a tuple of the values to use as a hash key
-        key = (t['original'], t['pinyin'], t['english'])
+        key = (chinese, pinyin, english)
         if key not in seen:
             seen.add(key)
             unique_translations.append(t)
