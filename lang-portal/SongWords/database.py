@@ -29,11 +29,6 @@ class Database:
         self.ensure_connection()
         cursor = self.conn.cursor()
         
-        # Drop existing tables if they exist
-        cursor.execute("DROP TABLE IF EXISTS history")
-        cursor.execute("DROP TABLE IF EXISTS vocabulary")
-        cursor.execute("DROP TABLE IF EXISTS songs")
-        
         # Create songs table
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS songs (
@@ -47,13 +42,12 @@ class Database:
         )
         ''')
         
-        # Create vocabulary table
+        # Create vocabulary table - updated column name from 'word' to 'jiantizi'
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS vocabulary (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             song_id TEXT NOT NULL,
-            word TEXT NOT NULL,
-            jiantizi TEXT,
+            jiantizi TEXT NOT NULL,
             pinyin TEXT,
             english TEXT,
             FOREIGN KEY (song_id) REFERENCES songs(song_id)
@@ -73,6 +67,20 @@ class Database:
         
         self.conn.commit()
         logger.info("Database tables created successfully")
+
+    def clear_history(self):
+        """Clear all history entries."""
+        try:
+            self.ensure_connection()
+            cursor = self.conn.cursor()
+            cursor.execute('DELETE FROM history')
+            self.conn.commit()
+            logger.info("History cleared successfully")
+            return True
+        except Exception as e:
+            logger.error(f"Error clearing history: {str(e)}")
+            self.conn.rollback()
+            return False
 
     def save_to_history(self, query: str, lyrics: str = None, vocabulary: str = None):
         """Save a query and its results to history."""
@@ -123,16 +131,15 @@ class Database:
                 (song_id, artist, title, lyrics)
             )
             
-            # Insert vocabulary
+            # Insert vocabulary - updated to use 'jiantizi' instead of 'word'
             for vocab in vocabulary:
                 cursor.execute(
                     """
-                    INSERT INTO vocabulary (song_id, word, jiantizi, pinyin, english)
-                    VALUES (?, ?, ?, ?, ?)
+                    INSERT INTO vocabulary (song_id, jiantizi, pinyin, english)
+                    VALUES (?, ?, ?, ?)
                     """,
                     (
                         song_id, 
-                        vocab.get("word", ""),
                         vocab.get("jiantizi", ""),
                         vocab.get("pinyin", ""),
                         vocab.get("english", "")
@@ -182,7 +189,6 @@ class Database:
         
         cursor.execute("""
             SELECT s.*, GROUP_CONCAT(json_object(
-                'word', v.word,
                 'jiantizi', v.jiantizi,
                 'pinyin', v.pinyin,
                 'english', v.english

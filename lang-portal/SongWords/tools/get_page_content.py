@@ -6,7 +6,9 @@ import random
 import asyncio
 from time import time
 import hashlib
-from .blocked_sites import BlockedSitesTracker
+from .excluded_sites import ExcludedSitesTracker
+from hanziconv import HanziConv
+from .text_processing import process_chinese_text
 
 # Configure logging
 logging.basicConfig(
@@ -20,7 +22,7 @@ page_cache = {}
 CACHE_DURATION = 3600
 
 # Add after other global variables
-blocked_sites = BlockedSitesTracker()
+excluded_sites = ExcludedSitesTracker()
 
 def _generate_cache_key(url: str) -> str:
     """Generate a unique cache key for a URL."""
@@ -35,9 +37,9 @@ async def get_page_content(url: str) -> str:
     try:
         logger.info(f"Starting content fetch process for URL: {url}")
         
-        # Check if site is blocked
-        if blocked_sites.is_site_blocked(url):
-            logger.warning(f"Skipping blocked site: {url}")
+        # Check if site is excluded
+        if excluded_sites.is_site_excluded(url):
+            logger.warning(f"Skipping excluded site: {url}")
             return ""
         
         # Check cache first
@@ -105,33 +107,31 @@ async def get_page_content(url: str) -> str:
                             content = await response.text()
                             logger.info(f"Successfully fetched raw content (size: {len(content)} bytes)")
                             
-                            # Clean up the content
-                            content = re.sub(r'\s+', ' ', content)
-                            content = re.sub(r'[\r\n]+', '\n', content)
+                            # Process the content
+                            processed_content, was_converted = process_chinese_text(content)
                             
-                            # Extract Chinese characters and newlines
-                            chinese_chars = re.findall(r'[\u4e00-\u9fff]+|\n', content)
-                            content = ' '.join(chinese_chars)
-                            
-                            if content:
-                                logger.info(f"Successfully extracted {len(content)} Chinese characters")
-                                page_cache[cache_key] = (time(), content)
-                                return content.strip()
+                            if processed_content:
+                                if was_converted:
+                                    logger.info("Converted Traditional Chinese characters to Simplified")
+                                
+                                logger.info(f"Successfully processed {len(processed_content)} Chinese characters")
+                                page_cache[cache_key] = (time(), processed_content)
+                                return processed_content
                             else:
                                 logger.warning("No Chinese characters found in content")
                         elif response.status in [403, 500]:
                             logger.warning(f"Access denied or server error. Status: {response.status}")
-                            blocked_sites.add_blocked_site(try_url)
+                            excluded_sites.add_excluded_site(try_url)
                         else:
                             logger.warning(f"Unexpected status code: {response.status}")
                             
                 except Exception as e:
                     logger.warning(f"Error fetching {try_url}: {str(e)}")
-                    if "SSL" not in str(e):  # Don't block for SSL errors
-                        blocked_sites.add_blocked_site(try_url)
+                    if "SSL" not in str(e):  # Don't exclude for SSL errors
+                        excluded_sites.add_excluded_site(try_url)
             
             logger.error("All URL variations failed. Website may be blocking automated access.")
-            blocked_sites.add_blocked_site(url)
+            excluded_sites.add_excluded_site(url)
             return ""
                     
     except Exception as e:
