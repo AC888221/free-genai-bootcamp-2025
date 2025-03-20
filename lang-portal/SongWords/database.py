@@ -1,28 +1,35 @@
 import sqlite3
 import json
 import os
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional, Tuple
 from contextlib import contextmanager
 from datetime import datetime
 import logging
+import threading
 
 logger = logging.getLogger(__name__)
 
 class Database:
-    def __init__(self, db_path: str = "songs.db"):
-        """Initialize the database connection."""
-        self.db_path = db_path
-        self.conn = None
-        self.ensure_connection()
+    def __init__(self):
+        self.db_path = "songwords.db"
+        self._local = threading.local()
+        self.logger = logging.getLogger(__name__)
+        self.create_tables()
+
+    @property
+    def conn(self):
+        if not hasattr(self._local, "conn"):
+            self._local.conn = sqlite3.connect(self.db_path)
+        return self._local.conn
 
     def ensure_connection(self):
-        """Ensure that we have a database connection."""
-        if self.conn is None:
-            self.conn = sqlite3.connect(self.db_path)
-            # Enable foreign keys
-            self.conn.execute("PRAGMA foreign_keys = ON")
-            # Configure to return rows as dictionaries
-            self.conn.row_factory = sqlite3.Row
+        """Ensure we have a valid connection for the current thread."""
+        try:
+            # Test the connection
+            self.conn.cursor()
+        except (sqlite3.Error, AttributeError):
+            # If there's an error, create a new connection
+            self._local.conn = sqlite3.connect(self.db_path)
 
     def create_tables(self):
         """Create the necessary tables if they don't exist."""
@@ -54,14 +61,15 @@ class Database:
         )
         ''')
 
-        # Create history table
+        # Create history table with source field
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS history (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            query TEXT NOT NULL,
+            query TEXT,
             lyrics TEXT,
             vocabulary TEXT,
-            timestamp TEXT DEFAULT (datetime('now', 'localtime'))
+            source TEXT CHECK(source IN ('search', 'input')),
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
         ''')
         
@@ -82,36 +90,52 @@ class Database:
             self.conn.rollback()
             return False
 
-    def save_to_history(self, query: str, lyrics: str = None, vocab: str = None):
-        """Save a query and its results to history."""
-        try:
-            with self.get_connection() as conn:
-                cursor = conn.cursor()
-                
-                # Convert None to empty string and ensure all inputs are strings
-                query = str(query) if query is not None else ""
-                lyrics = str(lyrics) if lyrics is not None else ""
-                vocab = str(vocab) if vocab is not None else ""
-                
+    def save_to_history(self, query: str, lyrics: str, vocabulary: str, source: str = 'search'):
+        """Save a search query and its results to history."""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            try:
                 cursor.execute(
-                    'INSERT INTO history (query, lyrics, vocabulary) VALUES (?, ?, ?)',
-                    (query, lyrics, vocab)
+                    "INSERT INTO history (query, lyrics, vocabulary, source) VALUES (?, ?, ?, ?)",
+                    (query, lyrics, vocabulary, source)
                 )
-                conn.commit()
-                logger.info(f"Saved to history: {query}")
-        except Exception as e:
-            logger.error(f"Error saving to history: {str(e)}")
+                self.logger.info(f"Saved to history: {query}")
+            except Exception as e:
+                self.logger.error(f"Error saving to history: {str(e)}")
+                raise
 
-    def get_history(self):
-        """Get all history entries."""
-        try:
-            self.ensure_connection()
-            cursor = self.conn.cursor()
-            cursor.execute('SELECT query, lyrics, vocabulary, timestamp FROM history ORDER BY timestamp DESC')
-            return cursor.fetchall()
-        except Exception as e:
-            logger.error(f"Error getting history: {str(e)}")
-            return []
+    def get_history(self) -> List[Tuple[str, str, str, str, str]]:
+        """Get all search history."""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            try:
+                cursor.execute("""
+                    SELECT query, lyrics, vocabulary, timestamp, source 
+                    FROM history 
+                    ORDER BY timestamp DESC
+                """)
+                return cursor.fetchall()
+            except Exception as e:
+                self.logger.error(f"Error getting history: {str(e)}")
+                return []
+
+    def get_most_recent_search(self, source: str) -> Optional[Tuple[str, str, str, str]]:
+        """Get the most recent entry from history for a specific source."""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            try:
+                cursor.execute("""
+                    SELECT query, lyrics, vocabulary, timestamp 
+                    FROM history 
+                    WHERE source = ?
+                    ORDER BY timestamp DESC 
+                    LIMIT 1
+                """, (source,))
+                result = cursor.fetchone()
+                return result if result else None
+            except Exception as e:
+                self.logger.error(f"Error getting most recent search: {str(e)}")
+                return None
 
     def save_song(self, song_id: str, artist: str, title: str, lyrics: str, vocabulary: List[Dict[str, Any]]):
         """
@@ -216,9 +240,9 @@ class Database:
 
     def close(self):
         """Close the database connection."""
-        if self.conn:
-            self.conn.close()
-            self.conn = None
+        if hasattr(self._local, "conn"):
+            self._local.conn.close()
+            delattr(self._local, "conn")
 
     def initialize(self):
         """Initialize the database connection in the main thread"""
@@ -239,12 +263,12 @@ class Database:
 
     @contextmanager
     def get_connection(self):
-        """Get a thread-safe database connection"""
-        conn = sqlite3.connect(self.db_path)
-        conn.row_factory = sqlite3.Row
+        """Context manager to handle database connections per thread."""
+        self.ensure_connection()
         try:
-            # Enable foreign keys
-            conn.execute("PRAGMA foreign_keys = ON")
-            yield conn
+            yield self.conn
+        except Exception as e:
+            self.conn.rollback()
+            raise e
         finally:
-            conn.close()
+            self.conn.commit()

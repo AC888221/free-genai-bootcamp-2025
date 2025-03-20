@@ -9,6 +9,8 @@ from database import Database
 from tools.excluded_sites import ExcludedSitesTracker
 from datetime import datetime
 import asyncio
+import ast
+import re
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -34,36 +36,49 @@ def display_vocabulary(vocabulary_data, key_prefix=""):
         return
         
     try:
-        # Create DataFrame directly from the list of dictionaries
-        df = pd.DataFrame(vocabulary_data)
-        
-        # Rename columns if they exist
-        column_mapping = {
-            'original': 'Chinese',
-            'pinyin': 'Pinyin',
-            'english': 'English'
-        }
-        df = df.rename(columns=column_mapping)
-        
-        # Store DataFrame in session state
+        # Generate a unique key for this vocabulary data
         state_key = f"{key_prefix}_vocabulary_df"
+        
+        # Only create the DataFrame if it doesn't exist in session state
         if state_key not in st.session_state:
-            st.session_state[state_key] = df
+            # Normalize the vocabulary data to ensure consistent field names
+            normalized_data = []
+            for item in vocabulary_data:
+                normalized_item = {
+                    'Chinese': item.get('jiantizi', item.get('Chinese', '')),
+                    'Pinyin': item.get('pinyin', item.get('Pinyin', '')),
+                    'English': item.get('english', item.get('English', ''))
+                }
+                normalized_data.append(normalized_item)
+            
+            # Store DataFrame in session state
+            st.session_state[state_key] = pd.DataFrame(normalized_data)
         
-        # Display the table
-        st.dataframe(st.session_state[state_key], use_container_width=True)
-        
-        # Create download button in a separate container
-        col1, col2 = st.columns([4, 1])
-        with col2:
-            csv = st.session_state[state_key].to_csv(index=False).encode('utf-8')
-            st.download_button(
-                label="Download CSV",
-                data=csv,
-                file_name="vocabulary.csv",
-                mime="text/csv",
-                key=f"{key_prefix}_download_btn"
+        # Create a container for the table and download button
+        with st.container():
+            # Display the table using the DataFrame from session state
+            st.dataframe(
+                st.session_state[state_key],
+                use_container_width=True,
+                hide_index=True,
+                key=f"{key_prefix}_dataframe"
             )
+            
+            # Add download button with a callback
+            csv = st.session_state[state_key].to_csv(index=False).encode('utf-8')
+            
+            # Column for download button to make it less prominent
+            col1, col2, col3 = st.columns([1, 1, 1])
+            with col2:
+                st.download_button(
+                    label="⬇️ Download CSV",
+                    data=csv,
+                    file_name="vocabulary.csv",
+                    mime="text/csv",
+                    key=f"{key_prefix}_download_btn",
+                    use_container_width=True,
+                    help="Download vocabulary as CSV file"
+                )
             
     except Exception as e:
         st.error(f"Error displaying vocabulary: {str(e)}")
@@ -92,6 +107,34 @@ async def main():
         with col2:
             artist_name = st.text_input("Artist (Optional)", placeholder="Enter artist name", key="artist_name")
         
+        # Add a reload last search button
+        if st.button("🔄 Reload Last Search", key="reload_last_search"):
+            try:
+                # Get the most recent search from history
+                recent_history = db.get_most_recent_search(source='search')
+                if recent_history:
+                    query, lyrics, vocab_str, timestamp = recent_history
+                    # Only proceed if we have both lyrics and vocabulary
+                    if lyrics and vocab_str:
+                        # Convert vocab string back to list of dictionaries
+                        vocab_list = ast.literal_eval(vocab_str)
+                        
+                        # Store in session state
+                        st.session_state.search_result = {
+                            "lyrics": lyrics,
+                            "vocabulary": vocab_list,
+                            "success": True
+                        }
+                        st.success(f"Reloaded last search: {query}")
+                        st.rerun()
+                    else:
+                        st.warning("Last search has incomplete data")
+                else:
+                    st.warning("No search history found")
+            except Exception as e:
+                st.error(f"Error reloading search: {str(e)}")
+                logger.error(f"Error reloading search: {str(e)}", exc_info=True)
+        
         if 'agent' not in st.session_state:
             st.session_state.agent = LyricsAgent()
             # Force database initialization in main thread
@@ -114,6 +157,17 @@ async def main():
                             if "error" in result and result["error"]:
                                 st.error(f"Error: {result['error']}")
                             else:
+                                # Save to proper database tables
+                                if "song_id" in result and result["song_id"]:
+                                    # Save to songs and vocabulary tables
+                                    db.save_song(
+                                        result["song_id"],
+                                        artist_name,
+                                        song_name,
+                                        result.get("lyrics", ""),
+                                        result.get("vocabulary", [])
+                                    )
+                                    
                                 # Display lyrics
                                 st.subheader("Lyrics")
                                 lyrics = result.get("lyrics", "")
@@ -166,10 +220,40 @@ async def main():
                     st.warning("No vocabulary items found in cache")
     
     with tab2:
-        # Input Your Own tab
         st.header("Input Your Own Text")
-        user_text = st.text_area("Enter Putonghua text:", height=200)
-        if st.button("Extract Vocabulary"):
+        
+        user_text = st.text_area(
+            "Enter Chinese text to analyze",
+            height=150,
+            placeholder="Paste your Chinese text here..."
+        )
+        
+        # Add reload button for last manual extraction
+        if st.button("🔄 Reload Last Extraction", key="reload_last_extraction"):
+            try:
+                recent_input = db.get_most_recent_search(source='input')
+                if recent_input:
+                    query, lyrics, vocab_str, timestamp = recent_input
+                    if vocab_str:  # Only need vocabulary for display
+                        vocab_list = ast.literal_eval(vocab_str)
+                        
+                        # Display the vocabulary
+                        st.subheader("Vocabulary")
+                        if vocab_list:
+                            st.info(f"Found {len(vocab_list)} vocabulary items")
+                            display_vocabulary(vocab_list, "manual")
+                        else:
+                            st.warning("No vocabulary items found")
+                        st.success(f"Reloaded last extraction from: {timestamp}")
+                    else:
+                        st.warning("Last extraction has no vocabulary data")
+                else:
+                    st.warning("No previous extractions found")
+            except Exception as e:
+                st.error(f"Error reloading extraction: {str(e)}")
+                logger.error(f"Error reloading extraction: {str(e)}", exc_info=True)
+        
+        if st.button("Extract Vocabulary", key="extract_button"):
             if user_text:
                 with st.spinner("Extracting vocabulary..."):
                     try:
@@ -178,10 +262,10 @@ async def main():
                         st.subheader("Vocabulary")
                         if translations:
                             logger.info(f"Translations received: {translations}")
-                            # Use the same display_vocabulary function
+                            # Use the same display_vocabulary function with a different prefix
                             display_vocabulary(translations, "manual")
-                            # Save to history with proper formatting
-                            db.save_to_history("Manual Input", simplified_text, str(translations))
+                            # Save to history with proper source
+                            db.save_to_history("Manual Input", simplified_text, str(translations), source='input')
                         else:
                             st.warning("No vocabulary items found.")
                     except Exception as e:
@@ -211,8 +295,12 @@ async def main():
             try:
                 history = db.get_history()
                 if history:
-                    for query, lyrics, vocab, timestamp in history:
-                        with st.expander(f"{query} - {timestamp}", expanded=True):
+                    for query, lyrics, vocab, timestamp, source in history:
+                        # Create an icon based on the source
+                        source_icon = "🎵" if source == "search" else "📝"
+                        source_label = "Song Search" if source == "search" else "Manual Input"
+                        
+                        with st.expander(f"{source_icon} {query} - {source_label} ({timestamp})", expanded=True):
                             if lyrics:
                                 st.text("Lyrics:")
                                 st.text(lyrics)

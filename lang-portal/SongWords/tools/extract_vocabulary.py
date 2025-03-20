@@ -158,7 +158,7 @@ async def translate_segment(segment: str) -> List[Dict[str, str]]:
                 if line.startswith('Word(s):'):
                     if current_unit:
                         translations.append(current_unit)
-                    current_unit = {'original': line.split(':', 1)[1].strip()}
+                    current_unit = {'jiantizi': line.split(':', 1)[1].strip()}
                 elif line.startswith('Pinyin:'):
                     current_unit['pinyin'] = line.split(':', 1)[1].strip()
                 elif line.startswith('English:'):
@@ -171,7 +171,7 @@ async def translate_segment(segment: str) -> List[Dict[str, str]]:
         # Validate that each translation has all required fields
         validated_translations = []
         for trans in translations:
-            if all(key in trans for key in ['original', 'pinyin', 'english']):
+            if all(key in trans for key in ['jiantizi', 'pinyin', 'english']):
                 validated_translations.append(trans)
         
         return validated_translations
