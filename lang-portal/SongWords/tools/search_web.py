@@ -5,6 +5,9 @@ import json
 import re
 import asyncio
 from time import time
+from functools import lru_cache
+import hashlib
+from .blocked_sites import BlockedSitesTracker
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -13,23 +16,47 @@ logger = logging.getLogger(__name__)
 # Track last request time globally
 last_request_time = 0
 MIN_REQUEST_INTERVAL = 30  # Minimum seconds between requests
+CACHE_DURATION = 3600  # Cache results for 1 hour
+
+# Initialize blocked sites tracker
+blocked_sites = BlockedSitesTracker()
 
 class SearchError:
     RATE_LIMIT = "rate_limit"
     NETWORK = "network_error"
     NO_RESULTS = "no_results"
 
+# Cache for search results
+search_cache = {}
+
+def _generate_cache_key(query: str) -> str:
+    """Generate a unique cache key for a search query."""
+    return hashlib.md5(query.encode()).hexdigest()
+
+def _is_cache_valid(timestamp: float) -> bool:
+    """Check if cached result is still valid."""
+    return (time() - timestamp) < CACHE_DURATION
+
 async def search_web(query: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
-    """
-    Search the web using DuckDuckGo.
-    Returns: Tuple of (results, status)
-    - results: List of search results
-    - status: Dictionary containing status information
-    """
+    """Search the web using DuckDuckGo with blocked sites exclusion."""
+    global last_request_time
+    
     try:
-        logger.info(f"Searching web for: {query}")
+        logger.info(f"Starting web search for: {query}")
         
-        # Check if we need to wait due to rate limiting
+        # Generate exclusion string for blocked sites
+        exclusions = []
+        for domain in blocked_sites.get_blocked_domains_for_search():
+            exclusions.append(f"-site:{domain}")
+        
+        # Remove mojim.com if it's in the blocked domains
+        search_query = query
+        if "mojim.com" not in blocked_sites.get_blocked_domains_for_search():
+            search_query += " site:mojim.com"
+        search_query += f" {' '.join(exclusions)}"
+        logger.info(f"Modified search query: {search_query}")
+        
+        # Check rate limiting
         current_time = time()
         time_since_last = current_time - last_request_time
         if time_since_last < MIN_REQUEST_INTERVAL:
@@ -40,20 +67,15 @@ async def search_web(query: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
                 "wait_time": wait_time
             }
         
-        # Make a single query to one site
-        search_query = f"{query} site:mojim.com"
-        
         try:
             with DDGS() as ddgs:
                 results = list(ddgs.text(search_query, max_results=5))
-                global last_request_time
                 last_request_time = time()
                 
                 formatted_results = []
                 seen_urls = set()
                 
                 for result in results:
-                    # Try different possible keys for URL
                     url = None
                     for key in ['link', 'url', 'href']:
                         if key in result and result[key]:
@@ -62,7 +84,8 @@ async def search_web(query: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
                     
                     title = result.get('title', '')
                     
-                    if url and url not in seen_urls:
+                    # Double check the URL isn't from a blocked site
+                    if url and url not in seen_urls and not blocked_sites.is_site_blocked(url):
                         logger.info(f"Found result: {title} at {url}")
                         formatted_results.append({
                             "title": title,
@@ -71,12 +94,13 @@ async def search_web(query: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
                         seen_urls.add(url)
                 
                 if not formatted_results:
+                    logger.warning("No non-blocked results found")
                     return [], {
                         "error": SearchError.NO_RESULTS,
-                        "message": "No lyrics found. Please try a different search term or wait a moment before trying again."
+                        "message": "No accessible lyrics found. All known sources are temporarily blocked."
                     }
                 
-                logger.info(f"Found {len(formatted_results)} unique URLs")
+                logger.info(f"Found {len(formatted_results)} unique, non-blocked URLs")
                 return formatted_results[:5], {
                     "success": True,
                     "message": f"Found {len(formatted_results)} results"

@@ -9,7 +9,6 @@ from tools.get_page_content import get_page_content
 from tools.extract_vocabulary import extract_vocabulary, fallback_extraction
 from tools.generate_song_id import generate_song_id
 from database import Database
-from tools.lyrics_extractor import get_lyrics
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -31,6 +30,10 @@ class LyricsAgent:
         self.db = Database()
         self.db.create_tables()
     
+    def _contains_chinese(self, content: str) -> bool:
+        """Check if content contains Chinese characters."""
+        return any('\u4e00' <= char <= '\u9fff' for char in content)
+    
     async def validate_chinese_content(self, content: str) -> Tuple[bool, str]:
         """Validate if content contains sufficient Chinese characters."""
         chinese_char_count = sum(1 for char in content if '\u4e00' <= char <= '\u9fff')
@@ -38,65 +41,25 @@ class LyricsAgent:
             return False, "Insufficient Chinese content found"
         return True, ""
     
-    async def clean_lyrics(self, raw_lyrics: str) -> str:
-        """Use Bedrock to clean and format lyrics."""
-        try:
-            prompt = f"""Clean and format these Chinese lyrics. Remove any English translations, 
-            advertisements, or irrelevant content. Keep only the Chinese lyrics.
+    async def get_lyrics(self, song_name: str, artist_name: str = None):
+        # 1. Search for lyrics
+        results, status = await search_web(f"{song_name} {artist_name} 歌词")
+        
+        # 2. Get content from results
+        for result in results:
+            content = await get_page_content(result["url"])
+            if content and self._contains_chinese(content):
+                # Return content directly instead of cleaning
+                # We'll clean at the run level if needed
+                return content
+        
+        return None
 
-            Raw lyrics:
-            {raw_lyrics}
-
-            Return only the cleaned Chinese lyrics."""
-            
-            body = json.dumps({
-                "prompt": prompt,
-                "max_tokens_to_sample": 1000,
-                "temperature": 0.3,  # Lower temperature for more consistent cleaning
-            })
-            
-            response = self.bedrock_runtime.invoke_model(
-                modelId="anthropic.claude-v2",
-                body=body
-            )
-            
-            response_body = json.loads(response.get('body').read())
-            return response_body.get('completion', '').strip()
-        except Exception as e:
-            self.logger.error(f"Error cleaning lyrics: {str(e)}")
-            return raw_lyrics
-    
-    async def extract_vocabulary(self, text: str, hsk_level: str = "HSK 1") -> List[Dict[str, Any]]:
-        """Extract vocabulary from text using Bedrock with HSK level consideration."""
+    async def extract_vocabulary(self, text: str) -> List[Dict[str, Any]]:
+        """Extract vocabulary from text using imported function."""
         try:
-            self.logger.info(f"Extracting vocabulary (HSK level: {hsk_level})")
-            prompt = f"""Extract Chinese vocabulary from this text. 
-            Focus on {hsk_level} level words where possible.
-            Include only words that are appropriate for this level.
-            
-            Text: {text}
-            
-            Return in JSON format:
-            [
-                {{"word": "你好", "pinyin": "nǐ hǎo", "english": "hello", "hsk_level": "1"}},
-                {{"word": "再见", "pinyin": "zài jiàn", "english": "goodbye", "hsk_level": "1"}}
-            ]
-            """
-            
-            body = json.dumps({
-                "prompt": prompt,
-                "max_tokens_to_sample": 1000,
-                "temperature": 0.7,
-            })
-            
-            response = self.bedrock_runtime.invoke_model(
-                modelId="anthropic.claude-v2",
-                body=body
-            )
-            
-            response_body = json.loads(response.get('body').read())
-            vocabulary = json.loads(response_body.get('completion', '[]'))
-            
+            self.logger.info("Extracting vocabulary")
+            vocabulary = await extract_vocabulary(text)
             if not vocabulary:
                 self.logger.warning("No vocabulary extracted, using fallback")
                 vocabulary = fallback_extraction(text)
@@ -105,34 +68,28 @@ class LyricsAgent:
             self.logger.error(f"Error in extract_vocabulary: {str(e)}")
             return fallback_extraction(text)
     
-    async def run(self, song_name: str, artist: str = "", hsk_level: str = "HSK 1") -> Dict[str, Any]:
+    async def run(self, song_name: str, artist: str = "") -> Dict[str, Any]:
         try:
             session_id = generate_song_id(artist, song_name)
             self.logger.info(f"Starting session {session_id}")
             
             # Get lyrics
-            lyrics_result = await get_lyrics(song_name, artist)
+            lyrics_result = await self.get_lyrics(song_name, artist)
             
-            if "error" in lyrics_result:
-                raise Exception(lyrics_result["error"])
+            if lyrics_result is None:
+                raise Exception("No valid Chinese lyrics found")
             
-            cleaned_lyrics = lyrics_result.get("lyrics", "")
-            initial_vocabulary = lyrics_result.get("vocabulary", [])
-            
-            # Extract additional vocabulary if needed
-            if not initial_vocabulary:
-                vocabulary = await extract_vocabulary(cleaned_lyrics)
-            else:
-                vocabulary = initial_vocabulary
+            # Use lyrics as-is without cleaning
+            cleaned_lyrics = lyrics_result
+            initial_vocabulary = await self.extract_vocabulary(cleaned_lyrics)
             
             result = {
                 "session_id": session_id,
                 "lyrics": cleaned_lyrics,
-                "vocabulary": vocabulary,
+                "vocabulary": initial_vocabulary,
                 "metadata": {
                     "song_name": song_name,
-                    "artist": artist,
-                    "hsk_level": hsk_level
+                    "artist": artist
                 }
             }
             
@@ -140,8 +97,8 @@ class LyricsAgent:
             with self.db.get_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute(
-                    "INSERT INTO songs (id, title, artist, lyrics, vocabulary) VALUES (?, ?, ?, ?, ?)",
-                    (session_id, song_name, artist, cleaned_lyrics, json.dumps(vocabulary))
+                    "INSERT INTO songs (song_id, title, artist, lyrics, vocabulary) VALUES (?, ?, ?, ?, ?)",
+                    (session_id, song_name, artist, cleaned_lyrics, json.dumps(initial_vocabulary))
                 )
                 conn.commit()
             
@@ -152,7 +109,7 @@ class LyricsAgent:
             self.logger.error(f"Error in run: {error_msg}")
             return {
                 "error": error_msg,
-                "session_id": session_id,
+                "session_id": session_id if 'session_id' in locals() else "",
                 "lyrics": "",
                 "vocabulary": []
             }

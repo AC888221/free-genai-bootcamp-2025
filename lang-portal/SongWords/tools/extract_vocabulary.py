@@ -19,84 +19,57 @@ bedrock_runtime = boto3.client(
     )
 )
 
-async def extract_vocabulary(text: str) -> List[Dict[str, str]]:
+async def extract_vocabulary(text: str) -> List[Dict[str, Any]]:
     """Extract vocabulary from text using Bedrock."""
     try:
         logger.info("Starting vocabulary extraction with Bedrock")
+        bedrock = boto3.client(
+            service_name='bedrock-runtime',
+            region_name=os.getenv('AWS_REGION', 'us-east-1')
+        )
         
-        prompt = f"""Extract Chinese vocabulary from the following text and provide the output in JSON format. 
-        Return only the JSON content between [START_JSON] and [END_JSON] tags.
-        
-        For each word, provide:
-        - word: The Chinese characters
-        - jiantizi: Simplified form
-        - pinyin: Pronunciation in pinyin
-        - english: English translation
+        prompt = """Human: Extract Chinese vocabulary from this text. 
+        Include common words and phrases.
         
         Text: {text}
         
-        Format the output exactly like this:
-        [START_JSON]
+        Return in JSON format:
         [
-            {{"word": "你好", "jiantizi": "你好", "pinyin": "nǐ hǎo", "english": "hello"}},
-            {{"word": "再见", "jiantizi": "再见", "pinyin": "zài jiàn", "english": "goodbye"}}
+            {{"word": "你好", "pinyin": "nǐ hǎo", "english": "hello"}},
+            {{"word": "再见", "pinyin": "zài jiàn", "english": "goodbye"}}
         ]
-        [END_JSON]
-        """
+
+        Assistant: Here's the vocabulary in JSON format:"""
         
         body = json.dumps({
-            "prompt": prompt,
-            "max_tokens_to_sample": 1000,
+            "anthropic_version": "bedrock-2023-05-31",
+            "max_tokens": 1000,
             "temperature": 0.7,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt.format(text=text)
+                }
+            ]
         })
         
-        response = bedrock_runtime.invoke_model(
-            modelId="anthropic.claude-v2",
+        response = bedrock.invoke_model(
+            modelId="anthropic.claude-3-sonnet-20240229-v1:0",
             body=body
         )
         
         response_body = json.loads(response.get('body').read())
-        response_text = response_body.get('completion', '')
+        vocabulary_text = response_body.get('content', [])[0].get('text', '').strip()
         
-        # Extract content between JSON tags
-        start_idx = response_text.find("[START_JSON]")
-        end_idx = response_text.find("[END_JSON]")
-        
-        if start_idx == -1 or end_idx == -1:
-            logger.error("JSON tags not found in response")
-            return fallback_extraction(text)
-        
-        json_str = response_text[start_idx + len("[START_JSON]"):end_idx].strip()
-        
-        try:
-            data = json.loads(json_str)
-            if not isinstance(data, list):
-                logger.error("Bedrock response is not a list")
-                return fallback_extraction(text)
+        # Extract JSON from response text
+        import re
+        json_match = re.search(r'\[.*\]', vocabulary_text, re.DOTALL)
+        if json_match:
+            vocabulary = json.loads(json_match.group(0))
+        else:
+            vocabulary = []
             
-            validated_vocab = []
-            for item in data:
-                if isinstance(item, dict) and all(k in item for k in ["word", "jiantizi", "pinyin", "english"]):
-                    cleaned_item = {
-                        "word": str(item["word"]).strip(),
-                        "jiantizi": str(item["jiantizi"]).strip(),
-                        "pinyin": str(item["pinyin"]).strip(),
-                        "english": str(item["english"]).strip()
-                    }
-                    if contains_chinese(cleaned_item["word"]):
-                        validated_vocab.append(cleaned_item)
-            
-            if not validated_vocab:
-                logger.warning("No valid vocabulary items found")
-                return fallback_extraction(text)
-            
-            logger.info(f"Successfully extracted {len(validated_vocab)} vocabulary items")
-            return validated_vocab
-            
-        except json.JSONDecodeError as e:
-            logger.error(f"JSON decode error: {str(e)}")
-            return fallback_extraction(text)
-            
+        return vocabulary
     except Exception as e:
         logger.error(f"Error in extract_vocabulary: {str(e)}")
         return fallback_extraction(text)
