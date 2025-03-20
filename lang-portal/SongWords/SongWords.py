@@ -3,35 +3,43 @@ import pandas as pd
 from typing import List, Dict
 import logging
 from tools.extract_vocabulary import extract_vocabulary
-from tools.lyrics_extractor import get_lyrics
 from tools.generate_song_id import generate_song_id
 from agent import LyricsAgent
 from database import Database
+from tools.blocked_sites import BlockedSitesTracker
+from datetime import datetime
+import asyncio
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def display_vocabulary(vocabulary: List[Dict[str, str]], key_suffix: str = ""):
-    """Display vocabulary in a nice format."""
-    if not vocabulary:
-        st.warning("No vocabulary items found.")
-        return
-    
-    df = pd.DataFrame(vocabulary)
-    if all(col in df.columns for col in ["word", "jiantizi", "pinyin", "english"]):
-        df = df[["word", "jiantizi", "pinyin", "english"]]
-    
-    st.dataframe(df, use_container_width=True)
-    
-    csv = df.to_csv(index=False)
-    st.download_button(
-        label="Download Vocabulary as CSV",
-        data=csv,
-        file_name="vocabulary.csv",
-        mime="text/csv",
-        key=f"download_btn_{key_suffix}"
-    )
+# Initialize database
+db = Database()
+db.create_tables()
+
+# Initialize agent and blocked sites tracker
+agent = LyricsAgent()
+blocked_sites = BlockedSitesTracker()
+
+def display_vocabulary(vocabulary, key_prefix=""):
+    if vocabulary:
+        # Create DataFrame
+        df = pd.DataFrame(vocabulary)
+        
+        # Display vocabulary in a table
+        st.dataframe(df)
+        
+        # Add download button that won't trigger a rerun
+        csv = df.to_csv(index=False)
+        st.download_button(
+            label="Download CSV",
+            data=csv,
+            file_name="vocabulary.csv",
+            mime="text/csv",
+            key=f"{key_prefix}_download_btn",
+            use_container_width=True
+        )
 
 async def main():
     st.set_page_config(
@@ -40,14 +48,10 @@ async def main():
         layout="wide"
     )
     
-    st.title("🎵 SongWords")
-    st.markdown("""
-    This application helps you learn Putonghua by extracting vocabulary from songs. 
-    You can search for song lyrics or input your own text to extract vocabulary.
-    """)
+    st.title("SongWords - Chinese Lyrics Search")
     
     # Create tabs for different functionalities
-    tab1, tab2, tab3 = st.tabs(["Search for Lyrics", "Input Your Own", "History"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Search", "Input Your Own", "History", "Blocked Sites"])
     
     with tab1:
         st.header("Search for Song Lyrics")
@@ -55,9 +59,9 @@ async def main():
         
         col1, col2 = st.columns([3, 1])
         with col1:
-            song_name = st.text_input("Song Name", placeholder="Enter song name")
+            song_name = st.text_input("Song Name", placeholder="Enter song name", key="song_name")
         with col2:
-            artist_name = st.text_input("Artist (Optional)", placeholder="Enter artist name")
+            artist_name = st.text_input("Artist (Optional)", placeholder="Enter artist name", key="artist_name")
         
         if 'agent' not in st.session_state:
             st.session_state.agent = LyricsAgent()
@@ -69,62 +73,101 @@ async def main():
                 st.error("Please enter a song name")
             else:
                 with st.spinner("Searching for lyrics and extracting vocabulary..."):
-                    result = await st.session_state.agent.run(song_name, artist_name)
-                
-                if "error" in result:
-                    st.error(f"Error: {result['error']}")
-                else:
-                    # Display lyrics
-                    st.subheader("Lyrics")
-                    st.text_area("", value=result.get("lyrics", ""), height=300, disabled=True)
-                    
-                    # Display vocabulary
-                    st.subheader("Vocabulary")
-                    display_vocabulary(result.get("vocabulary", []), "search")
+                    try:
+                        # Store results in session state
+                        st.session_state.search_result = await st.session_state.agent.run(song_name, artist_name)
+                        
+                        if "error" in st.session_state.search_result:
+                            st.error(f"Error: {st.session_state.search_result['error']}")
+                        else:
+                            st.subheader("Lyrics")
+                            st.text_area("", value=st.session_state.search_result.get("lyrics", ""), 
+                                       height=300, disabled=True, label_visibility="collapsed")
+                            st.subheader("Vocabulary")
+                            display_vocabulary(st.session_state.search_result.get("vocabulary", []), "search")
+                    except Exception as e:
+                        st.error(f"An error occurred: {str(e)}")
+        
+        # Display previous results if they exist in session state
+        elif hasattr(st.session_state, 'search_result'):
+            if "error" not in st.session_state.search_result:
+                st.subheader("Lyrics")
+                st.text_area("", value=st.session_state.search_result.get("lyrics", ""), 
+                            height=300, disabled=True, label_visibility="collapsed")
+                st.subheader("Vocabulary")
+                display_vocabulary(st.session_state.search_result.get("vocabulary", []), "search")
     
     with tab2:
-        st.header("Input Your Own Song Lyrics")
-        st.info("Note: Processing may take a some time as the AI analyzes the text.")
-        
-        text_input = st.text_area("Enter Putonghua text", height=300, placeholder="Paste Putonghua text here...")
-        
-        if st.button("Extract Vocabulary", key="extract_button"):
-            if not text_input:
-                st.error("Please enter some text")
-            else:
+        # Input Your Own tab
+        st.header("Input Your Own Text")
+        user_text = st.text_area("Enter Chinese text:", height=200)
+        if st.button("Extract Vocabulary"):
+            if user_text:
                 with st.spinner("Extracting vocabulary..."):
-                    result = extract_vocabulary(text_input)
-                
-                if "error" in result:
-                    st.error(f"Error: {result['error']}")
-                else:
-                    st.subheader("Extracted Vocabulary")
-                    display_vocabulary(result.get("vocabulary", []), "extract")
+                    vocabulary = extract_vocabulary(user_text)
+                    st.subheader("Vocabulary")
+                    if vocabulary:
+                        # Display vocabulary
+                        df = pd.DataFrame(vocabulary)
+                        st.dataframe(df)
+                        # Save to history
+                        db.save_to_history("Manual Input", user_text, str(vocabulary))
+                    else:
+                        st.warning("No vocabulary items found.")
+            else:
+                st.error("Please enter some text first.")
 
     with tab3:
-        st.header("Search History")
-        if 'agent' in st.session_state:
+        # History tab
+        st.subheader("Search History")
+        col1, col2 = st.columns([4, 1])
+        with col1:
+            st.write("Previous searches and their results")
+        with col2:
+            if st.button("🔄 Refresh History"):
+                st.rerun()
+            
+        with st.container(border=True):
             try:
-                # Create a new connection for this operation
-                with st.session_state.agent.db.get_connection() as conn:
-                    cursor = conn.cursor()
-                    cursor.execute("SELECT * FROM songs ORDER BY timestamp DESC")
-                    history = [
-                        {
-                            'title': row[1],
-                            'artist': row[2],
-                            'lyrics': row[3],
-                            'vocabulary': eval(row[4])  # Assuming vocabulary is stored as string
-                        }
-                        for row in cursor.fetchall()
-                    ]
-                    
-                for i, song in enumerate(history):
-                    with st.expander(f"{song['title']} - {song['artist']}"):
-                        st.text(song['lyrics'])
-                        display_vocabulary(song['vocabulary'], f"history_{i}")
+                history = db.get_history()
+                if history:
+                    for query, lyrics, vocab, timestamp in history:
+                        with st.expander(f"{query} - {timestamp}", expanded=True):
+                            if lyrics:
+                                st.text("Lyrics:")
+                                st.text(lyrics)
+                            if vocab:
+                                st.text("\nVocabulary:")
+                                st.text(vocab)
+                            if not lyrics and not vocab:
+                                st.info("Search failed or no results found")
+                else:
+                    st.info("No search history yet")
             except Exception as e:
                 st.error(f"Error loading history: {str(e)}")
+                logger.error(f"Error loading history: {str(e)}")
+
+    with tab4:
+        # Blocked Sites tab
+        st.subheader("Blocked Sites Status")
+        col1, col2 = st.columns([4, 1])
+        with col1:
+            st.write("Currently blocked sites and their status")
+        with col2:
+            if st.button("🔄 Refresh Blocked Sites"):
+                st.rerun()
+        
+        with st.container(border=True):
+            report = blocked_sites.get_blocked_sites_report()
+            if report:
+                sections = report.split("\n\n")
+                for section in sections:
+                    if section.strip():
+                        header = section.split('\n')[0]
+                        with st.expander(header, expanded=True):
+                            st.text(section)
+            else:
+                st.info("No sites are currently blocked")
 
     # Add information about the application
     st.sidebar.title("Features")
@@ -145,5 +188,4 @@ async def main():
     """)
 
 if __name__ == "__main__":
-    import asyncio
     asyncio.run(main()) 

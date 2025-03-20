@@ -3,6 +3,10 @@ import json
 import os
 from typing import List, Dict, Any
 from contextlib import contextmanager
+from datetime import datetime
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Database:
     def __init__(self, db_path: str = "songs.db"):
@@ -25,14 +29,20 @@ class Database:
         self.ensure_connection()
         cursor = self.conn.cursor()
         
+        # Drop existing tables if they exist
+        cursor.execute("DROP TABLE IF EXISTS history")
+        cursor.execute("DROP TABLE IF EXISTS vocabulary")
+        cursor.execute("DROP TABLE IF EXISTS songs")
+        
         # Create songs table
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS songs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             song_id TEXT UNIQUE NOT NULL,
-            artist TEXT NOT NULL,
-            title TEXT NOT NULL,
-            lyrics TEXT NOT NULL,
+            artist TEXT,
+            title TEXT,
+            lyrics TEXT,
+            vocabulary TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
         ''')
@@ -43,15 +53,58 @@ class Database:
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             song_id TEXT NOT NULL,
             word TEXT NOT NULL,
-            jiantizi TEXT NOT NULL,
-            pinyin TEXT NOT NULL,
-            english TEXT NOT NULL,
-            FOREIGN KEY (song_id) REFERENCES songs(song_id),
-            UNIQUE(song_id, word)
+            jiantizi TEXT,
+            pinyin TEXT,
+            english TEXT,
+            FOREIGN KEY (song_id) REFERENCES songs(song_id)
+        )
+        ''')
+
+        # Create history table
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            query TEXT NOT NULL,
+            lyrics TEXT,
+            vocabulary TEXT,
+            timestamp TEXT DEFAULT (datetime('now', 'localtime'))
         )
         ''')
         
         self.conn.commit()
+        logger.info("Database tables created successfully")
+
+    def save_to_history(self, query: str, lyrics: str = None, vocabulary: str = None):
+        """Save a query and its results to history."""
+        try:
+            self.ensure_connection()
+            cursor = self.conn.cursor()
+            
+            # Convert None to empty string and ensure all inputs are strings
+            query = str(query) if query is not None else ""
+            lyrics = str(lyrics) if lyrics is not None else ""
+            vocabulary = str(vocabulary) if vocabulary is not None else ""
+            
+            cursor.execute(
+                'INSERT INTO history (query, lyrics, vocabulary) VALUES (?, ?, ?)',
+                (query, lyrics, vocabulary)
+            )
+            self.conn.commit()
+            logger.info(f"Saved to history: {query}")
+        except Exception as e:
+            logger.error(f"Error saving to history: {str(e)}")
+            self.conn.rollback()
+
+    def get_history(self):
+        """Get all history entries."""
+        try:
+            self.ensure_connection()
+            cursor = self.conn.cursor()
+            cursor.execute('SELECT query, lyrics, vocabulary, timestamp FROM history ORDER BY timestamp DESC')
+            return cursor.fetchall()
+        except Exception as e:
+            logger.error(f"Error getting history: {str(e)}")
+            return []
 
     def save_song(self, artist: str, title: str, lyrics: str, vocabulary: List[Dict[str, Any]]):
         """Save a song and its vocabulary to the database."""
