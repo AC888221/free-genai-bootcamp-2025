@@ -6,7 +6,7 @@ from tools.extract_vocabulary import extract_vocabulary
 from tools.generate_song_id import generate_song_id
 from agent import LyricsAgent
 from database import Database
-from tools.blocked_sites import BlockedSitesTracker
+from tools.excluded_sites import ExcludedSitesTracker
 from datetime import datetime
 import asyncio
 
@@ -18,28 +18,56 @@ logger = logging.getLogger(__name__)
 db = Database()
 db.create_tables()
 
-# Initialize agent and blocked sites tracker
+# Initialize agent and excluded sites tracker
 agent = LyricsAgent()
-blocked_sites = BlockedSitesTracker()
+excluded_sites = ExcludedSitesTracker()
 
 def display_vocabulary(vocabulary, key_prefix=""):
     if vocabulary:
-        # Create DataFrame
-        df = pd.DataFrame(vocabulary)
-        
-        # Display vocabulary in a table
-        st.dataframe(df)
-        
-        # Add download button that won't trigger a rerun
-        csv = df.to_csv(index=False)
-        st.download_button(
-            label="Download CSV",
-            data=csv,
-            file_name="vocabulary.csv",
-            mime="text/csv",
-            key=f"{key_prefix}_download_btn",
-            use_container_width=True
-        )
+        try:
+            # Convert vocabulary to a list of dictionaries if it isn't already
+            if not isinstance(vocabulary, list):
+                # Filter out None values and malformed entries
+                valid_items = []
+                for item in vocabulary:
+                    try:
+                        if item and len(item) >= 3:
+                            valid_items.append({
+                                'Jiantizi': item[0],
+                                'Pinyin': item[1],
+                                'English': item[2]
+                            })
+                    except (IndexError, TypeError):
+                        continue  # Skip malformed entries
+                vocabulary = valid_items
+            
+            if not vocabulary:
+                st.warning("No valid vocabulary items could be extracted.")
+                return
+            
+            # Create DataFrame
+            df = pd.DataFrame(vocabulary)
+            
+            # Rename columns to sentence case if they exist
+            if not df.empty and len(df.columns) == 3:
+                df.columns = ['Jiantizi', 'Pinyin', 'English']
+            
+            # Display vocabulary in a table
+            st.dataframe(df)
+            
+            # Add download button that won't trigger a rerun
+            csv = df.to_csv(index=False)
+            st.download_button(
+                label="Download CSV",
+                data=csv,
+                file_name="vocabulary.csv",
+                mime="text/csv",
+                key=f"{key_prefix}_download_btn",
+                use_container_width=True
+            )
+        except Exception as e:
+            st.error(f"Error processing vocabulary: {str(e)}")
+            logger.error(f"Error processing vocabulary: {str(e)}")
 
 async def main():
     st.set_page_config(
@@ -48,14 +76,15 @@ async def main():
         layout="wide"
     )
     
-    st.title("SongWords - Chinese Lyrics Search")
+    st.title("🎵 SongWords")
+    st.write("Search for Putonghua song lyrics and get vocabulary lists with pinyin and translations")
     
     # Create tabs for different functionalities
-    tab1, tab2, tab3, tab4 = st.tabs(["Search", "Input Your Own", "History", "Blocked Sites"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Search", "Input Your Own", "History", "Excluded Sites"])
     
     with tab1:
         st.header("Search for Song Lyrics")
-        st.info("Note: Processing may take a few seconds as the AI analyzes the lyrics.")
+        st.info("Note: Processing may take a while as the AI analyzes the lyrics.")
         
         col1, col2 = st.columns([3, 1])
         with col1:
@@ -100,32 +129,43 @@ async def main():
     with tab2:
         # Input Your Own tab
         st.header("Input Your Own Text")
-        user_text = st.text_area("Enter Chinese text:", height=200)
+        user_text = st.text_area("Enter Putonghua text:", height=200)
         if st.button("Extract Vocabulary"):
             if user_text:
                 with st.spinner("Extracting vocabulary..."):
-                    vocabulary = extract_vocabulary(user_text)
-                    st.subheader("Vocabulary")
-                    if vocabulary:
-                        # Display vocabulary
-                        df = pd.DataFrame(vocabulary)
-                        st.dataframe(df)
-                        # Save to history
-                        db.save_to_history("Manual Input", user_text, str(vocabulary))
-                    else:
-                        st.warning("No vocabulary items found.")
+                    try:
+                        # Await the vocabulary extraction
+                        vocabulary = await extract_vocabulary(user_text)
+                        st.subheader("Vocabulary")
+                        if vocabulary:
+                            # Use the same display_vocabulary function we fixed earlier
+                            display_vocabulary(vocabulary, "manual")
+                            # Save to history
+                            db.save_to_history("Manual Input", user_text, str(vocabulary))
+                        else:
+                            st.warning("No vocabulary items found.")
+                    except Exception as e:
+                        st.error(f"An error occurred while extracting vocabulary: {str(e)}")
+                        logger.error(f"Vocabulary extraction error: {str(e)}")
             else:
                 st.error("Please enter some text first.")
 
     with tab3:
         # History tab
-        st.subheader("Search History")
-        col1, col2 = st.columns([4, 1])
+        st.subheader("History")
+        col1, col2, col3 = st.columns([3, 1, 1])
         with col1:
-            st.write("Previous searches and their results")
+            st.write("Previous lyrics and vocabulary results")
         with col2:
             if st.button("🔄 Refresh History"):
                 st.rerun()
+        with col3:
+            if st.button("🗑️ Clear History"):
+                if db.clear_history():
+                    st.success("History cleared!")
+                    st.rerun()
+                else:
+                    st.error("Failed to clear history")
             
         with st.container(border=True):
             try:
@@ -140,34 +180,41 @@ async def main():
                                 st.text("\nVocabulary:")
                                 st.text(vocab)
                             if not lyrics and not vocab:
-                                st.info("Search failed or no results found")
+                                st.info("No results found")
                 else:
-                    st.info("No search history yet")
+                    st.info("No history yet")
             except Exception as e:
                 st.error(f"Error loading history: {str(e)}")
                 logger.error(f"Error loading history: {str(e)}")
 
     with tab4:
-        # Blocked Sites tab
-        st.subheader("Blocked Sites Status")
+        # Excluded Sites tab
+        st.subheader("Excluded Domains")
         col1, col2 = st.columns([4, 1])
         with col1:
-            st.write("Currently blocked sites and their status")
+            st.write("Currently excluded domains and their status (includes all subdomains)")
         with col2:
-            if st.button("🔄 Refresh Blocked Sites"):
+            if st.button("🔄 Refresh Excluded Domains"):
                 st.rerun()
         
         with st.container(border=True):
-            report = blocked_sites.get_blocked_sites_report()
+            report = excluded_sites.get_excluded_sites_report()
             if report:
+                # Replace the "Individually blocked sites:" header in the report
+                report = report.replace("Individually excluded sites:", "Excluded domains:")
+                
                 sections = report.split("\n\n")
                 for section in sections:
                     if section.strip():
                         header = section.split('\n')[0]
                         with st.expander(header, expanded=True):
+                            st.markdown("""
+                            ℹ️ When a domain is excluded, all its subdomains are also excluded.
+                            For example, excluding `example.com` also excludes `www.example.com` and `lyrics.example.com`
+                            """)
                             st.text(section)
             else:
-                st.info("No sites are currently blocked")
+                st.info("No domains are currently excluded")
 
     # Add information about the application
     st.sidebar.title("Features")

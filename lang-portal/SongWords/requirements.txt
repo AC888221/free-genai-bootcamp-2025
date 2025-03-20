@@ -12,6 +12,9 @@ html2text>=2020.1.16
 duckduckgo-search>=3.0.0
 tldextract>=3.1.0
 
+# Chinese text processing
+hanziconv>=0.3.2
+
 # Testing dependencies
 pytest>=7.4.0
 pytest-asyncio>=0.21.1
