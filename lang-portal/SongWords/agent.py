@@ -30,6 +30,61 @@ class LyricsAgent:
         self.db = Database()
         self.db.create_tables()
     
+    async def run(self, song_name: str, artist_name: str = None) -> Dict[str, Any]:
+        """
+        Main method to search for a song and process its lyrics.
+        
+        Args:
+            song_name (str): Name of the song to search for
+            artist_name (str, optional): Name of the artist
+            
+        Returns:
+            Dict[str, Any]: Results containing lyrics and vocabulary
+        """
+        try:
+            self.logger.info(f"Agent running search for '{song_name}' by '{artist_name}'")
+            
+            # Get the lyrics
+            lyrics = await self.get_lyrics(song_name, artist_name)
+            if not lyrics:
+                return {"error": "Could not find lyrics for this song"}
+            
+            # Process the lyrics
+            result = await self.process_lyrics(lyrics)
+            
+            # Store in database if successful
+            if result.get("success", False):
+                # Generate song ID explicitly
+                song_id = generate_song_id(artist_name or "", song_name)
+                
+                # Save to database with the generated ID
+                self.db.save_song(
+                    song_id=song_id,
+                    artist=artist_name or "",
+                    title=song_name,
+                    lyrics=result["lyrics"],
+                    vocabulary=result["vocabulary"]
+                )
+                
+                # Add to search history
+                self.db.save_to_history(
+                    query=f"{song_name} - {artist_name}" if artist_name else song_name,
+                    lyrics=result["lyrics"],
+                    vocab=json.dumps(result["vocabulary"])
+                )
+            
+            return {
+                "lyrics": result.get("lyrics", ""),
+                "vocabulary": result.get("vocabulary", []),
+                "success": result.get("success", False),
+                "error": result.get("error", None),
+                "song_id": song_id if result.get("success", False) else None
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Error in agent.run: {str(e)}")
+            return {"error": f"An unexpected error occurred: {str(e)}"}
+
     async def get_lyrics(self, song_name: str, artist_name: str = None):
         # 1. Search for lyrics
         results, status = await search_web(f"{song_name} {artist_name} 歌词")

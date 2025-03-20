@@ -82,26 +82,25 @@ class Database:
             self.conn.rollback()
             return False
 
-    def save_to_history(self, query: str, lyrics: str = None, vocabulary: str = None):
+    def save_to_history(self, query: str, lyrics: str = None, vocab: str = None):
         """Save a query and its results to history."""
         try:
-            self.ensure_connection()
-            cursor = self.conn.cursor()
-            
-            # Convert None to empty string and ensure all inputs are strings
-            query = str(query) if query is not None else ""
-            lyrics = str(lyrics) if lyrics is not None else ""
-            vocabulary = str(vocabulary) if vocabulary is not None else ""
-            
-            cursor.execute(
-                'INSERT INTO history (query, lyrics, vocabulary) VALUES (?, ?, ?)',
-                (query, lyrics, vocabulary)
-            )
-            self.conn.commit()
-            logger.info(f"Saved to history: {query}")
+            with self.get_connection() as conn:
+                cursor = conn.cursor()
+                
+                # Convert None to empty string and ensure all inputs are strings
+                query = str(query) if query is not None else ""
+                lyrics = str(lyrics) if lyrics is not None else ""
+                vocab = str(vocab) if vocab is not None else ""
+                
+                cursor.execute(
+                    'INSERT INTO history (query, lyrics, vocabulary) VALUES (?, ?, ?)',
+                    (query, lyrics, vocab)
+                )
+                conn.commit()
+                logger.info(f"Saved to history: {query}")
         except Exception as e:
             logger.error(f"Error saving to history: {str(e)}")
-            self.conn.rollback()
 
     def get_history(self):
         """Get all history entries."""
@@ -114,47 +113,51 @@ class Database:
             logger.error(f"Error getting history: {str(e)}")
             return []
 
-    def save_song(self, artist: str, title: str, lyrics: str, vocabulary: List[Dict[str, Any]]):
-        """Save a song and its vocabulary to the database."""
-        from tools.generate_song_id import generate_song_id
+    def save_song(self, song_id: str, artist: str, title: str, lyrics: str, vocabulary: List[Dict[str, Any]]):
+        """
+        Save a song and its vocabulary to the database.
         
-        self.ensure_connection()
-        cursor = self.conn.cursor()
-        
-        # Generate a unique song_id
-        song_id = generate_song_id(artist, title)
-        
-        try:
-            # Insert song
-            cursor.execute(
-                "INSERT INTO songs (song_id, artist, title, lyrics) VALUES (?, ?, ?, ?)",
-                (song_id, artist, title, lyrics)
-            )
+        Args:
+            song_id (str): The unique identifier for the song
+            artist (str): The artist name
+            title (str): The song title
+            lyrics (str): The song lyrics
+            vocabulary (List[Dict[str, Any]]): List of vocabulary items
+        """
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
             
-            # Insert vocabulary - updated to use 'jiantizi' instead of 'word'
-            for vocab in vocabulary:
+            try:
+                # Insert song
                 cursor.execute(
-                    """
-                    INSERT INTO vocabulary (song_id, jiantizi, pinyin, english)
-                    VALUES (?, ?, ?, ?)
-                    """,
-                    (
-                        song_id, 
-                        vocab.get("jiantizi", ""),
-                        vocab.get("pinyin", ""),
-                        vocab.get("english", "")
-                    )
+                    "INSERT INTO songs (song_id, artist, title, lyrics) VALUES (?, ?, ?, ?)",
+                    (song_id, artist, title, lyrics)
                 )
-            
-            self.conn.commit()
-            return True
-        except sqlite3.IntegrityError:
-            # Song already exists
-            self.conn.rollback()
-            return False
-        except Exception as e:
-            self.conn.rollback()
-            raise e
+                
+                # Insert vocabulary
+                for vocab in vocabulary:
+                    cursor.execute(
+                        """
+                        INSERT INTO vocabulary (song_id, jiantizi, pinyin, english)
+                        VALUES (?, ?, ?, ?)
+                        """,
+                        (
+                            song_id, 
+                            vocab.get("jiantizi", ""),
+                            vocab.get("pinyin", ""),
+                            vocab.get("english", "")
+                        )
+                    )
+                
+                conn.commit()
+                return True
+            except sqlite3.IntegrityError:
+                # Song already exists
+                conn.rollback()
+                return False
+            except Exception as e:
+                conn.rollback()
+                raise e
 
     def get_song(self, song_id: str):
         """Get a song by its ID."""
@@ -237,8 +240,11 @@ class Database:
     @contextmanager
     def get_connection(self):
         """Get a thread-safe database connection"""
-        conn = sqlite3.connect('songs.db')
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
         try:
+            # Enable foreign keys
+            conn.execute("PRAGMA foreign_keys = ON")
             yield conn
         finally:
             conn.close()
