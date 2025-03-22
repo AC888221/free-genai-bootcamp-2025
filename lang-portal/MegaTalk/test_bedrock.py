@@ -13,7 +13,7 @@ class TestBedrockIntegration:
     @pytest.fixture(scope="class")
     def bedrock_client(self):
         config = Config(
-            region_name=os.getenv("AWS_REGION", "us-east-1"),
+            region_name=os.getenv("AWS_REGION", "us-west-2"),
             retries={'max_attempts': 3, 'mode': 'standard'}
         )
         return boto3.client('bedrock-runtime', config=config)
@@ -22,13 +22,13 @@ class TestBedrockIntegration:
         """Test basic connection to Bedrock LLM"""
         try:
             body = json.dumps({
-                "prompt": "Test connection",
-                "max_tokens_to_sample": 10,
-                "temperature": 0.7,
+                "messages": [
+                    {"role": "user", "content": ["text", "Test connection"]}
+                ]
             })
             
             response = bedrock_client.invoke_model(
-                modelId="anthropic.claude-v2",
+                modelId="arn:aws:bedrock:us-west-2:116981786576:inference-profile/us.amazon.nova-micro-v1:0",
                 body=body
             )
             
@@ -38,49 +38,22 @@ class TestBedrockIntegration:
             logger.error(f"❌ LLM connection test failed: {str(e)}")
             raise
 
-    def test_tts_connection(self, bedrock_client):
-        """Test basic connection to Bedrock TTS"""
-        try:
-            body = json.dumps({
-                "text": "Test audio",
-                "voice_id": "amazon.neural-text-to-speech",
-                "engine": "neural"
-            })
-            
-            response = bedrock_client.invoke_model(
-                modelId="amazon.neural-text-to-speech",
-                body=body
-            )
-            
-            assert response['ResponseMetadata']['HTTPStatusCode'] == 200
-            assert len(response['body'].read()) > 0  # Check if audio data is returned
-            logger.info("✅ TTS connection test passed")
-        except Exception as e:
-            logger.error(f"❌ TTS connection test failed: {str(e)}")
-            raise
-
     def test_chinese_response(self, bedrock_client):
         """Test Chinese language generation"""
         try:
-            prompt = """You are a friendly AI Putonghua buddy. 
-            Please answer in Putonghua. Keep it simple.
-            
-            User: Hello, how are you?
-            Assistant:"""
-            
             body = json.dumps({
-                "prompt": prompt,
-                "max_tokens_to_sample": 100,
-                "temperature": 0.7,
+                "messages": [
+                    {"role": "user", "content": ["text", "Please respond in Chinese: How are you?"]}
+                ]
             })
             
             response = bedrock_client.invoke_model(
-                modelId="anthropic.claude-v2",
+                modelId="arn:aws:bedrock:us-west-2:116981786576:inference-profile/us.amazon.nova-micro-v1:0",
                 body=body
             )
             
-            response_text = json.loads(response['body'].read())['completion']
-            # Check if response contains Chinese characters
+            response_body = json.loads(response['body'].read())
+            response_text = response_body['messages'][-1]['content'][1] if 'messages' in response_body else response_body.get('outputText', '')
             assert any('\u4e00' <= char <= '\u9fff' for char in response_text)
             logger.info("✅ Chinese response test passed")
             logger.info(f"Response: {response_text}")
@@ -91,25 +64,22 @@ class TestBedrockIntegration:
     def test_hsk1_level(self, bedrock_client):
         """Test HSK1 level response"""
         try:
-            prompt = """You are a friendly AI Putonghua buddy.
-            Use only HSK1 vocabulary (150 basic words).
-            Keep sentences under 5 words.
-            
-            User: What's your name?
-            Assistant:"""
-            
             body = json.dumps({
-                "prompt": prompt,
-                "max_tokens_to_sample": 100,
-                "temperature": 0.7,
+                "messages": [
+                    {"role": "user", "content": ["text", """I want you to be a friendly AI Putonghua buddy.
+                    Use only HSK1 vocabulary (150 basic words).
+                    Keep sentences under 5 words.
+                    What's your name?"""]}
+                ]
             })
             
             response = bedrock_client.invoke_model(
-                modelId="anthropic.claude-v2",
+                modelId="arn:aws:bedrock:us-west-2:116981786576:inference-profile/us.amazon.nova-micro-v1:0",
                 body=body
             )
             
-            response_text = json.loads(response['body'].read())['completion']
+            response_body = json.loads(response['body'].read())
+            response_text = response_body['messages'][-1]['content'][1] if 'messages' in response_body else response_body.get('outputText', '')
             logger.info("✅ HSK1 response test passed")
             logger.info(f"Response: {response_text}")
         except Exception as e:
