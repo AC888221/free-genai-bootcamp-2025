@@ -39,6 +39,14 @@ BEDROCK_CONFIG = Config(
     read_timeout=BASE_TIMEOUT
 )
 
+# Bedrock Model Configuration
+BEDROCK_MODEL_ARN = "arn:aws:bedrock:us-west-2:116981786576:inference-profile/us.amazon.nova-micro-v1:0"
+BEDROCK_INFERENCE_CONFIG = {
+    "temperature": 0.7,
+    "topP": 0.9,
+    "maxTokens": 500
+}
+
 def calculate_timeout(input_text):
     """Calculate timeout based on input text length."""
     return BASE_TIMEOUT + (len(input_text) * TIMEOUT_PER_CHAR) 
