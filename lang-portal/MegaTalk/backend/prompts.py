@@ -138,3 +138,12 @@ def get_goal_prompt(goal: str) -> str:
 - Provide gentle corrections and guidance related to this goal
 - Create opportunities to practice this specific aspect
 - Give encouragement when the user makes progress towards this goal"""
+
+def get_summary_prompt(conversation: str) -> str:
+    """Generate a prompt for conversation summarization."""
+    return f"""Please provide a brief summary of the following conversation, 
+capturing the main topics discussed and any important points. Keep the summary concise:
+
+{conversation}
+
+Summary:""" 

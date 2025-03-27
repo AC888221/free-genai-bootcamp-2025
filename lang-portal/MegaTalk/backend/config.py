@@ -42,8 +42,11 @@ BEDROCK_MODEL_ARN = "us.amazon.nova-micro-v1:0"
 
 BEDROCK_INFERENCE_CONFIG = {
     "temperature": 0.7,
-    "maxTokens": 1000
+    "maxTokens": 128000
 }
+
+# Conversation Management Configuration
+MAX_HISTORY_LENGTH = 10  # Number of message pairs before summarizing
 
 # Polly Configuration
 POLLY_CONFIG = Config(
@@ -71,4 +74,13 @@ except Exception as e:
 
 def calculate_timeout(input_text):
     """Calculate timeout based on input text length."""
-    return BASE_TIMEOUT + (len(input_text) * TIMEOUT_PER_CHAR) 
+    return BASE_TIMEOUT + (len(input_text) * TIMEOUT_PER_CHAR)
+
+def get_summary_prompt(conversation: str) -> str:
+    """Generate a prompt for conversation summarization."""
+    return f"""Please provide a brief summary of the following conversation, 
+capturing the main topics discussed and any important points. Keep the summary concise:
+
+{conversation}
+
+Summary:""" 
