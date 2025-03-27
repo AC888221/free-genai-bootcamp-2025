@@ -39,14 +39,29 @@ BEDROCK_CONFIG = Config(
 )
 
 BEDROCK_MODEL_ARN = "us.amazon.nova-micro-v1:0"
+BEDROCK_SYSTEM_MESSAGE = "You are a helpful assistant"
 
+# Separate inference parameters
 BEDROCK_INFERENCE_CONFIG = {
     "temperature": 0.7,
-    "maxTokens": 128000
+    "maxTokens": 1000,
+    "topP": 0.9
+}
+
+# Additional model fields (separate from inference config)
+BEDROCK_ADDITIONAL_FIELDS = {
+    "inferenceConfig": {
+        "topK": 20
+    }
 }
 
 # Conversation Management Configuration
-MAX_HISTORY_LENGTH = 10  # Number of message pairs before summarizing
+MAX_UNSUMMARIZED_TOKENS = 2000  # Maximum tokens for unsummarized history in chat context
+CHARS_PER_TOKEN = 4  # Rough estimate of chars per token for Chinese/English mixed text
+
+# Summary Section Markers
+SUMMARY_SECTION_HEADER = "=== Previous Summary ==="
+NEW_MESSAGES_SECTION_HEADER = "=== New Messages ==="
 
 # Polly Configuration
 POLLY_CONFIG = Config(
@@ -76,11 +91,3 @@ def calculate_timeout(input_text):
     """Calculate timeout based on input text length."""
     return BASE_TIMEOUT + (len(input_text) * TIMEOUT_PER_CHAR)
 
-def get_summary_prompt(conversation: str) -> str:
-    """Generate a prompt for conversation summarization."""
-    return f"""Please provide a brief summary of the following conversation, 
-capturing the main topics discussed and any important points. Keep the summary concise:
-
-{conversation}
-
-Summary:""" 

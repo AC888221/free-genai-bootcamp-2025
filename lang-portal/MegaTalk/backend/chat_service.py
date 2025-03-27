@@ -10,7 +10,8 @@ from datetime import datetime
 # Add the parent directory to the Python path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from backend.config import (
-    logger, MAX_HISTORY_LENGTH
+    logger, MAX_UNSUMMARIZED_TOKENS,
+    CHARS_PER_TOKEN, SUMMARY_SECTION_HEADER, NEW_MESSAGES_SECTION_HEADER
 )
 from backend.prompts import get_summary_prompt
 from backend.bedrock_client import call_bedrock_model
@@ -70,7 +71,7 @@ def save_message(session_id: str, role: str, content: str, audio_path: Optional[
         conn.commit()
         return message_id
 
-def get_conversation_history(session_id: str, limit: int = MAX_HISTORY_LENGTH) -> list:
+def get_conversation_history(session_id: str, limit: int = MAX_UNSUMMARIZED_TOKENS) -> list:
     """Retrieve recent conversation history for a session."""
     with sqlite3.connect(DB_PATH) as conn:
         cursor = conn.execute("""
@@ -82,25 +83,62 @@ def get_conversation_history(session_id: str, limit: int = MAX_HISTORY_LENGTH) -
         """, (session_id, limit))
         return list(reversed(cursor.fetchall()))
 
-def summarize_conversation(session_id: str) -> str:
-    """Generate a summary of the conversation using the LLM."""
-    history = get_conversation_history(session_id, MAX_HISTORY_LENGTH)
-    conversation_text = "\n".join([f"{role}: {content}" for role, content in history])
+def get_unsummarized_messages(session_id: str) -> Tuple[list, Optional[str]]:
+    """Get messages that haven't been included in any summary and the last summary."""
+    history = get_conversation_history(session_id)
+    last_summary = None
+    last_summary_index = -1
     
-    # Get summary from LLM using prompt from prompts.py
+    # Find the last summary's position and content
+    for i, (role, content) in enumerate(history):
+        if role == "system" and content.startswith("Conversation Summary:"):
+            last_summary = content.replace("Conversation Summary: ", "")
+            last_summary_index = i
+            break
+    
+    # Return messages after the last summary and the summary itself
+    unsummarized = history[last_summary_index + 1:] if last_summary_index != -1 else history
+    return unsummarized, last_summary
+
+def summarize_conversation(session_id: str) -> str:
+    """Generate a summary of the conversation by combining last summary with new messages."""
+    # Get unsummarized messages and last summary
+    unsummarized_messages, last_summary = get_unsummarized_messages(session_id)
+    
+    # Build the conversation text for summarization with clear sections
+    conversation_text = ""
+    if last_summary:
+        conversation_text += f"{SUMMARY_SECTION_HEADER}\n"
+        conversation_text += f"{last_summary}\n\n"
+    
+    conversation_text += f"{NEW_MESSAGES_SECTION_HEADER}\n"
+    conversation_text += "\n".join([f"{role}: {content}" for role, content in unsummarized_messages])
+    
+    # Get new summary from LLM
     summary_prompt = get_summary_prompt(conversation_text)
     summary = call_bedrock_model(summary_prompt)
     
-    # Save summary as a special system message
+    # Save new summary as a system message
     save_message(session_id, "system", f"Conversation Summary: {summary}")
     
+    logger.info(f"Generated new summary combining previous summary with {len(unsummarized_messages)} new messages")
     return summary
+
+def estimate_tokens(text: str) -> int:
+    """Estimate the number of tokens in a given text."""
+    return len(text) // CHARS_PER_TOKEN
 
 def generate_prompt_with_history(session_id: str, user_prompt: str) -> str:
     """Generate a complete prompt including conversation history and summary."""
     history = get_conversation_history(session_id)
     
-    # Find the most recent summary and its position in history
+    # Start with the current prompt
+    current_prompt = f"User: {user_prompt}"
+    
+    # Initialize prompt with system prompts and current message
+    complete_prompt = ""
+    
+    # Find most recent summary
     summary = None
     summary_index = -1
     for i, (role, content) in enumerate(history):
@@ -109,26 +147,43 @@ def generate_prompt_with_history(session_id: str, user_prompt: str) -> str:
             summary_index = i
             break
     
-    complete_prompt = ""
+    # If we have a summary, add it
     if summary:
-        # Add the summary
         complete_prompt += f"{summary}\n\n"
-        # Only add messages that occurred after the summary
-        recent_messages = history[summary_index + 1:]
-        if recent_messages:
-            complete_prompt += "Recent messages:\n"
-            for role, content in recent_messages:
-                complete_prompt += f"{role}: {content}\n"
+        
+        # Get unsummarized messages (after summary) within token budget
+        if summary_index != -1:
+            unsummarized = history[summary_index + 1:]
+            token_budget = MAX_UNSUMMARIZED_TOKENS
+            
+            for role, content in unsummarized:
+                message = f"{role}: {content}\n"
+                message_tokens = estimate_tokens(message)
+                if token_budget >= message_tokens:
+                    complete_prompt += message
+                    token_budget -= message_tokens
+                else:
+                    # Log if we're truncating unsummarized history
+                    logger.info(f"Truncating unsummarized history due to token budget")
+                    break
     else:
-        # If no summary exists, include last few messages
-        recent_messages = history[-5:]
-        if recent_messages:
-            complete_prompt += "Recent messages:\n"
-            for role, content in recent_messages:
-                complete_prompt += f"{role}: {content}\n"
+        # If no summary, just include recent messages within token budget
+        token_budget = MAX_UNSUMMARIZED_TOKENS
+        for role, content in reversed(history[-5:]):
+            message = f"{role}: {content}\n"
+            message_tokens = estimate_tokens(message)
+            if token_budget >= message_tokens:
+                complete_prompt = message + complete_prompt
+                token_budget -= message_tokens
+            else:
+                break
     
-    # Add the current user prompt
-    complete_prompt += f"\nCurrent message:\nUser: {user_prompt}"
+    # Add the current prompt
+    complete_prompt += f"\nCurrent message:\n{current_prompt}"
+    
+    # Log token estimation for unsummarized portion
+    unsummarized_tokens = estimate_tokens(complete_prompt) - estimate_tokens(summary if summary else "")
+    logger.info(f"Estimated tokens in unsummarized portion: {unsummarized_tokens}")
     
     return complete_prompt
 
@@ -143,15 +198,16 @@ def get_chat_response(
         if not session_id:
             session_id = create_or_get_session()
 
-        # Check if we need to summarize the conversation
-        history = get_conversation_history(session_id)
-        if len(history) >= MAX_HISTORY_LENGTH:
+        # Check if we need to summarize based on token count of unsummarized messages
+        unsummarized_messages, _ = get_unsummarized_messages(session_id)
+        unsummarized_text = "\n".join([f"{role}: {content}" for role, content in unsummarized_messages])
+        if estimate_tokens(unsummarized_text) >= MAX_UNSUMMARIZED_TOKENS:
             summarize_conversation(session_id)
-        
+
         # Generate complete prompt with history
         full_prompt = generate_prompt_with_history(session_id, prompt)
-
-        # Save user message
+        
+        # Save user message before calling Bedrock
         user_message_id = save_message(session_id, "user", prompt)
         
         # Get text response from Bedrock

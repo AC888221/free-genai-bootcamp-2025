@@ -2,6 +2,7 @@ import boto3
 from typing import Optional, Dict, Any
 import sys
 import os
+import json
 
 # Add the parent directory to the Python path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -9,7 +10,9 @@ from backend.config import (
     logger, 
     BEDROCK_CONFIG, 
     BEDROCK_MODEL_ARN,
-    BEDROCK_INFERENCE_CONFIG
+    BEDROCK_SYSTEM_MESSAGE,
+    BEDROCK_INFERENCE_CONFIG,
+    BEDROCK_ADDITIONAL_FIELDS
 )
 
 class BedrockChat:
@@ -24,8 +27,17 @@ class BedrockChat:
     def generate_response(self, message: str, inference_config: Optional[Dict[str, Any]] = None) -> Optional[str]:
         """Generate a response using Amazon Bedrock"""
         if inference_config is None:
-            inference_config = BEDROCK_INFERENCE_CONFIG  # Use config directly, no transformation needed
+            inference_config = BEDROCK_INFERENCE_CONFIG.copy()
+        
+        # Keep topK separate in additionalModelRequestFields
+        additional_fields = BEDROCK_ADDITIONAL_FIELDS.copy()
+        if 'topK' in inference_config:
+            additional_fields['inferenceConfig']['topK'] = inference_config.pop('topK')
 
+        # System message from config
+        system = [{"text": BEDROCK_SYSTEM_MESSAGE}]
+
+        # User message
         messages = [{
             "role": "user",
             "content": [{"text": message}]
@@ -35,7 +47,9 @@ class BedrockChat:
             response = self.bedrock_client.converse(
                 modelId=self.model_id,
                 messages=messages,
-                inferenceConfig=inference_config
+                system=system,
+                inferenceConfig=inference_config,
+                additionalModelRequestFields=additional_fields
             )
             return response['output']['message']['content'][0]['text']
             
@@ -46,9 +60,24 @@ class BedrockChat:
 # Initialize global client
 bedrock_chat = BedrockChat()
 
-def call_bedrock_model(prompt: str) -> Optional[str]:
+def call_bedrock_model(prompt: str, config_params: Dict[str, Any] = None) -> str:
     """Call Bedrock model with the given prompt."""
-    return bedrock_chat.generate_response(prompt)
+    try:
+        # Start with default inference config
+        inference_config = BEDROCK_INFERENCE_CONFIG.copy()
+        
+        # Update with any provided config params
+        if config_params:
+            inference_config.update({
+                k: v for k, v in config_params.items() 
+                if k in ['temperature', 'maxTokens', 'topP', 'topK']
+            })
+
+        return bedrock_chat.generate_response(prompt, inference_config)
+
+    except Exception as e:
+        logger.error(f"Error generating response: {str(e)}")
+        return None
 
 if __name__ == "__main__":
     # Test the chat functionality
