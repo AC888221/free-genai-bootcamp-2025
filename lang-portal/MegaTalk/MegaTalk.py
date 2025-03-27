@@ -1,9 +1,10 @@
 import streamlit as st
-import time
-import base64
 from pathlib import Path
 from backend.chat_service import get_chat_response
-from backend.config import logger
+from backend.config import (
+    logger, 
+    POLLY_DEFAULTS  # Import the defaults
+)
 from backend.prompts import (
     get_hsk_prompt,
     get_system_prompt,
@@ -52,10 +53,9 @@ def main():
             padding-top: 2rem;
             padding-left: 5rem;
             padding-right: 5rem;
-            padding-bottom: 6rem;  /* Add padding at bottom for chat input */
+            padding-bottom: 6rem;
         }
         
-        /* Style for sticking chat input to bottom */
         .stChat {
             position: fixed;
             bottom: 0;
@@ -71,7 +71,6 @@ def main():
     
     st.title("🤖 MegaTalk - Your AI Language Buddy")
     
-    # Initialize session state
     initialize_session_state()
     
     # Sidebar controls
@@ -113,88 +112,57 @@ def main():
             key="formality_select"
         )
         
-        # Add debug logging for formality
-        logger.info(f"Selected formality: {formality}")
-        formality_instructions = get_formality_prompt(formality)
-        logger.info(f"Raw formality instructions: {formality_instructions}")
-        
-        # Audio
+        # Audio Settings
         st.subheader("Audio Settings")
         generate_audio = st.checkbox("Generate audio response", value=True)
+        
+        if generate_audio:
+            voice_id = st.selectbox(
+                "Voice",
+                ["Zhiyu"],  # Could expand with more Chinese voices if available
+                index=0
+            )
     
-    # Create main chat container
+    # Chat display
     chat_container = st.container()
-    
-    # Display chat history in the container
     with chat_container:
         for message in st.session_state.messages:
             display_chat_message(message)
     
-    # Chat input at bottom
+    # Chat input
     if prompt := st.chat_input("What's on your mind?", key="chat_input"):
-        # Add user message to history first
         user_message = {"role": "user", "content": prompt}
         st.session_state.messages.append(user_message)
         display_chat_message(user_message)
         
-        # Use session state values
-        logger.info("Current Settings:")
-        logger.info(f"HSK Level: {st.session_state.hsk_level}")
-        logger.info(f"Selected Topics: {selected_topics}")
-        logger.info(f"Learning Goal: {learning_goal}")
-        logger.info(f"Formality Level: {formality}")  # Use local variable instead of session state
-        logger.info(f"Generate Audio: {generate_audio}")
-        
-        # Construct prompts using the local formality variable
-        system_prompt = get_system_prompt()
-        hsk_instructions = get_hsk_prompt(st.session_state.hsk_level)
-        topic_instructions = get_topic_prompt(selected_topics)
-        formality_instructions = get_formality_prompt(formality)  # Use local variable
-        goal_instructions = get_goal_prompt(learning_goal)
-        
-        # Add debug logging for formality prompt
-        logger.info(f"Using formality level: {formality}")
-        logger.info(f"Formality instructions generated: {formality_instructions[:100]}...")
-        
-        # Log the constructed prompts
-        logger.info("Constructed Prompts:")
-        logger.info(f"System Prompt: {system_prompt[:100]}...")
-        logger.info(f"HSK Instructions: {hsk_instructions[:100]}...")
-        logger.info(f"Topic Instructions: {topic_instructions[:100]}...")
-        logger.info(f"Formality Instructions: {formality_instructions[:100]}...")
-        logger.info(f"Goal Instructions: {goal_instructions[:100]}...")
-        
-        full_prompt = f"""{system_prompt}
+        # Construct the prompt
+        full_prompt = f"""{get_system_prompt()}
 
 Language Level:
-{hsk_instructions}
+{get_hsk_prompt(st.session_state.hsk_level)}
 
 Style and Topics:
-{formality_instructions}
-{topic_instructions}
+{get_formality_prompt(formality)}
+{get_topic_prompt(selected_topics)}
 
-{goal_instructions}
+{get_goal_prompt(learning_goal)}
 
 User: {prompt}"""
         
-        # Log the full prompt length
-        logger.info(f"Full Prompt Length: {len(full_prompt)} characters")
-        
-        # Get AI response
+        # Configure TTS settings
         config_params = {
             "generate_audio": generate_audio,
-            "voice": "default"
+            "voice": voice_id if generate_audio else None
         }
         
-        logger.info(f"Sending request: {prompt[:20]}...")
+        # Get response
         response_text, audio_data, error, details = get_chat_response(full_prompt, config_params)
         
         if error:
-            logger.error(f"Error received: {error}")
             st.error(f"Error: {error}")
             return
         
-        # Create and display AI response
+        # Display response
         assistant_message = {
             "role": "assistant",
             "content": response_text
@@ -204,9 +172,6 @@ User: {prompt}"""
         
         st.session_state.messages.append(assistant_message)
         display_chat_message(assistant_message)
-        
-        # Log response details
-        logger.info(f"Response Details: {details}")
 
 if __name__ == "__main__":
     main()

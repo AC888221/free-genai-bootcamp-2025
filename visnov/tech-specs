@@ -1,0 +1,95 @@
+# Putonghua Learning Game - Minimal Design Prototype
+
+## 1. Visual Design Philosophy
+- **Minimalist Approach**:
+  - Simple, clean interface
+  - Focus on text and interaction
+  - Minimal graphical elements
+- **Image Generation Strategy**:
+  - Use AI-generated images sparingly
+  - Focus on key narrative moments
+  - Avoid complex visual requirements
+
+## 2. Narrative Generation
+
+### 2.1 Dynamic Story Creation
+- **LLM-Driven Narrative**:
+  - Use AWS Bedrock for content generation
+  - Create flexible story templates
+  - Generate unique storylines each playthrough
+- **Narrative Parameters**:
+  - HSK level-specific vocabulary
+  - Cultural learning contexts
+  - Interactive decision points
+
+### 2.2 Story Structure
+- **Core Components**:
+  - 3-5 narrative templates
+  - 2-3 decision points per story
+  - Clear learning objectives
+- **Generation Constraints**:
+  - Maintain language learning focus
+  - Ensure grammatical accuracy
+  - Align with selected HSK level
+
+## 3. Technical Implementation
+
+### 3.1 Technology Stack
+- **Game Engine**: Ren'Py
+- **Backend**: Flask microservice
+- **LLM Integration**: AWS Bedrock
+- **Text-to-Speech**: gTTS or Azure Cognitive Services
+
+### 3.2 Language Learning Features
+- **HSK Level Support**:
+  - Levels 1-4 initially
+  - Adaptive content difficulty
+- **Text Display**:
+  - Hanzi and Pinyin toggle
+  - Inline language explanations
+- **Audio Features**:
+  - Text-to-speech generation
+  - Pronunciation guidance
+
+## 4. Minimal Visual Design
+
+### 4.1 Interface Considerations
+- **Color Scheme**:
+  - Neutral, clean palette
+  - High contrast for readability
+- **Layout**:
+  - Text-centered design
+  - Simple navigation
+  - Minimal graphical distractions
+
+### 4.2 Image Integration
+- **AI Image Generation**:
+  - 1-2 images per story
+  - Focus on key narrative moments
+  - Simple, evocative illustrations
+- **Image Selection Criteria**:
+  - Relevance to story context
+  - Cultural appropriateness
+  - Minimal complexity
+
+## 5. Development Roadmap
+
+### 5.1 Weekly Milestones
+- **Week 1**:
+  - Narrative template design
+  - LLM integration prototype
+  - Basic UI framework
+- **Week 2**:
+  - Story generation testing
+  - Language feature implementation
+  - User experience refinement
+
+## 6. Prototype Goals
+- Demonstrate dynamic story generation
+- Provide engaging language learning experience
+- Validate LLM-driven narrative approach
+
+## 7. Technical Considerations
+- Manage API call complexity
+- Ensure consistent narrative quality
+- Maintain language learning effectiveness

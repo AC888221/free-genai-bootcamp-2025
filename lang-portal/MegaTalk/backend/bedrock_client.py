@@ -1,64 +1,65 @@
-import json
 import boto3
-import time
-from pathlib import Path
 from typing import Optional, Dict, Any
-from .config import (
-    logger,
-    BEDROCK_CONFIG,
+import sys
+import os
+
+# Add the parent directory to the Python path for imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from backend.config import (
+    logger, 
+    BEDROCK_CONFIG, 
     BEDROCK_MODEL_ARN,
-    BEDROCK_INFERENCE_CONFIG,
-    calculate_timeout,
-    AUDIO_DIR
+    BEDROCK_INFERENCE_CONFIG
 )
 
-# Initialize Bedrock client
-try:
-    bedrock_runtime = boto3.client(
-        service_name='bedrock-runtime',
-        config=BEDROCK_CONFIG
-    )
-    logger.info("Successfully initialized Bedrock client")
-except Exception as e:
-    logger.error(f"Failed to initialize Bedrock client: {str(e)}")
-    bedrock_runtime = None
+class BedrockChat:
+    def __init__(self, model_id: str = BEDROCK_MODEL_ARN):
+        """Initialize Bedrock chat client"""
+        self.bedrock_client = boto3.client(
+            'bedrock-runtime',
+            config=BEDROCK_CONFIG
+        )
+        self.model_id = model_id
 
-def call_bedrock_model(prompt: str, inference_config: Optional[Dict[str, Any]] = None) -> Optional[str]:
-    """Call AWS Bedrock model for text generation."""
-    if inference_config is None:
-        inference_config = BEDROCK_INFERENCE_CONFIG
+    def generate_response(self, message: str, inference_config: Optional[Dict[str, Any]] = None) -> Optional[str]:
+        """Generate a response using Amazon Bedrock"""
+        if inference_config is None:
+            inference_config = BEDROCK_INFERENCE_CONFIG  # Use config directly, no transformation needed
 
-    try:
         messages = [{
             "role": "user",
-            "content": [{"text": prompt}]
+            "content": [{"text": message}]
         }]
 
-        response = bedrock_runtime.converse(
-            modelId=BEDROCK_MODEL_ARN,
-            messages=messages,
-            inferenceConfig=inference_config
-        )
-        return response['output']['message']['content'][0]['text']
-        
-    except Exception as e:
-        logger.error(f"Bedrock API error: {str(e)}")
-        return None
+        try:
+            response = self.bedrock_client.converse(
+                modelId=self.model_id,
+                messages=messages,
+                inferenceConfig=inference_config
+            )
+            return response['output']['message']['content'][0]['text']
+            
+        except Exception as e:
+            logger.error(f"Error generating response: {str(e)}")
+            return None
 
-def call_bedrock_tts(text: str, voice: str = "default") -> Optional[bytes]:
-    """Call AWS Bedrock Text-to-Speech."""
-    try:
-        # TTS implementation here
-        pass
-    except Exception as e:
-        logger.error(f"TTS API error: {str(e)}")
-        return None
+# Initialize global client
+bedrock_chat = BedrockChat()
 
-def save_audio(audio_data: bytes, filename: str) -> bool:
-    """Save audio data to file."""
-    try:
-        # Audio saving implementation here
-        pass
-    except Exception as e:
-        logger.error(f"Audio save error: {str(e)}")
-        return False
+def call_bedrock_model(prompt: str) -> Optional[str]:
+    """Call Bedrock model with the given prompt."""
+    return bedrock_chat.generate_response(prompt)
+
+if __name__ == "__main__":
+    # Test the chat functionality
+    chat = BedrockChat()
+    print("Chat initialized. Type '/exit' to quit.")
+    while True:
+        user_input = input("You: ")
+        if user_input.lower() == '/exit':
+            break
+        response = chat.generate_response(user_input)
+        if response:
+            print("Bot:", response)
+        else:
+            print("Error: Failed to get response")

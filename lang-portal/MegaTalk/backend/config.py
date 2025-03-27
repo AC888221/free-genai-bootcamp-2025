@@ -2,6 +2,7 @@ import os
 import logging
 import sys
 from pathlib import Path
+import boto3
 from botocore.config import Config
 
 # Set up logging directory in user's home
@@ -28,24 +29,45 @@ TIMEOUT_PER_CHAR = 0.1  # Additional timeout per character in seconds
 AUDIO_DIR = Path("audio")
 AUDIO_DIR.mkdir(exist_ok=True)
 
-# Add Bedrock configuration
+# AWS Configuration
+AWS_REGION = "us-west-2"
+
+# Bedrock Configuration
 BEDROCK_CONFIG = Config(
-    region_name=os.getenv("AWS_REGION", "us-west-2"),
-    retries={
-        'max_attempts': 3,
-        'mode': 'standard'
-    },
-    connect_timeout=BASE_TIMEOUT,
-    read_timeout=BASE_TIMEOUT
+    region_name=AWS_REGION,
+    retries=dict(max_attempts=3)
 )
 
-# Bedrock Model Configuration
-BEDROCK_MODEL_ARN = "arn:aws:bedrock:us-west-2:116981786576:inference-profile/us.amazon.nova-micro-v1:0"
+BEDROCK_MODEL_ARN = "us.amazon.nova-micro-v1:0"
+
 BEDROCK_INFERENCE_CONFIG = {
     "temperature": 0.7,
-    "topP": 0.9,
-    "maxTokens": 500
+    "maxTokens": 1000
 }
+
+# Polly Configuration
+POLLY_CONFIG = Config(
+    region_name=AWS_REGION,
+    retries=dict(max_attempts=3)
+)
+
+POLLY_DEFAULTS = {
+    "voice_id": "Zhiyu",
+    "pitch": "medium",
+    "rate": "medium",
+    "volume": "medium"
+}
+
+# Initialize Bedrock client
+try:
+    bedrock_client = boto3.client(
+        'bedrock-runtime',
+        config=BEDROCK_CONFIG
+    )
+    logger.info("Successfully initialized Bedrock client")
+except Exception as e:
+    logger.error(f"Failed to initialize Bedrock client: {e}")
+    raise
 
 def calculate_timeout(input_text):
     """Calculate timeout based on input text length."""
