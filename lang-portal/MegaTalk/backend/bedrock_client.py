@@ -34,10 +34,10 @@ class BedrockChat:
         if 'topK' in inference_config:
             additional_fields['inferenceConfig']['topK'] = inference_config.pop('topK')
 
-        # System message from config
+        # Use the Putonghua buddy system message from config
         system = [{"text": BEDROCK_SYSTEM_MESSAGE}]
 
-        # User message
+        # User message (no need to include system instructions)
         messages = [{
             "role": "user",
             "content": [{"text": message}]

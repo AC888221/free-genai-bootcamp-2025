@@ -6,11 +6,11 @@ from backend.chat_service import (
 )
 from backend.config import (
     logger, 
-    POLLY_DEFAULTS  # Import the defaults
+    POLLY_DEFAULTS,
+    BEDROCK_SYSTEM_MESSAGE  # Add this import
 )
 from backend.prompts import (
     get_hsk_prompt,
-    get_system_prompt,
     get_topic_prompt,
     get_formality_prompt,
     get_goal_prompt,
@@ -230,7 +230,7 @@ def main():
         display_chat_message(user_message)
         
         # Construct the prompt
-        full_prompt = f"""{get_system_prompt()}
+        full_prompt = f"""{BEDROCK_SYSTEM_MESSAGE}
 
 Language Level:
 {get_hsk_prompt(st.session_state.hsk_level)}
