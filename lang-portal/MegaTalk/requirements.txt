@@ -20,4 +20,10 @@ typing-extensions>=4.5.0
 pathlib>=1.0.1
 
 # Amazon Transcribe Streaming SDK
-amazon-transcribe>=0.1.0
+amazon-transcribe>=0.6.2
+
+# Audio recording
+audio-recorder-streamlit>=0.0.10
+
+# Audio processing
+pydub>=0.25.1

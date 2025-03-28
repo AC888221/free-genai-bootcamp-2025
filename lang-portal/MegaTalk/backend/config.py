@@ -105,14 +105,7 @@ TRANSCRIBE_DEFAULTS = {
     "media_format": "pcm",
     "sample_width": 2,  # 16-bit
     "channels": 1,  # mono
-    "chunk_size": 1024 * 16,  # 16KB chunks
-    "enable_partial_results_stabilization": True,
-    "partial_results_stability": "high",
-    "show_speaker_label": False,
-    "enable_channel_identification": False,
-    "vocabulary_name": None,  # Optional custom vocabulary
-    "vocabulary_filter_name": None,  # Optional vocabulary filter
-    "vocabulary_filter_method": None  # Optional filter method (remove/mask/tag)
+    "chunk_size": 1024 * 16  # 16KB chunks
 }
 
 # Initialize Bedrock client

@@ -46,7 +46,7 @@ class TranscriptHandler:
                 if result.alternatives:
                     transcript_text = result.alternatives[0].transcript
                     self.transcript += transcript_text + " "
-                    logger.debug(f"Added final transcript segment: {transcript_text}")
+                    logger.debug(f"Added final transcript segment: '{transcript_text}'")
                 else:
                     logger.debug("No alternatives found in result")
 
@@ -54,10 +54,9 @@ class TranscribeClient:
     def __init__(self):
         """Initialize Amazon Transcribe Streaming client"""
         try:
-            # Use config for client initialization
+            # Initialize client without retry config
             self.streaming_client = TranscribeStreamingClient(
-                region=TRANSCRIBE_CONFIG.region_name,
-                retry_config=TRANSCRIBE_CONFIG.retries  # Use retry config from settings
+                region=TRANSCRIBE_CONFIG.region_name
             )
             logger.info(f"Successfully initialized Transcribe client in region {TRANSCRIBE_CONFIG.region_name}")
         except Exception as e:
@@ -69,6 +68,12 @@ class TranscribeClient:
         try:
             handler = TranscriptHandler()
             logger.info(f"Starting transcription with handler for {len(audio_bytes)} bytes")
+            
+            # Add debug logging for configuration
+            logger.debug(f"Transcribe configuration: "
+                        f"sample_rate={TRANSCRIBE_DEFAULTS['sample_rate']}, "
+                        f"media_format={TRANSCRIBE_DEFAULTS['media_format']}, "
+                        f"language_code={language_code}")
             
             # Use configuration for chunk size
             chunk_size = TRANSCRIBE_DEFAULTS.get("chunk_size", 1024 * 16)
@@ -90,19 +95,12 @@ class TranscribeClient:
             session_id = str(uuid.uuid4())
             logger.debug(f"Generated session ID: {session_id}")
             
-            # Use all relevant config parameters
+            # Simplified configuration with only essential parameters
             stream = await self.streaming_client.start_stream_transcription(
                 language_code=language_code,
                 media_sample_rate_hz=TRANSCRIBE_DEFAULTS["sample_rate"],
                 media_encoding=TRANSCRIBE_DEFAULTS["media_format"],
-                session_id=session_id,
-                enable_partial_results_stabilization=TRANSCRIBE_DEFAULTS.get("enable_partial_results_stabilization", True),
-                partial_results_stability=TRANSCRIBE_DEFAULTS.get("partial_results_stability", "high"),
-                show_speaker_label=TRANSCRIBE_DEFAULTS.get("show_speaker_label", False),
-                enable_channel_identification=TRANSCRIBE_DEFAULTS.get("enable_channel_identification", False),
-                vocabulary_name=TRANSCRIBE_DEFAULTS.get("vocabulary_name"),
-                vocabulary_filter_name=TRANSCRIBE_DEFAULTS.get("vocabulary_filter_name"),
-                vocabulary_filter_method=TRANSCRIBE_DEFAULTS.get("vocabulary_filter_method")
+                session_id=session_id
             )
             logger.info("Stream transcription started successfully")
             
@@ -118,7 +116,9 @@ class TranscribeClient:
                 # Process transcription results
                 logger.info("Starting to process transcription results")
                 async for event in stream.output_stream:
+                    logger.debug(f"Received event type: {type(event)}")
                     if isinstance(event, TranscriptEvent):
+                        logger.debug(f"Processing TranscriptEvent: {event}")
                         await handler.handle_transcript_event(event)
                 
                 final_transcript = handler.transcript.strip()
@@ -142,7 +142,12 @@ class TranscribeClient:
                 language_code = TRANSCRIBE_DEFAULTS["language_code"]
             
             logger.info(f"Starting streaming transcription with {len(audio_bytes)} bytes of audio")
-            return asyncio.run(self._stream_audio(audio_bytes, language_code))
+            result = asyncio.run(self._stream_audio(audio_bytes, language_code))
+            
+            # Add debug logging for the actual result
+            logger.debug(f"Raw transcription result: '{result}'")
+            
+            return result
                 
         except Exception as e:
             logger.error(f"Error in transcription: {str(e)}")

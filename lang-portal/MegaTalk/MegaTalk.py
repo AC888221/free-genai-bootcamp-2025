@@ -24,6 +24,8 @@ import uuid
 import time
 from backend.transcribe_client import transcribe_client  # Import the client directly
 import io
+from audio_recorder_streamlit import audio_recorder
+from pydub import AudioSegment
 
 # Configure the page layout
 st.set_page_config(
@@ -64,6 +66,17 @@ def display_chat_message(message_data):
             st.markdown(message_data["content"])
             
         if "audio" in message_data:
+            # Convert audio data to base64 for HTML audio element
+            import base64
+            audio_base64 = base64.b64encode(message_data["audio"]).decode()
+            audio_html = f"""
+                <audio autoplay>
+                    <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
+                    Your browser does not support the audio element.
+                </audio>
+            """
+            st.markdown(audio_html, unsafe_allow_html=True)
+            # Keep the regular audio player as fallback
             st.audio(message_data["audio"], format="audio/mp3")
 
 def display_chat_history_selector():
@@ -137,6 +150,29 @@ def process_audio_input(audio_bytes: bytes) -> Optional[str]:
         logger.error(f"Error in audio transcription: {str(e)}")
         st.error(f"Error processing audio: {str(e)}")
         return None
+
+def convert_audio_for_transcribe(audio_bytes: bytes) -> bytes:
+    """Convert audio to format required by AWS Transcribe"""
+    try:
+        # Load audio from bytes
+        audio = AudioSegment.from_wav(io.BytesIO(audio_bytes))
+        
+        # Convert to mono if stereo
+        if audio.channels > 1:
+            audio = audio.set_channels(1)
+        
+        # Convert sample rate if needed
+        if audio.frame_rate != TRANSCRIBE_DEFAULTS["sample_rate"]:
+            audio = audio.set_frame_rate(TRANSCRIBE_DEFAULTS["sample_rate"])
+        
+        # Export to bytes
+        output = io.BytesIO()
+        audio.export(output, format='wav')
+        return output.getvalue()
+        
+    except Exception as e:
+        logger.error(f"Error converting audio: {e}")
+        return audio_bytes  # Return original on error
 
 def main():
     # Add custom CSS to adjust the layout
@@ -261,12 +297,56 @@ def main():
             # Upload method selection
             upload_method = st.radio(
                 "Choose upload method:",
-                ["File Upload", "WSL Path", "URL"],
+                ["Microphone", "File Upload", "WSL Path", "URL"],
                 key="voice_upload_method",
                 label_visibility="collapsed"
             )
 
-            if upload_method == "File Upload":
+            if upload_method == "Microphone":
+                # Add a key to the audio_recorder to prevent state conflicts
+                current_audio = audio_recorder(key="mic_recorder")
+                
+                # Only process if we have new audio and it's different from the last processed audio
+                if current_audio and hash(current_audio) != st.session_state.get('last_audio_hash'):
+                    # Store hash of current audio to prevent reprocessing
+                    st.session_state.last_audio_hash = hash(current_audio)
+                    
+                    # Log original audio info
+                    logger.info(f"Original recorded audio size: {len(current_audio)} bytes")
+                    try:
+                        import wave
+                        with io.BytesIO(current_audio) as bio:
+                            bio.write(current_audio)
+                            bio.seek(0)
+                            with wave.open(bio, 'rb') as wav:
+                                channels = wav.getnchannels()
+                                sample_width = wav.getsampwidth()
+                                frame_rate = wav.getframerate()
+                                frames = wav.getnframes()
+                                duration = frames / frame_rate
+                                
+                                logger.info("\nOriginal Audio Information:")
+                                logger.info(f"Channels: {channels}")
+                                logger.info(f"Sample Width: {sample_width * 8}bit")
+                                logger.info(f"Frame Rate: {frame_rate}Hz")
+                                logger.info(f"Frames: {frames}")
+                                logger.info(f"Duration: {duration:.2f} seconds")
+                                
+                    except Exception as e:
+                        logger.error(f"Could not read original audio properties: {e}")
+                    
+                    # Convert audio to required format
+                    converted_audio = convert_audio_for_transcribe(current_audio)
+                    
+                    # Process the audio
+                    transcribed_text = process_audio_input(converted_audio)
+                    if transcribed_text:
+                        # Log the actual transcribed text
+                        logger.info(f"Transcribed text: '{transcribed_text}'")
+                        st.session_state.transcribed_text = transcribed_text
+                        # Don't call st.rerun() here - let Streamlit handle the update
+    
+            elif upload_method == "File Upload":
                 uploaded_file = st.file_uploader(
                     "Upload audio file",
                     type=["wav", "mp3"],
