@@ -89,6 +89,20 @@ POLLY_DEFAULTS = {
     "volume": "medium"
 }
 
+# Add to existing imports and AWS configuration
+TRANSCRIBE_CONFIG = Config(
+    region_name=AWS_REGION,
+    retries=dict(max_attempts=3)
+)
+
+# Add Transcribe defaults
+TRANSCRIBE_DEFAULTS = {
+    "language_code": "zh-CN",
+    "sample_rate": 16000,
+    "media_format": "wav",
+    "enable_automatic_punctuation": True
+}
+
 # Initialize Bedrock client
 try:
     bedrock_client = boto3.client(

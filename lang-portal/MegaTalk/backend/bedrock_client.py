@@ -18,32 +18,36 @@ from backend.config import (
 class BedrockChat:
     def __init__(self, model_id: str = BEDROCK_MODEL_ARN):
         """Initialize Bedrock chat client"""
-        self.bedrock_client = boto3.client(
-            'bedrock-runtime',
-            config=BEDROCK_CONFIG
-        )
-        self.model_id = model_id
+        try:
+            self.bedrock_client = boto3.client(
+                'bedrock-runtime',
+                config=BEDROCK_CONFIG
+            )
+            self.model_id = model_id
+            logger.info(f"Successfully initialized Bedrock client with model {model_id}")
+        except Exception as e:
+            logger.error(f"Failed to initialize Bedrock client: {str(e)}")
+            raise
 
     def generate_response(self, message: str, inference_config: Optional[Dict[str, Any]] = None) -> Optional[str]:
         """Generate a response using Amazon Bedrock"""
-        if inference_config is None:
-            inference_config = BEDROCK_INFERENCE_CONFIG.copy()
-        
-        # Keep topK separate in additionalModelRequestFields
-        additional_fields = BEDROCK_ADDITIONAL_FIELDS.copy()
-        if 'topK' in inference_config:
-            additional_fields['inferenceConfig']['topK'] = inference_config.pop('topK')
-
-        # Use the Putonghua buddy system message from config
-        system = [{"text": BEDROCK_SYSTEM_MESSAGE}]
-
-        # User message (no need to include system instructions)
-        messages = [{
-            "role": "user",
-            "content": [{"text": message}]
-        }]
-
         try:
+            if inference_config is None:
+                inference_config = BEDROCK_INFERENCE_CONFIG.copy()
+            
+            # Keep topK separate in additionalModelRequestFields
+            additional_fields = BEDROCK_ADDITIONAL_FIELDS.copy()
+            if 'topK' in inference_config:
+                additional_fields['inferenceConfig']['topK'] = inference_config.pop('topK')
+
+            system = [{"text": BEDROCK_SYSTEM_MESSAGE}]
+            messages = [{
+                "role": "user",
+                "content": [{"text": message}]
+            }]
+
+            logger.info(f"Sending request to Bedrock with message length: {len(message)}")
+            
             response = self.bedrock_client.converse(
                 modelId=self.model_id,
                 messages=messages,
@@ -51,7 +55,10 @@ class BedrockChat:
                 inferenceConfig=inference_config,
                 additionalModelRequestFields=additional_fields
             )
-            return response['output']['message']['content'][0]['text']
+            
+            response_text = response['output']['message']['content'][0]['text']
+            logger.info(f"Successfully generated response of length: {len(response_text)}")
+            return response_text
             
         except Exception as e:
             logger.error(f"Error generating response: {str(e)}")

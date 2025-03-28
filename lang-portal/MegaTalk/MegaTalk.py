@@ -7,6 +7,7 @@ from backend.chat_service import (
 from backend.config import (
     logger, 
     POLLY_DEFAULTS,
+    TRANSCRIBE_DEFAULTS,  # Add this import
     BEDROCK_SYSTEM_MESSAGE  # Add this import
 )
 from backend.prompts import (
@@ -21,6 +22,8 @@ from backend.db_utils import get_all_sessions, get_session_messages, delete_sess
 from typing import Optional, Dict, Tuple
 import uuid
 import time
+from backend.transcribe_client import transcribe_client  # Import the client directly
+import io
 
 # Configure the page layout
 st.set_page_config(
@@ -44,6 +47,8 @@ def initialize_session_state():
         st.session_state.learning_goal = ""
     if "generate_audio" not in st.session_state:
         st.session_state.generate_audio = True
+    if "enable_voice_input" not in st.session_state:
+        st.session_state.enable_voice_input = True
 
 def display_chat_message(message_data):
     """Display a chat message with optional audio."""
@@ -112,6 +117,26 @@ def display_chat_history_selector():
                     st.error("Failed to delete chat.")
     else:
         st.info("No saved sessions yet.")
+
+def process_audio_input(audio_bytes: bytes) -> Optional[str]:
+    """Process audio input using transcribe client"""
+    try:
+        with st.spinner("Transcribing..."):
+            transcribed_text = transcribe_client.transcribe_audio(
+                audio_bytes,
+                language_code=TRANSCRIBE_DEFAULTS["language_code"]
+            )
+            if transcribed_text:
+                logger.info("Successfully transcribed audio input")
+                return transcribed_text
+            else:
+                logger.error("Failed to transcribe audio input")
+                st.error("Failed to transcribe audio")
+                return None
+    except Exception as e:
+        logger.error(f"Error in audio transcription: {str(e)}")
+        st.error(f"Error processing audio: {str(e)}")
+        return None
 
 def main():
     # Add custom CSS to adjust the layout
@@ -185,7 +210,15 @@ def main():
             
             # Audio Settings
             st.subheader("Audio Settings")
-            generate_audio = st.checkbox("Generate audio response", value=True)
+            st.session_state.generate_audio = st.checkbox(
+                "Generate audio response", 
+                value=st.session_state.generate_audio
+            )
+            st.session_state.enable_voice_input = st.checkbox(
+                "Enable voice input", 
+                value=st.session_state.enable_voice_input,
+                help="Allow voice input using microphone"
+            )
         
         with tab2:
             st.header("Chat Sessions")
@@ -219,8 +252,90 @@ def main():
         for message in st.session_state.messages:
             display_chat_message(message)
     
-    # Chat input
-    if prompt := st.chat_input("What's on your mind?", key="chat_input"):
+    # Chat input section
+    col1, col2 = st.columns([8, 2])
+    with col1:
+        pass
+    with col2:
+        if st.session_state.enable_voice_input:
+            # Upload method selection
+            upload_method = st.radio(
+                "Choose upload method:",
+                ["File Upload", "WSL Path", "URL"],
+                key="voice_upload_method",
+                label_visibility="collapsed"
+            )
+
+            if upload_method == "File Upload":
+                uploaded_file = st.file_uploader(
+                    "Upload audio file",
+                    type=["wav", "mp3"],
+                    key="voice_file",
+                    label_visibility="collapsed"
+                )
+                if uploaded_file:
+                    audio_bytes = uploaded_file.read()
+                    transcribed_text = process_audio_input(audio_bytes)
+                    if transcribed_text:
+                        st.session_state.transcribed_text = transcribed_text
+                        st.experimental_rerun()
+
+            elif upload_method == "WSL Path":
+                file_path = st.text_input(
+                    "Enter file path:",
+                    key="voice_path",
+                    help="Example: /mnt/c/Users/YourName/audio.wav",
+                    label_visibility="collapsed",
+                    placeholder="/path/to/audio.wav"
+                )
+                if st.button("Transcribe", key="path_transcribe"):
+                    try:
+                        with open(file_path, 'rb') as f:
+                            audio_bytes = f.read()
+                        with st.spinner("Transcribing..."):
+                            transcribed_text = process_audio_input(audio_bytes)
+                            if transcribed_text:
+                                st.session_state.transcribed_text = transcribed_text
+                                st.experimental_rerun()
+                    except Exception as e:
+                        st.error(f"Error reading file: {str(e)}")
+
+            else:  # URL option
+                url = st.text_input(
+                    "Enter audio URL:",
+                    key="voice_url",
+                    label_visibility="collapsed",
+                    placeholder="https://example.com/audio.wav"
+                )
+                if st.button("Transcribe", key="url_transcribe"):
+                    try:
+                        import requests
+                        with st.spinner("Downloading and transcribing..."):
+                            response = requests.get(url)
+                            if response.status_code == 200:
+                                audio_bytes = response.content
+                                transcribed_text = process_audio_input(audio_bytes)
+                                if transcribed_text:
+                                    st.session_state.transcribed_text = transcribed_text
+                                    st.experimental_rerun()
+                            else:
+                                st.error("Failed to download audio file")
+                    except Exception as e:
+                        st.error(f"Error downloading file: {str(e)}")
+    
+    # Single chat input at the bottom
+    if "transcribed_text" in st.session_state:
+        prompt = st.chat_input(
+            "What's on your mind?", 
+            key="chat_input",
+            value=st.session_state.transcribed_text
+        )
+        # Clear the transcribed text after using it
+        del st.session_state.transcribed_text
+    else:
+        prompt = st.chat_input("What's on your mind?", key="chat_input")
+
+    if prompt:
         # Create new session if none exists
         if not st.session_state.get("current_session_id"):
             st.session_state.current_session_id = create_or_get_session()
@@ -245,7 +360,7 @@ User: {prompt}"""
         
         # Configure TTS settings with default voice
         config_params = {
-            "generate_audio": generate_audio,
+            "generate_audio": st.session_state.generate_audio,
             "voice": "Zhiyu"  # Using default voice directly
         }
         

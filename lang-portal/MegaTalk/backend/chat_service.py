@@ -197,27 +197,24 @@ def get_chat_response(
         # Create or get session
         if not session_id:
             session_id = create_or_get_session()
+            logger.info(f"Created new session: {session_id}")
 
-        # Check if we need to summarize based on token count of unsummarized messages
+        # Check if we need to summarize based on token count
         unsummarized_messages, _ = get_unsummarized_messages(session_id)
         unsummarized_text = "\n".join([f"{role}: {content}" for role, content in unsummarized_messages])
         if estimate_tokens(unsummarized_text) >= MAX_UNSUMMARIZED_TOKENS:
+            logger.info(f"Summarizing conversation for session {session_id}")
             summarize_conversation(session_id)
 
         # Generate complete prompt with history
         full_prompt = generate_prompt_with_history(session_id, prompt)
-        
-        # Save user message before calling Bedrock
-        user_message_id = save_message(session_id, "user", prompt)
-        
+        logger.info(f"Generated prompt with length: {len(full_prompt)}")
+
         # Get text response from Bedrock
         response_text = call_bedrock_model(full_prompt)
         if not response_text:
             logger.error("No response text received from Bedrock")
             return "", None, "Failed to get response from language model", {}
-
-        # Generate message ID for assistant's response
-        assistant_message_id = str(uuid.uuid4())
 
         # Generate audio if requested
         audio_data = None
@@ -227,7 +224,7 @@ def get_chat_response(
                 audio_data, audio_path = call_polly_tts(
                     response_text,
                     session_id,
-                    assistant_message_id,
+                    str(uuid.uuid4()),
                     voice_id=config_params.get("voice", "Zhiyu")
                 )
                 if not audio_data:
@@ -235,13 +232,14 @@ def get_chat_response(
             except Exception as e:
                 logger.error(f"TTS generation failed: {str(e)}")
 
-        # Save assistant's response
+        # Save messages to database
+        save_message(session_id, "user", prompt)
         save_message(session_id, "assistant", response_text, audio_path)
-                
+        
         response_details = {
             "timestamp": time.time(),
             "prompt_length": len(prompt),
-            "response_length": len(response_text) if response_text else 0,
+            "response_length": len(response_text),
             "audio_generated": audio_data is not None,
             "session_id": session_id
         }

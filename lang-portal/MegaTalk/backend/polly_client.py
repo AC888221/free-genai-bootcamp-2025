@@ -16,10 +16,14 @@ AUDIO_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file_
 class PollyTTS:
     def __init__(self):
         """Initialize Amazon Polly client"""
-        self.polly_client = boto3.client('polly', config=POLLY_CONFIG)
-        # Create subdirectories for organized storage
-        self.sessions_dir = os.path.join(AUDIO_DIR, "sessions")
-        os.makedirs(self.sessions_dir, exist_ok=True)
+        try:
+            self.polly_client = boto3.client('polly', config=POLLY_CONFIG)
+            self.sessions_dir = os.path.join(AUDIO_DIR, "sessions")
+            os.makedirs(self.sessions_dir, exist_ok=True)
+            logger.info("Successfully initialized Polly TTS client")
+        except Exception as e:
+            logger.error(f"Failed to initialize Polly client: {str(e)}")
+            raise
 
     def generate_audio(
         self,
@@ -33,6 +37,7 @@ class PollyTTS:
         retries: int = 3
     ) -> Optional[tuple[bytes, str]]:
         """Generate audio using Amazon Polly with SSML support and save to file"""
+        logger.info(f"Generating audio for text of length {len(text)}")
         ssml_text = f'<speak><prosody pitch="{pitch}" rate="{rate}" volume="{volume}">{text}</prosody></speak>'
         
         for attempt in range(retries):
@@ -45,11 +50,9 @@ class PollyTTS:
                 )
                 audio_data = response['AudioStream'].read()
                 
-                # Create session directory if it doesn't exist
                 session_dir = os.path.join(self.sessions_dir, session_id)
                 os.makedirs(session_dir, exist_ok=True)
                 
-                # Save the audio file with message ID
                 filename = f"{message_id}.mp3"
                 filepath = os.path.join(session_dir, filename)
                 
@@ -59,10 +62,10 @@ class PollyTTS:
                 
                 return audio_data, filepath
                 
-            except boto3.exceptions.Boto3Error as e:
-                logger.error(f"Error generating audio (attempt {attempt + 1}): {e}")
+            except Exception as e:
+                logger.error(f"Error generating audio (attempt {attempt + 1}): {str(e)}")
                 if attempt < retries - 1:
-                    sleep(2 ** attempt)  # Exponential backoff
+                    time.sleep(2 ** attempt)  # Exponential backoff
                 else:
                     return None, None
 
