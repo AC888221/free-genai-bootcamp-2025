@@ -278,7 +278,7 @@ def main():
                     transcribed_text = process_audio_input(audio_bytes)
                     if transcribed_text:
                         st.session_state.transcribed_text = transcribed_text
-                        st.experimental_rerun()
+                        st.rerun()
 
             elif upload_method == "WSL Path":
                 file_path = st.text_input(
@@ -296,7 +296,7 @@ def main():
                             transcribed_text = process_audio_input(audio_bytes)
                             if transcribed_text:
                                 st.session_state.transcribed_text = transcribed_text
-                                st.experimental_rerun()
+                                st.rerun()
                     except Exception as e:
                         st.error(f"Error reading file: {str(e)}")
 
@@ -317,7 +317,7 @@ def main():
                                 transcribed_text = process_audio_input(audio_bytes)
                                 if transcribed_text:
                                     st.session_state.transcribed_text = transcribed_text
-                                    st.experimental_rerun()
+                                    st.rerun()
                             else:
                                 st.error("Failed to download audio file")
                     except Exception as e:
@@ -325,13 +325,11 @@ def main():
     
     # Single chat input at the bottom
     if "transcribed_text" in st.session_state:
-        prompt = st.chat_input(
-            "What's on your mind?", 
-            key="chat_input",
-            value=st.session_state.transcribed_text
-        )
-        # Clear the transcribed text after using it
-        del st.session_state.transcribed_text
+        # Can't set value directly, so we'll use the transcribed text differently
+        prompt = st.chat_input("What's on your mind?", key="chat_input")
+        if not prompt:  # If no new input, use the transcribed text
+            prompt = st.session_state.transcribed_text
+            del st.session_state.transcribed_text  # Clean up
     else:
         prompt = st.chat_input("What's on your mind?", key="chat_input")
 

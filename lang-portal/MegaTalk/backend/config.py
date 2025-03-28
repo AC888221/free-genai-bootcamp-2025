@@ -92,15 +92,27 @@ POLLY_DEFAULTS = {
 # Add to existing imports and AWS configuration
 TRANSCRIBE_CONFIG = Config(
     region_name=AWS_REGION,
-    retries=dict(max_attempts=3)
+    retries=dict(
+        max_attempts=3,
+        mode='standard'
+    )
 )
 
 # Add Transcribe defaults
 TRANSCRIBE_DEFAULTS = {
     "language_code": "zh-CN",
     "sample_rate": 16000,
-    "media_format": "wav",
-    "enable_automatic_punctuation": True
+    "media_format": "pcm",
+    "sample_width": 2,  # 16-bit
+    "channels": 1,  # mono
+    "chunk_size": 1024 * 16,  # 16KB chunks
+    "enable_partial_results_stabilization": True,
+    "partial_results_stability": "high",
+    "show_speaker_label": False,
+    "enable_channel_identification": False,
+    "vocabulary_name": None,  # Optional custom vocabulary
+    "vocabulary_filter_name": None,  # Optional vocabulary filter
+    "vocabulary_filter_method": None  # Optional filter method (remove/mask/tag)
 }
 
 # Initialize Bedrock client
