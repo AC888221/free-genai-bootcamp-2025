@@ -1,5 +1,5 @@
 import logging
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 from duckduckgo_search import DDGS
 import json
 import re
@@ -27,6 +27,8 @@ class SearchError:
     RATE_LIMIT = "rate_limit"
     NETWORK = "network_error"
     NO_RESULTS = "no_results"
+    ACCESS_DENIED = "access_denied"
+    FETCH_ERROR = "fetch_error"
 
 # Cache for search results
 search_cache = {}
@@ -38,6 +40,36 @@ def _generate_cache_key(query: str) -> str:
 def _is_cache_valid(timestamp: float) -> bool:
     """Check if cached result is still valid."""
     return (time() - timestamp) < CACHE_DURATION
+
+async def get_page_content(url: str) -> Tuple[str, Dict[str, Any]]:
+    """Fetch the content of a web page."""
+    try:
+        # Fetch the content
+        response = await fetch(url)
+        if response.status == 200:
+            content = await response.text()
+            return content, {"success": True}
+        else:
+            logger.warning(f"Access denied or server error. Status: {response.status}")
+            return "", {"error": SearchError.ACCESS_DENIED, "status": response.status}
+    except Exception as e:
+        logger.error(f"Error fetching {url}: {str(e)}")
+        return "", {"error": SearchError.FETCH_ERROR, "message": str(e)}
+
+def handle_exclusion(url: str, error_info: Dict[str, Any]) -> bool:
+    """Handle adding sites to the exclusion list based on specific errors.
+    Returns True if site was excluded, False otherwise."""
+    if error_info.get("error") == SearchError.FETCH_ERROR:
+        try:
+            domain = url.split('/')[2]
+            logger.warning(f"Adding {domain} to excluded sites due to fetch error.")
+            excluded_sites.add(domain)
+            excluded_sites.save()
+            return True
+        except Exception as e:
+            logger.error(f"Error adding domain to exclusion list: {str(e)}")
+            return False
+    return False
 
 async def search_web(query: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
     """Search the web using DuckDuckGo with excluded sites filtering."""
@@ -57,23 +89,29 @@ async def search_web(query: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
         for domain in excluded_sites.get_excluded_domains_for_search():
             exclusions.append(f"-site:{domain}")
         
-        # Include both Traditional and Simplified Chinese sites in search
-        search_query = f"{query} (歌词 OR 歌詞)"  # Search both Simplified and Traditional terms for "lyrics"
-        if "mojim.com" not in excluded_sites.get_excluded_domains_for_search():
-            search_query += " site:mojim.com"
+        # Preferred Chinese lyrics sites
+        chinese_lyrics_sites = [
+            "mojim.com",
+            "kugeci.com",
+            "lyrics.kugou.com",
+            "music.163.com"
+        ]
+        
+        # Create search query focusing on Chinese lyrics sites
+        site_preferences = " OR ".join(f"site:{site}" for site in chinese_lyrics_sites 
+                                     if site not in excluded_sites.get_excluded_domains_for_search())
+        
+        # Build search query with both traditional and simplified Chinese terms
+        search_query = f"{query} (歌词 OR 歌詞)"
+        if site_preferences:
+            search_query = f"({search_query}) ({site_preferences})"
         search_query += f" {' '.join(exclusions)}"
+        
         logger.info(f"Modified search query: {search_query}")
         
-        # Check rate limiting
-        current_time = time()
-        time_since_last = current_time - last_request_time
-        if time_since_last < MIN_REQUEST_INTERVAL:
-            wait_time = MIN_REQUEST_INTERVAL - time_since_last
-            return [], {
-                "error": SearchError.RATE_LIMIT,
-                "message": f"Please wait {wait_time:.0f} seconds before trying again to avoid rate limits.",
-                "wait_time": wait_time
-            }
+        # Rate limiting check
+        if _check_rate_limit():
+            return _get_rate_limit_response()
         
         try:
             with DDGS() as ddgs:
@@ -84,16 +122,20 @@ async def search_web(query: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
                 seen_urls = set()
                 
                 for result in results:
-                    url = None
-                    for key in ['link', 'url', 'href']:
-                        if key in result and result[key]:
-                            url = result[key]
-                            break
-                    
+                    url = _extract_url(result)
+                    if not url:
+                        continue
+                        
                     title = result.get('title', '')
                     
-                    # Double check the URL isn't from an excluded site
-                    if url and url not in seen_urls and not excluded_sites.is_site_excluded(url):
+                    # Check URL validity and exclusion
+                    if url not in seen_urls and not excluded_sites.is_site_excluded(url):
+                        # Try to fetch content before adding to results
+                        content, error_info = await get_page_content(url)
+                        if error_info.get("error"):
+                            if handle_exclusion(url, error_info):
+                                continue
+                        
                         logger.info(f"Found result: {title} at {url}")
                         formatted_results.append({
                             "title": title,
@@ -105,7 +147,7 @@ async def search_web(query: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
                     logger.warning("No non-excluded results found")
                     return [], {
                         "error": SearchError.NO_RESULTS,
-                        "message": "No accessible lyrics found. All known sources are temporarily excluded."
+                        "message": "No accessible lyrics found. Please try again later."
                     }
                 
                 logger.info(f"Found {len(formatted_results)} unique, non-excluded URLs")
@@ -115,24 +157,46 @@ async def search_web(query: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
                 }
                 
         except Exception as e:
-            if "ratelimit" in str(e).lower():
-                return [], {
-                    "error": SearchError.RATE_LIMIT,
-                    "message": "Search rate limit reached. Please wait 30 seconds before trying again.",
-                    "wait_time": MIN_REQUEST_INTERVAL
-                }
-            else:
-                logger.error(f"Search error: {str(e)}")
-                return [], {
-                    "error": SearchError.NETWORK,
-                    "message": f"Error performing search: {str(e)}"
-                }
+            return _handle_search_error(e)
                 
     except Exception as e:
         logger.error(f"Error in search_web: {str(e)}")
         return [], {
             "error": SearchError.NETWORK,
             "message": f"Unexpected error: {str(e)}"
+        }
+
+def _extract_url(result: Dict[str, Any]) -> Optional[str]:
+    """Extract URL from search result."""
+    for key in ['link', 'url', 'href']:
+        if key in result and result[key]:
+            return result[key]
+    return None
+
+def _check_rate_limit() -> bool:
+    """Check if we need to rate limit."""
+    current_time = time()
+    time_since_last = current_time - last_request_time
+    return time_since_last < MIN_REQUEST_INTERVAL
+
+def _get_rate_limit_response() -> Tuple[List, Dict]:
+    """Get rate limit response."""
+    wait_time = MIN_REQUEST_INTERVAL - (time() - last_request_time)
+    return [], {
+        "error": SearchError.RATE_LIMIT,
+        "message": f"Please wait {wait_time:.0f} seconds before trying again.",
+        "wait_time": wait_time
+    }
+
+def _handle_search_error(e: Exception) -> Tuple[List, Dict]:
+    """Handle search errors."""
+    if "ratelimit" in str(e).lower():
+        return _get_rate_limit_response()
+    else:
+        logger.error(f"Search error: {str(e)}")
+        return [], {
+            "error": SearchError.NETWORK,
+            "message": f"Error performing search: {str(e)}"
         }
 
 def is_lyrics_site(url: str) -> bool:
