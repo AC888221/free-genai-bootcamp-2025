@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from typing import Dict, Optional, Set, List
 from collections import defaultdict
 import tldextract
+from config import SEARCH_CONFIG
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +14,7 @@ class ExcludedSitesTracker:
     def __init__(self, exclusion_duration_hours: int = 24, parent_exclusion_threshold: int = 3):
         self.exclusion_duration = exclusion_duration_hours * 3600
         self.parent_exclusion_threshold = parent_exclusion_threshold
-        self.excluded_sites_file = "excluded_sites.json"
+        self.excluded_sites_file = SEARCH_CONFIG["excluded_sites_path"]
         self.excluded_sites: Dict[str, float] = {}
         self.parent_domain_counts: Dict[str, Set[str]] = defaultdict(set)
         self.excluded_parent_domains: Dict[str, float] = {}
@@ -88,6 +89,10 @@ class ExcludedSitesTracker:
                     logger.warning(f"Excluding parent domain {parent_domain} due to {len(self.parent_domain_counts[parent_domain])} excluded subdomains")
         
         self.save_excluded_sites()
+
+    def exclude_site(self, url: str) -> None:
+        """Alias for add_excluded_site for test compatibility."""
+        self.add_excluded_site(url)
 
     def is_site_excluded(self, url: str) -> bool:
         """Check if a site or its parent domain is excluded."""

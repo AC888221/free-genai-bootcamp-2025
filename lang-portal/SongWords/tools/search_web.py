@@ -10,6 +10,8 @@ import hashlib
 from .excluded_sites import ExcludedSitesTracker
 from hanziconv import HanziConv
 from .text_processing import process_chinese_text
+import random
+import aiohttp
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -25,10 +27,11 @@ excluded_sites = ExcludedSitesTracker()
 
 class SearchError:
     RATE_LIMIT = "rate_limit"
-    NETWORK = "network_error"
+    NETWORK_ERROR = "network_error"
     NO_RESULTS = "no_results"
     ACCESS_DENIED = "access_denied"
     FETCH_ERROR = "fetch_error"
+    INVALID_QUERY = "invalid_query"
 
 # Cache for search results
 search_cache = {}
@@ -41,39 +44,52 @@ def _is_cache_valid(timestamp: float) -> bool:
     """Check if cached result is still valid."""
     return (time() - timestamp) < CACHE_DURATION
 
-async def get_page_content(url: str) -> Tuple[str, Dict[str, Any]]:
+async def get_page_content(url: str) -> str:
     """Fetch the content of a web page."""
     try:
-        # Fetch the content
-        response = await fetch(url)
-        if response.status == 200:
-            content = await response.text()
-            return content, {"success": True}
-        else:
-            logger.warning(f"Access denied or server error. Status: {response.status}")
-            return "", {"error": SearchError.ACCESS_DENIED, "status": response.status}
+        # Random delay between requests
+        delay = random.uniform(1, 3)
+        await asyncio.sleep(delay)
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    content = await response.text()
+                    return content
+                else:
+                    logger.warning(f"Access denied or server error. Status: {response.status}")
+                    return ""
     except Exception as e:
         logger.error(f"Error fetching {url}: {str(e)}")
-        return "", {"error": SearchError.FETCH_ERROR, "message": str(e)}
+        return ""
 
-def handle_exclusion(url: str, error_info: Dict[str, Any]) -> bool:
+def handle_exclusion(url: str, error_info: Dict[str, Any], tracker: ExcludedSitesTracker = None) -> bool:
     """Handle adding sites to the exclusion list based on specific errors.
     Returns True if site was excluded, False otherwise."""
-    if error_info.get("error") == SearchError.FETCH_ERROR:
+    if error_info.get("error") in [SearchError.FETCH_ERROR, SearchError.NETWORK_ERROR]:
         try:
             domain = url.split('/')[2]
-            logger.warning(f"Adding {domain} to excluded sites due to fetch error.")
-            excluded_sites.add(domain)
-            excluded_sites.save()
-            return True
+            logger.warning(f"Adding {domain} to excluded sites due to error.")
+            if tracker is not None:
+                tracker.add_excluded_site(domain)
+                return True
         except Exception as e:
             logger.error(f"Error adding domain to exclusion list: {str(e)}")
-            return False
     return False
 
-async def search_web(query: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+async def search_web(query: str, excluded_sites: ExcludedSitesTracker = None) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
     """Search the web using DuckDuckGo with excluded sites filtering."""
     global last_request_time
+    
+    # Input validation
+    if not query:
+        return [], {"error": SearchError.INVALID_QUERY, "message": "Query cannot be empty"}
+    if len(query) > 500:  # Reasonable limit for query length
+        return [], {"error": SearchError.INVALID_QUERY, "message": "Query too long"}
+    
+    # Rate limiting check
+    if _check_rate_limit():
+        return _get_rate_limit_response()
     
     try:
         logger.info(f"Starting web search for: {query}")
@@ -86,8 +102,9 @@ async def search_web(query: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
         
         # Generate exclusion string for excluded sites
         exclusions = []
-        for domain in excluded_sites.get_excluded_domains_for_search():
-            exclusions.append(f"-site:{domain}")
+        if excluded_sites is not None:
+            for domain in excluded_sites.get_excluded_domains_for_search():
+                exclusions.append(f"-site:{domain}")
         
         # Preferred Chinese lyrics sites
         chinese_lyrics_sites = [
@@ -99,19 +116,16 @@ async def search_web(query: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
         
         # Create search query focusing on Chinese lyrics sites
         site_preferences = " OR ".join(f"site:{site}" for site in chinese_lyrics_sites 
-                                     if site not in excluded_sites.get_excluded_domains_for_search())
+                                     if excluded_sites is None or site not in excluded_sites.get_excluded_domains_for_search())
         
         # Build search query with both traditional and simplified Chinese terms
         search_query = f"{query} (歌词 OR 歌詞)"
         if site_preferences:
             search_query = f"({search_query}) ({site_preferences})"
-        search_query += f" {' '.join(exclusions)}"
+        if exclusions:
+            search_query += f" {' '.join(exclusions)}"
         
         logger.info(f"Modified search query: {search_query}")
-        
-        # Rate limiting check
-        if _check_rate_limit():
-            return _get_rate_limit_response()
         
         try:
             with DDGS() as ddgs:
@@ -129,19 +143,16 @@ async def search_web(query: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
                     title = result.get('title', '')
                     
                     # Check URL validity and exclusion
-                    if url not in seen_urls and not excluded_sites.is_site_excluded(url):
+                    if url not in seen_urls and (excluded_sites is None or not excluded_sites.is_site_excluded(url)):
                         # Try to fetch content before adding to results
-                        content, error_info = await get_page_content(url)
-                        if error_info.get("error"):
-                            if handle_exclusion(url, error_info):
-                                continue
-                        
-                        logger.info(f"Found result: {title} at {url}")
-                        formatted_results.append({
-                            "title": title,
-                            "url": url
-                        })
-                        seen_urls.add(url)
+                        content = await get_page_content(url)
+                        if content:
+                            logger.info(f"Found result: {title} at {url}")
+                            formatted_results.append({
+                                "title": title,
+                                "url": url
+                            })
+                            seen_urls.add(url)
                 
                 if not formatted_results:
                     logger.warning("No non-excluded results found")
@@ -162,7 +173,7 @@ async def search_web(query: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
     except Exception as e:
         logger.error(f"Error in search_web: {str(e)}")
         return [], {
-            "error": SearchError.NETWORK,
+            "error": SearchError.NETWORK_ERROR,
             "message": f"Unexpected error: {str(e)}"
         }
 
@@ -195,7 +206,7 @@ def _handle_search_error(e: Exception) -> Tuple[List, Dict]:
     else:
         logger.error(f"Search error: {str(e)}")
         return [], {
-            "error": SearchError.NETWORK,
+            "error": SearchError.NETWORK_ERROR,
             "message": f"Error performing search: {str(e)}"
         }
 

@@ -6,12 +6,15 @@ from contextlib import contextmanager
 from datetime import datetime
 import logging
 import threading
+from config import DB_PATH, LOG_CONFIG
+import time
 
 logger = logging.getLogger(__name__)
 
 class Database:
-    def __init__(self):
-        self.db_path = "songwords.db"
+    def __init__(self, db_path=None):
+        # Use the config DB_PATH as default, allow override for testing
+        self.db_path = db_path if db_path is not None else DB_PATH
         self._local = threading.local()
         self.logger = logging.getLogger(__name__)
         self.create_tables()
@@ -20,6 +23,8 @@ class Database:
     def conn(self):
         if not hasattr(self._local, "conn"):
             self._local.conn = sqlite3.connect(self.db_path)
+            # Enable foreign key support
+            self._local.conn.execute("PRAGMA foreign_keys = ON")
         return self._local.conn
 
     def ensure_connection(self):
@@ -197,7 +202,8 @@ class Database:
         
         # Get vocabulary
         cursor.execute("SELECT * FROM vocabulary WHERE song_id = ?", (song_id,))
-        vocabulary = [dict(v) for v in cursor.fetchall()]
+        columns = [desc[0] for desc in cursor.description]
+        vocabulary = [dict(zip(columns, row)) for row in cursor.fetchall()]
         
         return {
             "id": song["id"],
@@ -228,8 +234,12 @@ class Database:
         
         results = []
         for row in cursor.fetchall():
-            song_dict = dict(row)
-            if song_dict['vocab_json']:
+            # Convert row to dictionary using column names
+            columns = [desc[0] for desc in cursor.description]
+            song_dict = dict(zip(columns, row))
+            
+            # Parse vocabulary JSON if present
+            if song_dict.get('vocab_json'):
                 song_dict['vocabulary'] = json.loads(f"[{song_dict['vocab_json']}]")
             else:
                 song_dict['vocabulary'] = []
@@ -272,3 +282,7 @@ class Database:
             raise e
         finally:
             self.conn.commit()
+
+def test_get_most_recent_search(db):
+    # Fixed version:
+    time.sleep(1)  # Use full second intervals

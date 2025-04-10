@@ -11,9 +11,10 @@ from datetime import datetime
 import asyncio
 import ast
 import re
+from config import LANGUAGES, UI_CONFIG, LOG_CONFIG
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(**LOG_CONFIG)
 logger = logging.getLogger(__name__)
 
 # Initialize database
@@ -86,12 +87,12 @@ def display_vocabulary(vocabulary_data, key_prefix=""):
 
 async def main():
     st.set_page_config(
-        page_title="SongWords",
-        page_icon="🎵",
-        layout="wide"
+        page_title=UI_CONFIG["title"],
+        page_icon=UI_CONFIG["icon"],
+        layout=UI_CONFIG["layout"]
     )
     
-    st.title("🎵 SongWords")
+    st.title(f"{UI_CONFIG['icon']} {UI_CONFIG['title']}")
     st.write("Search for Putonghua song lyrics and get vocabulary lists with pinyin and translations")
     
     # Create tabs for different functionalities

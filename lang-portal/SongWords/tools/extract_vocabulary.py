@@ -8,6 +8,7 @@ import logging
 from .text_processing import (process_chinese_text, convert_to_simplified, 
                             contains_chinese, deduplicate_translations)
 import asyncio
+from config import AWS_CONFIG, MODEL_CONFIG
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -18,10 +19,10 @@ MAX_CHARS_PER_CHUNK = 2000  # Conservative estimate for input text
 
 # Initialize Bedrock client
 bedrock_runtime = boto3.client(
-    service_name='bedrock-runtime',
+    service_name=AWS_CONFIG["service"],
     config=Config(
-        region_name=os.getenv("AWS_REGION", "us-east-1"),
-        retries={'max_attempts': 3, 'mode': 'standard'}
+        region_name=AWS_CONFIG["region"],
+        retries=AWS_CONFIG["retries"]
     )
 )
 
@@ -50,8 +51,8 @@ async def extract_lyrics_and_segment(text: str) -> List[str]:
     try:
         body = json.dumps({
             "anthropic_version": "bedrock-2023-05-31",
-            "max_tokens": 2048,
-            "temperature": 0.7,
+            "max_tokens": MODEL_CONFIG["max_tokens"],
+            "temperature": MODEL_CONFIG["temperature"],
             "messages": [
                 {
                     "role": "user",
@@ -61,7 +62,7 @@ async def extract_lyrics_and_segment(text: str) -> List[str]:
         })
         
         response = bedrock_runtime.invoke_model(
-            modelId="anthropic.claude-3-sonnet-20240229-v1:0",
+            modelId=MODEL_CONFIG["model_id"],
             body=body
         )
         
@@ -131,8 +132,8 @@ async def translate_segment(segment: str) -> List[Dict[str, str]]:
     try:
         body = json.dumps({
             "anthropic_version": "bedrock-2023-05-31",
-            "max_tokens": 2048,
-            "temperature": 0.7,
+            "max_tokens": MODEL_CONFIG["max_tokens"],
+            "temperature": MODEL_CONFIG["temperature"],
             "messages": [
                 {
                     "role": "user",
@@ -142,7 +143,7 @@ async def translate_segment(segment: str) -> List[Dict[str, str]]:
         })
         
         response = bedrock_runtime.invoke_model(
-            modelId="anthropic.claude-3-sonnet-20240229-v1:0",
+            modelId=MODEL_CONFIG["model_id"],
             body=body
         )
         

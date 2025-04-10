@@ -9,25 +9,27 @@ from tools.get_page_content import get_page_content
 from tools.extract_vocabulary import extract_vocabulary
 from tools.generate_song_id import generate_song_id
 from database import Database
+from config import AWS_CONFIG, MODEL_CONFIG, DB_PATH, LOG_CONFIG
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(**LOG_CONFIG)
 logger = logging.getLogger(__name__)
 
 class LyricsAgent:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self.history: List[Dict[str, Any]] = []
-        # Initialize Bedrock client
+        # Initialize Bedrock client with configuration values
         self.bedrock_runtime = boto3.client(
-            service_name='bedrock-runtime',
+            service_name=AWS_CONFIG["service"],
             config=Config(
-                region_name=os.getenv("AWS_REGION", "us-east-1"),
-                retries={'max_attempts': 3, 'mode': 'standard'}
+                region_name=AWS_CONFIG["region"],
+                retries=AWS_CONFIG["retries"]
             )
         )
-        # Add database initialization
+        # Initialize database with configured path
         self.db = Database()
+        self.db.db_path = DB_PATH
         self.db.create_tables()
     
     async def run(self, song_name: str, artist_name: str = None) -> Dict[str, Any]:
@@ -49,7 +51,7 @@ class LyricsAgent:
             if not lyrics:
                 return {"error": "Could not find lyrics for this song"}
             
-            # Process the lyrics
+            # Process the lyrics with configured temperature and max_tokens
             result = await self.process_lyrics(lyrics)
             
             # Store in database if successful
@@ -90,12 +92,16 @@ class LyricsAgent:
             return {"error": f"An unexpected error occurred: {str(e)}"}
 
     async def get_lyrics(self, song_name: str, artist_name: str = None):
-        # 1. Search for lyrics
-        results, status = await search_web(f"{song_name} {artist_name} 歌词")
+        # Search for lyrics using configured temperature
+        results, status = await search_web(
+            f"{song_name} {artist_name} 歌词"
+        )
         
-        # 2. Get content from results
+        # Get content from results with configured max_tokens
         for result in results:
-            content = await get_page_content(result["url"])
+            content = await get_page_content(
+                result["url"]
+            )
             if content:
                 return content
         
