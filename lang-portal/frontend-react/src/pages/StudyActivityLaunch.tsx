@@ -64,9 +64,16 @@ export default function StudyActivityLaunch() {
   }, [setCurrentStudyActivity]);
 
   const handleLaunch = async () => {
-    if (!launchData?.activity || !selectedGroup) return;
+    if (!launchData?.activity) return;
 
     try {
+      if (selectedGroup === 'no-group') {
+        // Launch directly without group data
+        window.open(launchData.activity.launch_url, '_blank');
+        navigate('/study-activities');
+        return;
+      }
+
       // Create a study session first
       const result = await createStudySession(parseInt(selectedGroup), launchData.activity.id);
       const sessionId = result.session_id;
@@ -104,12 +111,13 @@ export default function StudyActivityLaunch() {
 
       <div className="space-y-4">
         <div className="space-y-2">
-          <label className="text-sm font-medium">Select Word Group</label>
+          <label className="text-sm font-medium">Select Word Group (Optional)</label>
           <Select onValueChange={setSelectedGroup} value={selectedGroup}>
             <SelectTrigger>
-              <SelectValue placeholder="Select a word group" />
+              <SelectValue placeholder="Select a word group or launch directly" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="no-group">Launch Without Group</SelectItem>
               {launchData.groups.map((group) => (
                 <SelectItem key={group.id} value={group.id.toString()}>
                   {group.name}
@@ -121,7 +129,7 @@ export default function StudyActivityLaunch() {
 
         <Button
           onClick={handleLaunch}
-          disabled={!selectedGroup}
+          disabled={!selectedGroup && selectedGroup !== 'no-group'}
           className="w-full"
         >
           Launch Now
