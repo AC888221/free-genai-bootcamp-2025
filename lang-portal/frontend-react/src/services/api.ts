@@ -1,5 +1,9 @@
 const API_BASE_URL = 'http://localhost:5000';
 
+// Sort key types
+export type StudySessionSortKey = 'startTime' | 'endTime' | 'activityName' | 'groupName';
+export type WordSortKey = 'jiantizi' | 'pinyin' | 'english' | 'correctCount' | 'wrongCount';
+
 // Group types
 export interface Group {
   id: number;

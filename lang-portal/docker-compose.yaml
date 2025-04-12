@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend-react
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      - API_URL=http://backend:5000
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend-flask
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend-flask/data:/app/data
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  megatalk:
+    build:
+      context: ./MegaTalk
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    volumes:
+      - megatalk_data:/root/.megatalk
+      - megatalk_audio:/app/audio
+      - ${HOME}/.aws:/root/.aws:ro
+
+  writelab:
+    build:
+      context: ./WriteLab
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - LANG_PORTAL_URL=http://backend:5000
+    volumes:
+      - ${HOME}/.aws:/root/.aws:ro
+
+  tubequiz:
+    build:
+      context: ./TubeQuiz
+      dockerfile: Dockerfile
+    ports:
+      - "8084:8084"
+    environment:
+      - LANG_PORTAL_URL=http://backend:5000
+    volumes:
+      - ${HOME}/.aws:/root/.aws:ro
+
+  songwords:
+    build:
+      context: ./SongWords
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083"
+    environment:
+      - LANG_PORTAL_URL=http://backend:5000
+    volumes:
+      - ${HOME}/.aws:/root/.aws:ro
+      - songwords_data:/root/.songwords
+
+volumes:
+  megatalk_data:
+  megatalk_audio:
+  songwords_data:
+
+networks:
+  default:
+    driver: bridge

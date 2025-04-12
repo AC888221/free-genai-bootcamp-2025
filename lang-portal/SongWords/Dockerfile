@@ -1,20 +1,19 @@
-# Use an official Python runtime as a parent image
-FROM python:3.9-slim
+FROM python:3.12-slim
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
-COPY . /app/
+RUN apt-get update && apt-get install -y \
+    sqlite3 \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install any needed packages specified in requirements.txt
+COPY . /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Make port 8083 available to the world outside this container
+RUN mkdir -p /root/.songwords/logs
+
 EXPOSE 8083
 
-# Define environment variable
 ENV NAME SongWords
+ENV PYTHONUNBUFFERED=1
 
-# Run streamlit when the container launches
-CMD ["streamlit", "run", "SongWords.py", "--server.port=8083", "--server.address=0.0.0.0"] 
+CMD ["streamlit", "run", "SongWords.py", "--server.port=8083", "--server.address=0.0.0.0"]
