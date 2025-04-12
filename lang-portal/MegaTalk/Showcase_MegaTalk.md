@@ -25,29 +25,29 @@ Start MegaTalk using Streamlit:
 streamlit run MegaTalk.py
 ```
 
-[SCREENSHOT_PLACEHOLDER_1]
-*Caption: MegaTalk launch screen with robot icon and welcome message*
+![MegaTalk_00.png](screenshots/MegaTalk_00.png)
+*Caption: MegaTalk initialization showing AWS configuration check*
 
 ### Home Screen
 
 The home screen features a modern, wide-layout interface with three main areas:
 - Chat window for conversations
 - Sidebar for settings and navigation
-- Bottom panel for voice input controls
+- Voice input controls
 
-[SCREENSHOT_PLACEHOLDER_2]
+![MegaTalk_01.png](screenshots/MegaTalk_01.png)
 *Caption: MegaTalk's main interface showing the chat window and control panels*
 
 ### Navigation
 
 The app provides easy access to key features through the sidebar:
 
-1. Chat History: Browse and manage past conversations
+1. Chat Sessions: Browse, manage, and load past conversations
 2. Learning Settings: Customize your learning experience
 3. Voice Controls: Manage audio input/output settings
 
-[SCREENSHOT_PLACEHOLDER_3]
-*Caption: Navigation sidebar showing session management and settings options*
+![MegaTalk_02.png](screenshots/MegaTalk_02.png)
+*Caption: Highlighted navigation sidebar session management and settings options*
 
 ### Key Features in Action
 
@@ -58,8 +58,8 @@ Customize your learning experience with:
 - Formality Level
 - Learning Goals
 
-[SCREENSHOT_PLACEHOLDER_4]
-*Caption: Learning configuration panel showing HSK levels and topic selection*
+![MegaTalk_03.png](screenshots/MegaTalk_03.png)
+*Caption: Highlighted learning configurations showing HSK levels and topic selection*
 
 #### 2. Voice Interaction
 Engage in natural conversations using:
@@ -67,7 +67,7 @@ Engage in natural conversations using:
 - High-quality audio responses
 - Transcription feedback
 
-[SCREENSHOT_PLACEHOLDER_5]
+![MegaTalk_04.png](screenshots/MegaTalk_04.png)
 *Caption: Voice interaction interface showing audio controls and transcription*
 
 #### 3. Chat History
@@ -76,30 +76,13 @@ Manage your learning sessions:
 - Load past sessions
 - Delete old chats
 
-[SCREENSHOT_PLACEHOLDER_6]
+![MegaTalk_05.png](screenshots/MegaTalk_05.png)
 *Caption: Chat history interface showing saved sessions and management options*
 
-#### 4. Interactive Learning
-Experience adaptive learning through:
-- Contextual responses
-- Error correction
-- Pronunciation guidance
+![MegaTalk_06.png](screenshots/MegaTalk_06.png)
+*Caption: Chat history interface showing loaded session and management options*
 
-[SCREENSHOT_PLACEHOLDER_7]
-*Caption: Interactive learning session showing AI responses and corrections*
-
-### Settings
-
-Fine-tune your experience with:
-- Audio Generation Toggle
-- Voice Input Enable/Disable
-- Language Level Adjustment
-- Topic Preferences
-
-[SCREENSHOT_PLACEHOLDER_8]
-*Caption: Settings panel showing audio and learning preferences*
-
-## User Experience Highlights
+## User Experience Guidance
 
 ### Pro Tips
 
@@ -117,9 +100,6 @@ Fine-tune your experience with:
    - Save important conversations
    - Name sessions for easy reference
    - Clean up old sessions regularly
-
-[SCREENSHOT_PLACEHOLDER_9]
-*Caption: Pro tips section showing voice input and learning optimization guidelines*
 
 ### Best Practices
 

@@ -58,7 +58,7 @@ Engage with an AI tutor for Putonghua learning:
 - Grammar explanations
 - Vocabulary assistance
 - Cultural insights
-- Example questions provided
+- Example questions provided in sidebar
 
 ![listening-comp_03.png](screenshots/listening-comp_03.png)
 *Caption: Chat interface showing conversation with Nova about Chinese grammar (part 1)*

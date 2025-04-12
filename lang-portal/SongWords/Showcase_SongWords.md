@@ -25,9 +25,8 @@ Start SongWords using Streamlit:
 ```bash
 streamlit run SongWords.py
 ```
-
-[SCREENSHOT_PLACEHOLDER_1]
-*Caption: SongWords launch screen showing the welcome message and search interface*
+![SongWords_00.png](screenshots/SongWords_00.png)
+*Caption: SongWords initialization showing AWS configuration check*
 
 ### Home Screen
 
@@ -36,9 +35,6 @@ The app features a clean, tabbed interface with four main sections:
 - Input Your Own: Manual lyrics entry
 - History: View past searches
 - Excluded Sites: Manage search sources
-
-[SCREENSHOT_PLACEHOLDER_2]
-*Caption: SongWords main interface showing the tabbed navigation system*
 
 ### Navigation
 
@@ -49,8 +45,8 @@ The app is organized into four main tabs, each serving a specific purpose:
 3. History Tab: View past searches
 4. Excluded Sites Tab: Search source management
 
-[SCREENSHOT_PLACEHOLDER_3]
-*Caption: Navigation tabs showing all four main sections*
+![SongWords_01.png](screenshots/SongWords_01.png)
+*Caption: SongWords main interface showing the tabbed navigation system highlighted*
 
 ### Key Features in Action
 
@@ -61,8 +57,8 @@ Search for songs with optional artist filtering:
 - Quick reload of last search
 - Real-time search status updates
 
-[SCREENSHOT_PLACEHOLDER_4]
-*Caption: Song search interface showing search fields and controls*
+![SongWords_02.png](screenshots/SongWords_02.png)
+*Caption: Highlighted song search interface showing search fields and controls*
 
 #### 2. Lyrics Display
 View the found lyrics with:
@@ -70,8 +66,8 @@ View the found lyrics with:
 - Automatic simplification
 - Clean, readable format
 
-[SCREENSHOT_PLACEHOLDER_5]
-*Caption: Lyrics display showing Chinese text and formatting*
+![SongWords_03.png](screenshots/SongWords_03.png)
+*Caption: Song search interface displaying lyrics found*
 
 #### 3. Vocabulary Analysis
 Review extracted vocabulary with:
@@ -80,29 +76,49 @@ Review extracted vocabulary with:
 - English translations
 - CSV export option
 
-[SCREENSHOT_PLACEHOLDER_6]
-*Caption: Vocabulary analysis interface showing extracted words and translations*
+![SongWords_04.png](screenshots/SongWords_04.png)
+*Caption: Song search interface displaying extracted words and translations*
 
-#### 4. History Management
+#### 4. Lyrics Input
+Process your own Chinese lyrics:
+- Large text input area
+- Real-time processing
+- Immediate vocabulary extraction
+- Error handling
+- Quick reload of last request
+
+![song-vocab_05.png](screenshots/song-vocab_05.png)
+*Caption: Custom text input interface showing the text area and processing options*
+
+![song-vocab_06.png](screenshots/song-vocab_06.png)
+*Caption: Custom text input interface displaying extracted words and translations*
+
+#### 5. History Management
 Access your learning history:
-- View past searches
-- Reload previous results
-- Track learning progress
+- View past requests
+- Track learning history
+- Reset history
 
-[SCREENSHOT_PLACEHOLDER_7]
-*Caption: History interface showing past searches and reload options*
+![SongWords_07.png](screenshots/SongWords_07.png)
+*Caption: History interface showing past searches (part 1)*
+
+![SongWords_08.png](screenshots/SongWords_08.png)
+*Caption: History interface showing past searches (part 2)*
+
+![SongWords_09.png](screenshots/SongWords_09.png)
+*Caption: History interface showing clear history function*
 
 ### Search Source Management
 
-Control your learning experience by managing lyrics sources:
-- Add/remove excluded sites
+The app excludes websites it is unable to extract text from for 24 hours:
+- Prevents unhelpful websites cloggin up search results
+- Allows for changes to the implementation lyrics websites
 - View current exclusion list
-- Reset exclusions
 
-[SCREENSHOT_PLACEHOLDER_8]
+![SongWords_10.png](screenshots/SongWords_10.png)
 *Caption: Search source management interface showing excluded sites controls*
 
-## User Experience Highlights
+## User Experience Guidance
 
 ### Pro Tips
 
@@ -120,9 +136,6 @@ Control your learning experience by managing lyrics sources:
    - Exclude unreliable lyrics sources
    - Maintain a curated list of preferred sites
    - Reset exclusions if results are too limited
-
-[SCREENSHOT_PLACEHOLDER_9]
-*Caption: Pro tips section showing search and vocabulary management guidelines*
 
 ### Best Practices
 

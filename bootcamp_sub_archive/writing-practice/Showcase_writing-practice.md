@@ -22,7 +22,7 @@ Writing Practice offers a rich set of features for language learners:
 
 #### Prerequisites
 
-Before starting Writing Practice, you must first launch the Lang Portal backend service which provides essential vocabulary and translation services:
+Before starting Writing Practice, you must first launch the Lang Portal backend service which provides access to the main vocabulary database:
 
 1. Navigate to the Lang Portal directory:
 ```bash
@@ -59,7 +59,7 @@ The app features a modern, wide-layout interface with:
 - Clean, intuitive design optimized for learning
 
 ![writing-practice_01.png](screenshots/writing-practice_01.png)
-*Caption: Writing Practice launch screen*
+*Caption: Writing Practice launch screen showing vocabulary extraction from Lang-Portal*
 
 ### Navigation
 

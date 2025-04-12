@@ -136,39 +136,52 @@ def process_text_files(input_dir, output_dir):
                         for i, speaker in enumerate(speakers_text):
                             pitch, rate, volume = ("high", "slow", "loud") if i % 2 == 0 else ("low", "x-slow", "soft")
                             if i > 0:
-                                audio_parts.append(generate_audio('<break time="3s"/>', 'Zhiyu'))  # Increased pause to 3 seconds
+                                pause_audio = generate_audio('<break time="3s"/>', 'Zhiyu')  # Increased pause to 3 seconds
+                                if pause_audio:
+                                    pause_filename = os.path.abspath(os.path.join(output_dir, f"pause{i}.mp3"))
+                                    with open_file(pause_filename, 'wb') as audio_file:
+                                        audio_file.write(pause_audio)
+                                    audio_parts.append(pause_filename)
+                            
                             audio = generate_audio(speaker['text'], 'Zhiyu', pitch, rate, volume)
                             if audio is None:
                                 logging.error("Audio generation failed")
                                 raise Exception("Failed to generate audio")
+                            
                             # Generate shorter file names
                             short_filename = f"p{i}.mp3"
                             audio_filename = os.path.abspath(os.path.join(output_dir, short_filename))
                             with open_file(audio_filename, 'wb') as audio_file:
                                 audio_file.write(audio)
+                            
                             if not os.path.exists(audio_filename):
                                 raise Exception(f"Audio file {audio_filename} was not created")
-                            audio_parts.append(audio_filename)
-                            audio_length = AudioSegment.from_file(audio_filename).duration_seconds
-                            total_audio_length += audio_length
-                            logging.info(f"Generated audio file: {audio_filename} (length: {audio_length} seconds)")
                             
-                            # Verify audio file integrity
+                            # Verify audio file integrity before adding to parts
                             try:
                                 audio_segment = AudioSegment.from_file(audio_filename)
-                                logging.info(f"Verified audio file: {audio_filename} (length: {audio_segment.duration_seconds} seconds)")
+                                audio_length = audio_segment.duration_seconds
+                                total_audio_length += audio_length
+                                logging.info(f"Generated audio file: {audio_filename} (length: {audio_length} seconds)")
+                                
                                 # Check audio file format
                                 kind = filetype.guess(audio_filename)
                                 if kind is None or kind.mime.split('/')[0] != 'audio':
                                     raise Exception(f"Invalid audio file format: {audio_filename}")
                                 logging.info(f"Audio file format: {kind.mime}")
+                                
+                                # Only add to audio_parts if verification passes
+                                audio_parts.append(audio_filename)
                             except Exception as e:
                                 logging.error(f"Error verifying audio file {audio_filename}: {e}")
+                                if os.path.exists(audio_filename):
+                                    os.remove(audio_filename)
                                 raise Exception(f"Audio file {audio_filename} is corrupted or has an invalid format")
                         
                         logging.info(f"Number of audio files created: {len(audio_parts)}")
                         logging.info(f"Total length of all audio files: {total_audio_length} seconds")
 
+                        # Create list file only with verified audio parts
                         list_filename = os.path.abspath(os.path.join(output_dir, f"{filename[:10]}_list.txt"))
                         with open_file(list_filename, 'w', encoding='utf-8') as list_file:
                             for audio_part in audio_parts:
@@ -176,6 +189,7 @@ def process_text_files(input_dir, output_dir):
                                     list_file.write(f"file '{audio_part}'\n")
                                 else:
                                     logging.error(f"Audio part does not exist: {audio_part}")
+                                    raise Exception(f"Missing audio part: {audio_part}")
                         logging.info(f"Created list file for ffmpeg: {list_filename}")
                         
                         # Remove the "int_resp" prefix and ".txt" extension
@@ -183,6 +197,9 @@ def process_text_files(input_dir, output_dir):
                         final_audio_filename = os.path.abspath(os.path.join(output_dir, f"audio_{variable_name}.mp3"))
                         logging.info(f"Final audio file will be: {final_audio_filename}")
                         subprocess.run(['ffmpeg', '-f', 'concat', '-safe', '0', '-i', list_filename, '-c', 'copy', final_audio_filename, '-y', '-loglevel', 'verbose'])
+                        
+                        if not os.path.exists(final_audio_filename):
+                            raise Exception(f"Failed to create final audio file: {final_audio_filename}")
                         
                         final_audio_length = AudioSegment.from_file(final_audio_filename).duration_seconds
                         length_lost = total_audio_length - final_audio_length
@@ -192,13 +209,22 @@ def process_text_files(input_dir, output_dir):
             except Exception as e:
                 logging.error(f"Error processing file {filename}: {e}")
             finally:
+                # Clean up temporary files
                 for audio_part in audio_parts:
-                    if os.path.exists(audio_part):
-                        logging.info(f"Deleting temporary audio file: {audio_part}")
-                        os.remove(audio_part)
+                    try:
+                        if os.path.exists(audio_part):
+                            logging.info(f"Deleting temporary audio file: {audio_part}")
+                            os.remove(audio_part)
+                    except Exception as e:
+                        logging.error(f"Error deleting temporary file {audio_part}: {e}")
+                
                 if list_filename and os.path.exists(list_filename):
-                    logging.info(f"Deleting list file: {list_filename}")
-                    os.remove(list_filename)
+                    try:
+                        logging.info(f"Deleting list file: {list_filename}")
+                        os.remove(list_filename)
+                    except Exception as e:
+                        logging.error(f"Error deleting list file {list_filename}: {e}")
+                
                 logging.info(f"Cleaned up temporary files for {filename}")
 
 if __name__ == '__main__':

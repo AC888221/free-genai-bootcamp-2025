@@ -12,10 +12,10 @@ ABOUT_TEXT = """
 This app uses:
 - Claude 3 Haiku on Amazon Bedrock for sentence generation
 - Pytesseract for character recognition
-- Google TTS for pronunciation
+- Amazon Polly for pronunciation
 - Lang-portal server for word collections
 
-Created for language learning bootcamp.
+Created for the FreeGenAI Bootcamp 2025.
 """
 
 WELCOME_TEXT = """

@@ -584,7 +584,8 @@ def render_interactive_response_audio():
             output_dir = audio_dir
             tts_script_path = os.path.join(base_dir, '../backend/tts.py')
             try:
-                subprocess.run(['python', tts_script_path], check=True)
+                # Use sys.executable to get the correct Python interpreter path
+                subprocess.run([sys.executable, tts_script_path], check=True)
                 st.success("Audio created successfully!")
             except subprocess.CalledProcessError as e:
                 st.error(f"Audio creation failed: {e}")

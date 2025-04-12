@@ -65,10 +65,20 @@ def display_chat_message(message_data):
         else:
             st.markdown(message_data["content"])
             
-        if "audio" in message_data:
+        if "audio" in message_data and message_data["audio"] is not None:
+            # Handle both audio bytes and file paths
+            audio_data = message_data["audio"]
+            if isinstance(audio_data, str):  # It's a file path
+                try:
+                    with open(audio_data, 'rb') as f:
+                        audio_data = f.read()
+                except Exception as e:
+                    logger.error(f"Error reading audio file {audio_data}: {e}")
+                    return
+            
             # Convert audio data to base64 for HTML audio element
             import base64
-            audio_base64 = base64.b64encode(message_data["audio"]).decode()
+            audio_base64 = base64.b64encode(audio_data).decode()
             audio_html = f"""
                 <audio autoplay>
                     <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
@@ -77,7 +87,7 @@ def display_chat_message(message_data):
             """
             st.markdown(audio_html, unsafe_allow_html=True)
             # Keep the regular audio player as fallback
-            st.audio(message_data["audio"], format="audio/mp3")
+            st.audio(audio_data, format="audio/mp3")
 
 def display_chat_history_selector():
     """Display a dropdown to select previous chat sessions."""

@@ -28,15 +28,15 @@ To start using TubeQuiz, launch the application using Streamlit:
 streamlit run frontend/TubeQuiz.py
 ```
 
-[SCREENSHOT_PLACEHOLDER_1]
-*Caption: TubeQuiz launch screen showing the Chinese flag logo and welcome message*
+![TubeQuiz_00.png](screenshots/TubeQuiz_00.png)
+*Caption: TubeQuiz initialization showing AWS configuration check*
 
 ### Home Screen
 
 The home screen features a clean, modern interface with a distinctive Chinese flag logo and clear navigation options. The main area displays the current learning stage, while the sidebar provides easy access to different features.
 
-[SCREENSHOT_PLACEHOLDER_2]
-*Caption: TubeQuiz home screen showing the main interface with the development stages sidebar*
+![TubeQuiz_01.png](screenshots/TubeQuiz_01.png)
+*Caption: Launch screen showing the Putonghua Learning Assistant*
 
 ### Navigation
 
@@ -49,48 +49,88 @@ The app is organized into six progressive learning stages, each focusing on diff
 5. Interactive Learning
 6. Interactive Response Audio
 
-[SCREENSHOT_PLACEHOLDER_3]
-*Caption: Navigation sidebar showing the six development stages with their descriptions*
+![TubeQuiz_02.png](screenshots/TubeQuiz_02.png)
+*Caption: Launch screen highlighting the welcome message and sidebar navigation showing all six development stages with descriptions*
 
 ### Key Features in Action
 
 #### 1. Chat with Nova
-Engage in natural language conversations with Nova, an AI tutor specialized in Putonghua learning. Ask questions about grammar, vocabulary, or cultural aspects.
+Engage with an AI tutor for Putonghua learning:
+- Natural language interaction
+- Grammar explanations
+- Vocabulary assistance
+- Cultural insights
+- Example questions provided in sidebar
 
-[SCREENSHOT_PLACEHOLDER_4]
-*Caption: Chat interface showing a conversation with Nova about Chinese grammar*
+![TubeQuiz_03.png](screenshots/TubeQuiz_03.png)
+*Caption: Chat interface showing a conversation with Nova about Chinese grammar (part 1)*
+
+![TubeQuiz_04.png](screenshots/TubeQuiz_04.png)
+*Caption: Chat interface showing a conversation with Nova about Chinese grammar (part 2)*
+
+![TubeQuiz_05.png](screenshots/TubeQuiz_05.png)
+*Caption: Chat interface showing a conversation with Nova about Chinese grammar (part 3)*
 
 #### 2. YouTube Transcript Processing
-Convert YouTube videos into learning material by entering a video URL. The app extracts and processes the transcript for learning purposes.
+Transform YouTube content into learning materials:
+- Automatic transcript download
+- Chinese character analysis
+- Text cleaning and formatting
+- Content organization
+- Saving text and embeddings data
 
-[SCREENSHOT_PLACEHOLDER_5]
-*Caption: Transcript processing interface showing extracted text from a YouTube video*
+![TubeQuiz_06.png](screenshots/TubeQuiz_06.png)
+*Caption: Raw transcript processing interface showing downloaded content and analysis*
 
-#### 3. Interactive Learning
-Practice with dynamically generated scenarios and receive instant feedback on your responses.
+![TubeQuiz_07.png](screenshots/TubeQuiz_07.png)
+*Caption: Structured data processing interface showing data processing and saving (part 1)*
 
-[SCREENSHOT_PLACEHOLDER_6]
-*Caption: Interactive learning interface showing a practice scenario with multiple response options*
+![TubeQuiz_08.png](screenshots/TubeQuiz_08.png)
+*Caption: Structured data processing interface showing data processing and saving (part 2)*
 
-#### 4. Audio Generation
-Listen to AI-generated pronunciations of Chinese phrases and practice your listening skills.
+#### 3. RAG Implementation
+Transform AI responses with context-aware learning:
+- Vector database integration
+- Semantic search capabilities
+- Context-enriched responses
+- Dynamic knowledge updates
 
-[SCREENSHOT_PLACEHOLDER_7]
-*Caption: Audio playback interface with generated pronunciations*
+![TubeQuiz_09.png](screenshots/TubeQuiz_09.png)
+*Caption: RAG implementation showing semantic search and context-aware responses (part 1)*
 
-### Settings
+![TubeQuiz_10.png](screenshots/TubeQuiz_10.png)
+*Caption: RAG implementation showing semantic search and context-aware responses (part 2)*
 
-Customize your learning experience through various options:
+#### 4. Interactive Learning
+Practice with customizable scenarios:
+- Topic selection
+- Difficulty levels (HSK-based)
+- Question types
+- Context-aware exercises
 
-- Language Level Selection
-- Audio Playback Settings
-- Interface Preferences
-- Learning Stage Selection
+![TubeQuiz_11.png](screenshots/TubeQuiz_11.png)
+*Caption: Interactive learning interface showing topic selection and exercise generation (part 1)*
 
-[SCREENSHOT_PLACEHOLDER_8]
-*Caption: Settings panel showing customization options*
+![TubeQuiz_12.png](screenshots/TubeQuiz_12.png)
+*Caption: Interactive learning interface showing topic selection and exercise generation (part 2)*
 
-## User Experience Highlights
+#### 5. Audio Generation
+Listen to clear pronunciations:
+- Text-to-speech conversion
+- Audio file management
+- Playback controls
+- Response recording
+
+![TubeQuiz_13.png](screenshots/TubeQuiz_13.png)
+*Caption: Audio interface showing playback controls and file management*
+
+![TubeQuiz_14.png](screenshots/TubeQuiz_14.png)
+*Caption: Audio interface showing audio generation with text source highlighted*
+
+![TubeQuiz_15.png](screenshots/TubeQuiz_15.png)
+*Caption: Audio interface showing generated audio with identifying details highlighted*
+
+## User Experience Guidance
 
 ### Pro Tips
 
@@ -100,9 +140,6 @@ Customize your learning experience through various options:
    - `Enter`: Submit your response
    - `Space`: Play/pause audio
    - `↑/↓`: Navigate through chat history
-
-[SCREENSHOT_PLACEHOLDER_9]
-*Caption: Pro tips section showing keyboard shortcuts and example questions*
 
 ### Best Practices
 

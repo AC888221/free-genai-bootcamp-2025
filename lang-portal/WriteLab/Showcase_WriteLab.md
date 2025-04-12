@@ -24,24 +24,53 @@ Key capabilities include:
 
 ### Launch the App
 
-The app is launched using Streamlit and requires AWS CLI configuration:
+#### Prerequisites
 
+Before starting WriteLab, you must first launch the Lang Portal backend service which provides access to the main vocabulary database:
+
+1. Navigate to the Lang Portal directory:
+```bash
+cd path/to/lang-portal/backend-flask
+```
+
+2. Start the Lang Portal service:
+```bash
+python app.py
+```
+
+![writeLab_00.png](screenshots/writeLab_00.png)
+*Caption: Lang-Portal backend service initialization*
+
+3. Wait for the service to start (it will run on http://localhost:5000)
+
+#### Starting WriteLab
+
+1. Navigate to the WriteLab directory:
+```bash
+cd path/to/WriteLab
+```
+
+2. Run WriteLab app:
 ```bash
 streamlit run WriteLab.py
 ```
 
-[SCREENSHOT_PLACEHOLDER_1]
-*Caption: WriteLab initialization showing AWS configuration check and welcome screen*
+![WriteLab_01.png](screenshots/WriteLab_01.png)
+*Caption: WriteLab initialization showing AWS configuration check*
+
+
+> **Important**: If you see a "Connection refused" error, make sure the Lang Portal service is running on port 5000 before starting Writing Practice.
 
 ### Home Screen
 
-The home screen features a clean, wide-layout interface with three main sections:
-- Navigation sidebar
-- Main content area
-- Status indicators for AWS connection and API services
+The app features a modern, wide-layout interface with:
+- Clear navigation sidebar
+- Welcome message and instructions
+- Three main sections: Word Collection, Writing Practice, and Review
+- Clean, intuitive design optimized for learning
 
-[SCREENSHOT_PLACEHOLDER_2]
-*Caption: WriteLab's main interface showing the three-panel layout*
+![WriteLab_02.png](screenshots/WriteLab_02.png)
+*Caption: WriteLab's launch screen showing vocabulary extraction from Lang-Portal*
 
 ### Navigation
 
@@ -51,7 +80,7 @@ The app provides straightforward navigation through three main stages:
 2. Writing Practice: Generate and practice writing sentences
 3. Review and Grading: Submit and receive feedback
 
-[SCREENSHOT_PLACEHOLDER_3]
+![WriteLab_03.png](screenshots/WriteLab_03.png)
 *Caption: Navigation sidebar showing the three main stages*
 
 ### Key Features in Action
@@ -62,8 +91,8 @@ Browse and manage your Chinese vocabulary with detailed character information:
 - Pronunciation
 - Usage examples
 
-[SCREENSHOT_PLACEHOLDER_4]
-*Caption: Word collection interface showing character details and sorting options*
+![WriteLab_04.png](screenshots/WriteLab_04.png)
+*Caption: Highlighted Word Collection interface showing the vocabulary table with translations*
 
 #### 2. Writing Practice
 Generate practice sentences and receive audio support:
@@ -71,38 +100,37 @@ Generate practice sentences and receive audio support:
 - Character stroke guidance
 - Audio pronunciation
 
-[SCREENSHOT_PLACEHOLDER_5]
-*Caption: Writing practice interface with sentence generation and audio controls*
+![WriteLab_05.png](screenshots/WriteLab_05.png)
+*Caption: Navigated to Writing Practice section showing word selection and sentence generation options*
 
-#### 3. Image Upload and Processing
-Submit handwritten work through multiple methods:
-- Direct file upload
-- Image capture
-- Path input for WSL users
+![WriteLab_06.png](screenshots/WriteLab_06.png)
+*Caption: Writing Practice section showing sentence generation output*
 
-[SCREENSHOT_PLACEHOLDER_6]
-*Caption: Image upload interface showing multiple submission options*
+Learner Support:
+- Audio pronunciation
+- Pinyin toggle
 
-#### 4. AI-Powered Feedback
-Receive detailed analysis of your handwriting:
-- Character recognition results
-- Stroke accuracy assessment
-- Improvement suggestions
+![WriteLab_07.png](screenshots/WriteLab_07.png)
+*Caption: Audio playback controls with the sentence displayed*
 
-[SCREENSHOT_PLACEHOLDER_7]
-*Caption: AI feedback interface showing character analysis and grading*
+#### 3. Review and Grading
+Check your writing progress:
+- Image upload for written work
+- OCR recognition
+- Automatic grading
+- Detailed feedback
+- Custom sentence input option
 
-### Environment Setup
+![WriteLab_08.png](screenshots/WriteLab_08.png)
+*Caption: Navigated to Review and Grading section showing review options and expected Chinese writing*
 
-The app requires proper configuration of:
-- AWS CLI credentials
-- Tesseract OCR installation
-- API endpoint configuration
+![WriteLab_09.png](screenshots/WriteLab_09.png)
+*Caption: Uploaded image of writing practice*
 
-[SCREENSHOT_PLACEHOLDER_8]
-*Caption: Environment setup screen showing configuration status*
+![WriteLab_10.png](screenshots/WriteLab_10.png)
+*Caption: Grading and feedback*
 
-## User Experience Highlights
+## User Experience Guidance
 
 ### Pro Tips
 
@@ -120,9 +148,6 @@ The app requires proper configuration of:
    - Start with word collection
    - Practice writing generated sentences
    - Submit for immediate feedback
-
-[SCREENSHOT_PLACEHOLDER_9]
-*Caption: Pro tips section showing optimal usage guidelines*
 
 ### Best Practices
 

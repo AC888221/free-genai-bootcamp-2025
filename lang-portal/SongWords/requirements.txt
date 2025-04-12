@@ -1,16 +1,24 @@
 # Core dependencies
-streamlit>=1.24.0
+streamlit>=1.29.0
 pandas>=1.5.0
 
 # AWS dependencies
 boto3>=1.28.0
 botocore>=1.31.0
 
-# Web scraping dependencies
-httpx>=0.23.0
-html2text>=2020.1.16
-duckduckgo-search>=3.0.0
-tldextract>=3.1.0
+# Web scraping and networking dependencies
+httpx>=0.28.1
+httpcore>=1.0.8
+html2text>=2024.2.26
+duckduckgo-search>=8.0.0
+tldextract>=5.2.0
+requests>=2.31.0
+requests-file>=2.1.0
+lxml>=5.3.2
+aiohttp>=3.8.0
+aiosignal>=1.3.1
+async-timeout>=4.0.0
+asyncio>=3.4.3
 
 # Chinese text processing
 hanziconv>=0.3.2
@@ -18,5 +26,9 @@ jieba>=0.42.1
 
 # Utility dependencies
 python-dotenv>=0.21.0
-python-multipart>=0.0.6
+python-multipart>=0.0.20
 typing-extensions>=4.5.0
+anyio>=4.9.0
+h11>=0.14.0
+filelock>=3.18.0
+primp>=0.14.0

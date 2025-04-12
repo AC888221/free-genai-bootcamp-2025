@@ -1,0 +1,14 @@
+faiss-cpu
+streamlit
+boto3>=1.34.0
+botocore>=1.34.0
+youtube-transcript-api
+scikit-learn
+gtts
+pydub
+numpy
+pytest
+
+# System dependencies:
+# ffmpeg - Please install via system package manager
+
