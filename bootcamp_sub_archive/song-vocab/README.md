@@ -1,6 +1,6 @@
 # Agents and Agentic Workflow: Vocabulary Extraction
 
-[Jump to Bootcamp Week 3: Agents and Agentic Workflow Implementation Report](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps-w3/README.md#bootcamp-week-3-agents-and-agentic-workflow-implementation-report)
+[Jump to Bootcamp Week 3: Agents and Agentic Workflow Implementation Report](#bootcamp-week-3-agents-and-agentic-workflow-implementation-report)
 
 ## Song Vocabulary Extractor
 

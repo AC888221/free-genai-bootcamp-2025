@@ -2,10 +2,11 @@
 
 A Streamlit-based application for practicing Chinese (Putonghua) writing with AI-powered feedback using Claude 3 Haiku.
 
+[Jump to Bootcamp Week 2: Writing Practice Implementation Report](#bootcamp-week-2-writing-practice-implementation-report)
+
 ## Documentation
 
 - [📸 Application Showcase](./Showcase_writing-practice.md) - Visual tour of features and user experience
-- [📝 Implementation Details](./IMPLEMENTATION.md) - Technical implementation report
 - [🏠 Main Project Documentation](../../README.md) - Main project overview
 
 ## Technical Overview
@@ -151,8 +152,6 @@ streamlit run app.py
 
 ### Domain Knowledge and Technical Implementation
 
-[See the full technical implementation report in IMPLEMENTATION.md]
-
 ### Image Processing Pipeline
 - Format validation and conversion
 - Contrast enhancement
@@ -169,4 +168,57 @@ streamlit run app.py
 - OCR quality checks
 - Graceful degradation
 - API retry mechanisms
+
+## Bootcamp Week 2: Writing Practice Implementation Report
+
+### Domain Knowledge Acquired Through Technical Uncertainty
+Throughout the development of the Writing Practice App, several technical uncertainties were encountered and overcome, leading to valuable domain knowledge in various areas:
+
+#### Chinese Character Recognition and OCR
+- **Tesseract Integration**: Successfully integrated Tesseract OCR with Chinese language support, managing character recognition accuracy and implementing robust error handling.
+- **Image Preprocessing**: Developed expertise in image enhancement techniques using Pillow to improve OCR accuracy for handwritten Chinese characters.
+- **Multi-platform Support**: Handled Tesseract installation and configuration across different operating systems (Windows, macOS, Linux/WSL).
+
+#### Text-to-Speech Implementation
+- **gTTS Integration**: Successfully implemented Google Text-to-Speech for Chinese language support, managing API responses and audio file generation.
+- **Audio File Management**: Developed systems for generating, storing, and serving audio files efficiently within the Streamlit application.
+- **Error Handling**: Implemented robust retry mechanisms for audio generation failures and network connectivity issues.
+
+#### Streamlit Application Architecture
+- **State Management**: Implemented efficient session state management for handling the three-stage workflow (Setup, Practice, Review).
+- **UI/UX Design**: Created an intuitive interface for character practice and submission, with clear navigation between stages.
+- **File Upload Handling**: Developed flexible file upload solutions supporting both traditional uploads and WSL file paths.
+
+#### Chinese Language Processing
+- **Character Analysis**: Implemented systems for analyzing Chinese character structure and stroke order.
+- **Pinyin Generation**: Managed the complexity of displaying both Chinese characters and their Pinyin representations.
+- **Grading System**: Developed a comprehensive grading framework for evaluating character writing accuracy.
+
+#### AI Integration
+- **Claude Integration**: Successfully integrated Claude 3 Haiku for providing detailed feedback on character writing.
+- **Prompt Engineering**: Developed effective prompts for generating appropriate practice sentences and detailed writing feedback.
+- **Response Processing**: Implemented parsing and formatting of AI responses for clear feedback presentation.
+
+#### Image Processing Pipeline
+- **Format Handling**: Developed support for multiple image formats (PNG, JPEG, BMP) with appropriate validation.
+- **Preprocessing Workflow**: Created an image preprocessing pipeline to optimize character recognition:
+  - Contrast enhancement
+  - Noise reduction
+  - Size normalization
+  - Format standardization
+
+#### Error Handling and Validation
+- **Input Validation**: Implemented comprehensive validation for image uploads and file formats.
+- **OCR Quality Checks**: Developed methods to verify OCR output quality and reliability.
+- **Graceful Degradation**: Implemented fallback mechanisms for various failure scenarios.
+
+#### System Integration
+- **AWS Integration**: Successfully configured and managed AWS services for cloud-based processing.
+- **API Management**: Developed structured approaches to handling multiple API integrations (AWS, Google TTS).
+- **Cross-platform Compatibility**: Ensured consistent functionality across different operating systems and environments.
+
+#### Performance Optimization
+- **Caching Strategy**: Implemented efficient caching for API responses and processed images.
+- **Resource Management**: Optimized memory usage for image processing and OCR operations.
+- **Response Time**: Improved application responsiveness through strategic use of async operations.
 

@@ -16,7 +16,7 @@ The bootcamp was a comprehensive program delivered through Youtube, Discord, and
 An integrated language learning platform using AWS Bedrock and modern web technologies:
 
 | Application | Description |
-|-------------|-------------|---------|
+|-------------|-------------|
 | **[Lang Portal](lang-portal/)** | Core platform and shared services |
 | **[WriteLab](lang-portal/WriteLab/)** | AI-powered character writing practice |
 | **[MegaTalk](lang-portal/MegaTalk/)** | Conversational practice with AI |
