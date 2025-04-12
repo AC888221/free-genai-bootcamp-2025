@@ -1,5 +1,7 @@
 # Implementing OPEA Comps (Generative AI Components)
 
+[View Implementation Showcase](Showcase_Opea-comps.md)
+
 [Jump to Bootcamp Week 1: OPEA Implementation Report](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps/README.md#bootcamp-week-1-opea-implementation-report)
 
 [Jump to LLM Megaservice Glossory](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps/README.md#llm-megaservice-glossory)
@@ -117,52 +119,28 @@ curl -X POST http://localhost:8000/v1/example-service \
 
 ## Bootcamp Week 1: OPEA Implementation Report
 
-#### Installation and Setup
-- **Deployed Ollama using Docker Compose**: Configured to run on port 8008.
-- **Set up a FastAPI service**: Middleware layer to handle API requests.
-- **Integrated the comps library**: For standardized protocol definitions.
-- **Configured environment variables**: For flexible deployment settings.
-
-#### Feature Implementation
-- **Developed a chat completion endpoint**: `/v1/example-service` to process user queries.
-- **Implemented streaming response handling**: Managed responses from the LLM.
-- **Integrated error handling and logging**: Facilitated debugging and reliability.
-- **Loaded and utilized the llama3.2:1b model**: Successfully used the 1.2B parameter model.
-
-#### System Integration
-- **Seamless integration between FastAPI and Ollama's API**: Ensured smooth communication.
-- **Message formatting and response handling**: Managed interactions with the LLM.
-- **Request/response protocols**: Set up using the comps library.
-- **Docker-based deployment strategy**: Ensured consistency and scalability.
-
-#### Technical Challenges Overcome
-- **Handled streaming responses**: Successfully managed responses from the LLM.
-- **Implemented error handling**: Ensured robust API communication.
-- **Managed Docker container deployment**: Configured and deployed containers effectively.
-- **Integrated complex message formatting**: Handled response processing efficiently.
-
-#### Architecture Implementation
-- **Three-tier architecture**: Client → FastAPI Service → Ollama (LLM).
-- **Separation of concerns**: Maintained clear boundaries between service layers.
-- **Environment-based configuration**: Ensured flexibility and adaptability.
-- **Scalable foundation**: Created a robust base for future enhancements.
+### Architecture Overview
+- **Three-tier architecture**: Client → FastAPI Service → Ollama (LLM)
+- **Separation of concerns**: Maintained clear boundaries between service layers
+- **Environment-based configuration**: Ensured flexibility and adaptability
+- **Scalable foundation**: Created a robust base for future enhancements
 
 ### Implementation Stages
 
 #### Infrastructure Setup
-1. **Deployed Ollama LLM service**: Using Docker Compose on port 8008.
-2. **Integrated the llama3.2:1b model**: Within the Docker container.
-3. **Configured environment variables**: For proper service operation.
+1. **Deployed Ollama LLM service**: Using Docker Compose on port 8008
+2. **Integrated the llama3.2:1b model**: Within the Docker container
+3. **Configured environment variables**: For proper service operation
 
 #### Service Development
-1. **Developed a FastAPI service**: With a `/v1/example-service` endpoint for chat completion requests.
-2. **Implemented message formatting and response handling**: For communication with Ollama.
-3. **Included error handling and logging**: To ensure reliability.
+1. **Developed a FastAPI service**: With a `/v1/example-service` endpoint for chat completion requests
+2. **Implemented message formatting and response handling**: For communication with Ollama
+3. **Included error handling and logging**: To ensure reliability
 
 ### Testing and Verification
-1. **Direct API Testing**: Verified Ollama functionality through direct API calls.
-2. **Service Integration**: Tested FastAPI service endpoints for correct interaction with Ollama.
-3. **Response Handling**: Ensured proper handling of streaming responses and error conditions.
+1. **Direct API Testing**: Verified Ollama functionality through direct API calls
+2. **Service Integration**: Tested FastAPI service endpoints for correct interaction with Ollama
+3. **Response Handling**: Ensured proper handling of streaming responses and error conditions
 
 ## Appendices
 

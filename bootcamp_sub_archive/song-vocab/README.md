@@ -4,7 +4,7 @@
 
 ## Song Vocabulary Extractor
 
-A FastAPI and Streamlit application that finds lyrics for songs in Putonghua (Mandarin Chinese) and extracts vocabulary for language learners.
+A FastAPI and Streamlit application that finds lyrics for songs in Putonghua (Mandarin Chinese) and extracts vocabulary for language learners. For a user-friendly overview of features and screenshots, see our [Showcase](Showcase_song-vocab.md).
 
 ### Business Goal
 This program finds lyrics on the internet for a target song in Putonghua and produces vocabulary to be imported into our database. The target audience includes language learners, educators, and developers who need structured vocabulary data.
@@ -122,7 +122,8 @@ song-vocab/
 ├── docker-compose.yaml # Docker configuration
 ├── .env                # Environment variables
 ├── requirements.txt
-├── README.md
+├── README.md          # Technical documentation
+├── Showcase_song-vocab.md  # User-friendly feature showcase
 ├── prompts/
 │   ├── __init__.py
 │   └── vocabulary-agent.md

@@ -2,23 +2,11 @@
 
 ## Introduction
 
-OPEA MegaService is a sophisticated AI service orchestrator that combines Language Learning Models (LLM) and Text-to-Speech (TTS) capabilities into a unified API. Built with FastAPI and designed for high performance, it provides seamless integration between OpenVINO-optimized LLMs and GPT-SoVITS voice synthesis, making it ideal for creating interactive AI applications with voice capabilities.
+Welcome to the visual tour of OPEA MegaService! This showcase demonstrates the key features and capabilities of our AI service that combines Language Learning Models (LLM) and Text-to-Speech (TTS) capabilities. For technical details and implementation, please see our [README.md](README.md).
 
-## Overview of Features
+## Visual Feature Tour
 
-OPEA MegaService offers a comprehensive set of features:
-
-- **Unified API**: Combined LLM and TTS endpoints in one service
-- **Health Monitoring**: Real-time service health tracking
-- **Audio Management**: Built-in audio file handling and serving
-- **Flexible Configuration**: Customizable service parameters
-- **Streaming Support**: Real-time response capabilities
-- **Logging System**: Comprehensive logging with rotation
-- **Error Handling**: Robust error management and reporting
-
-## Feature Tour
-
-### Launch the App
+### Getting Started
 
 Start the MegaService using Docker Compose:
 
@@ -29,15 +17,15 @@ docker-compose up megaservice
 ![opea-comps-w3_00.png](screenshots/opea-comps-w3_00.png)
 *Caption: Starting Megaservice using docker*
 
-Navigate to http://localhost:8501/:
+Navigate to http://localhost:8501/ to access the interface:
 
 ![opea-comps-w3_01.png](screenshots/opea-comps-w3_01.png)
 *Caption: OPEA Comps Megaservice main interface*
 
-### Key Features in Action
+### Interactive Features
 
 #### 1. Chat Configuration
-Configuration Settings:
+The interface provides intuitive controls for:
 - Model selection
 - Temperature control
 - Token management
@@ -47,12 +35,12 @@ Configuration Settings:
 ![opea-comps-w3_02.png](screenshots/opea-comps-w3_02.png)
 *Caption: Highlighted OPEA Comps Megaservice configuration settings*
 
-#### 2. Chat Function
-Use the unified MegaService endpoint:
-- Single request processing
-- Combined text and audio responses
-- Chat History
-- Error handling
+#### 2. Chat Experience
+Experience the unified chat interface with:
+- Real-time text responses
+- Automatic audio generation
+- Interactive chat history
+- Clear error feedback
 
 ![opea-comps-w3_03.png](screenshots/opea-comps-w3_03.png)
 *Caption: OPEA Comps Megaservice chat function (part 1)*
@@ -60,36 +48,27 @@ Use the unified MegaService endpoint:
 ![opea-comps-w3_04.png](screenshots/opea-comps-w3_04.png)
 *Caption: OPEA Comps Megaservice chat function (part 2)*
 
-## User Experience Guidance
+## Usage Tips
 
-### Pro Tips
+### For Best Results
 
-1. **Service Configuration**: 
-   - Set appropriate timeouts for TTS
-   - Configure logging rotation
-   - Use health checks for monitoring
+1. **Configuration Tips**: 
+   - Start with default temperature settings
+   - Adjust token limits based on your needs
+   - Enable streaming for real-time responses
 
-2. **API Usage**:
-   - Leverage streaming for real-time responses
-   - Handle audio data efficiently
-   - Monitor service health status
+2. **Chat Best Practices**:
+   - Use clear, concise prompts
+   - Check audio playback settings
+   - Review chat history for context
 
-3. **Performance Optimization**:
-   - Use appropriate model parameters
-   - Manage audio file cleanup
-   - Monitor resource usage
+3. **Troubleshooting**:
+   - Refresh page if audio doesn't play
+   - Check network connection
+   - Clear browser cache if needed
 
-### Best Practices
+## Learn More
 
-- Monitor service health regularly
-- Clean up old audio files
-- Use appropriate timeout values
-- Handle errors gracefully
-- Implement proper logging
-- Test endpoints before deployment
-
-## Conclusion
-
-OPEA MegaService provides a powerful platform for building AI applications that combine text and voice capabilities. Its unified API and robust architecture make it easy to create sophisticated applications that leverage both LLM and TTS technologies.
-
-Whether you're building a conversational AI system, a voice assistant, or any application that needs both text and speech capabilities, OPEA MegaService provides the infrastructure and tools needed to create reliable and scalable solutions.
+For technical details, deployment instructions, and development information, please refer to:
+- [Main Project README](../README.md)
+- [Implementation README](README.md)

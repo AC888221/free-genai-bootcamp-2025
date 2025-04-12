@@ -107,13 +107,13 @@ Transform any Chinese-language video into learning material:
 - Saving text and embeddings data
 
 ![TubeQuiz_06.png](screenshots/TubeQuiz_06.png)
-*Caption: Raw transcript processing interface showing downloaded content and analysis*
+*Raw transcript processing interface showing downloaded content and analysis*
 
 ![TubeQuiz_07.png](screenshots/TubeQuiz_07.png)
-*Caption: Structured data processing interface showing data processing and saving (part 1)*
+*Structured data processing interface showing data processing and saving (part 1)*
 
 ![TubeQuiz_08.png](screenshots/TubeQuiz_08.png)
-*Caption: Structured data processing interface showing data processing and saving (part 2)*
+*Structured data processing interface showing data processing and saving (part 2)*
 
 ### 3. RAG Implementation
 Get context-aware responses and explanations:
@@ -141,13 +141,13 @@ Listen to clear pronunciations:
 - Audio playback controls
 
 ![TubeQuiz_13.png](screenshots/TubeQuiz_13.png)
-*Caption: Audio interface showing playback controls and file management*
+*Audio interface showing playback controls and file management*
 
 ![TubeQuiz_14.png](screenshots/TubeQuiz_14.png)
-*Caption: Audio interface showing audio generation with text source highlighted*
+*Audio interface showing audio generation with text source highlighted*
 
 ![TubeQuiz_15.png](screenshots/TubeQuiz_15.png)
-*Caption: Audio interface showing generated audio with identifying details highlighted*
+*Audio interface showing generated audio with identifying details highlighted*
 
 ## Best Practices
 

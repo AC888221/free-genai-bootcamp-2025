@@ -1,17 +1,14 @@
 # Listening Comp: Language Learning Assistant (LLA)
-This is for the generative AI bootcamp
-
-[Jump to Bootcamp Week 2: LLA Implementation Report](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/language-learning-assistant-main/README.md#bootcamp-week-2-lla-implementation-report)
+This is for the generative AI bootcamp. For a detailed feature walkthrough and user guide, see the [Showcase](Showcase_listening-comp.md).
 
 ## Overview
 The Listening Comp project is designed to enhance language learning through the integration of generative AI and various AWS services. This application focuses on providing a structured approach to language learning, utilizing Retrieval-Augmented Generation (RAG) techniques to ground responses in real lesson content.
 
 ## Table of Contents
-- [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Project Structure](#project-structure)
 - [Technical Details](#technical-details)
+- [Implementation Report](#bootcamp-week-2-lla-implementation-report)
 
 ## Features
 - **Interactive Learning**: Offers practice scenarios to enhance user engagement.
@@ -55,7 +52,7 @@ Make sure to have your AWS credentials configured properly to access the necessa
 - **Database**: Faiss is used for vector storage, ensuring efficient data retrieval and management.
 - **APIs**: The application integrates with the YouTube Transcript API for handling video transcripts.
 
-### Technical Uncertainties
+### Technical Uncertainties and Solutions
 
 **Q:** How did I address the unavailability of Amazon Nova models in AWS regions near Australia?
 **A:** I discovered that Amazon Nova models are not available in the Asia Pacific (Sydney) or Asia Pacific (Melbourne) regions. To overcome this, I selected the US West (Oregon) region [us-west-2] as the nearest alternative to manage latency and performance considerations.
@@ -74,7 +71,7 @@ Make sure to have your AWS credentials configured properly to access the necessa
 
 ## Bootcamp Week 2: LLA Implementation Report
 
-## Domain Knowledge Acquired Through Technical Uncertainty
+### Domain Knowledge Acquired Through Technical Uncertainty
 Throughout the development of the Language Listening App, several technical uncertainties were encountered and overcome, leading to valuable domain knowledge in various areas:
 
 ### Pulling Transcriptions from YouTube

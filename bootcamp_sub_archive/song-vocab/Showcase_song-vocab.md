@@ -13,24 +13,9 @@ Song-Vocab offers a comprehensive set of features for music-based language learn
 - **Translation Support**: Automatic word translations and pinyin
 - **Custom Text Analysis**: Process any Chinese text for vocabulary
 - **Data Export**: Download vocabulary lists in CSV format
-- **Error Handling**: Robust fallback mechanisms for reliable results
 - **User-Friendly Interface**: Clean, intuitive tabbed design
 
 ## Feature Tour
-
-### Launch the App
-
-Start Ollama AI using Docker:
-
-```bash
-docker-compose up
-```
-
-Start Song-Vocab FastAPI Backend and Streamlit Frontend:
-
-```bash
-python run_app.py
-```
 
 ### Home Screen
 
@@ -72,22 +57,21 @@ View the found lyrics with:
 - CSV download option
 
 ![song-vocab_04.png](screenshots/song-vocab_04.png)
-*Caption: Lyrics display showing Chinese text but Chinese translations unable to be processed by the model as it is trained primarily for English*
+*Caption: Lyrics display showing Chinese text and translations*
 
 #### 3. Lyrics Input
 Process your own Chinese lyrics:
 - Large text input area
 - Real-time processing
 - Immediate vocabulary extraction
-- Error handling
 
 ![song-vocab_05.png](screenshots/song-vocab_05.png)
 *Caption: Custom text input interface showing the text area and processing options*
 
 ![song-vocab_06.png](screenshots/song-vocab_06.png)
-*Caption: Lyrics display showing Chinese text but Chinese translations unable to be processed by the model as it is trained primarily for English*
+*Caption: Processed lyrics display with vocabulary extraction*
 
-## User Experience Guidance
+## User Guide
 
 ### Pro Tips
 
@@ -120,3 +104,6 @@ Process your own Chinese lyrics:
 Song-Vocab transforms Chinese music into an effective language learning tool. By combining web search capabilities with AI-powered vocabulary extraction, it provides a unique and engaging way to expand your Chinese vocabulary through music.
 
 Whether you're a beginner looking to learn through popular songs or an advanced learner seeking to analyze specific texts, Song-Vocab offers the tools and features needed to make learning Chinese more enjoyable and effective.
+
+---
+For technical documentation and setup instructions, please see the [main README](../README.md).

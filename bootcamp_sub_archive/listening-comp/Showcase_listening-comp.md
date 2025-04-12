@@ -2,72 +2,49 @@
 
 ## Introduction
 
-The Putonghua Learning Assistant is an advanced language learning application that transforms YouTube content into interactive Mandarin Chinese learning experiences. By combining AI technologies like Large Language Models (LLMs), Retrieval Augmented Generation (RAG), and text-to-speech capabilities, it creates a comprehensive platform for practicing Putonghua listening and comprehension skills.
+The Putonghua Learning Assistant is an advanced language learning application that transforms YouTube content into interactive Mandarin Chinese learning experiences. It creates a comprehensive platform for practicing Putonghua listening and comprehension skills through AI-powered tutoring and interactive exercises.
 
-## Overview of Features
+## Features Overview
 
-The application offers a rich set of features for language learners:
+The application offers these key features for language learners:
 
-- **AI-Powered Chat**: Interact with Nova, an AI tutor for Putonghua learning
-- **YouTube Integration**: Extract and process Chinese language content from YouTube videos
-- **Structured Learning**: Convert raw transcripts into organized learning materials
-- **Interactive Exercises**: Generate custom practice scenarios based on HSK levels
-- **Audio Generation**: Create clear audio pronunciations for practice materials
-- **RAG Technology**: Leverage context-aware responses using advanced AI
-- **Progress Tracking**: Monitor learning progress across different topics
+- **AI-Powered Tutor**: Chat with Nova, your personal Putonghua learning assistant
+- **YouTube Learning**: Learn from authentic Chinese content from YouTube
+- **Interactive Exercises**: Practice with custom scenarios based on HSK levels
+- **Audio Learning**: Listen to clear pronunciations and practice speaking
+- **Progress Tracking**: Monitor your learning journey across different topics
 
 ## Feature Tour
 
-### Launch the App
-
-Start the Putonghua Learning Assistant using Streamlit:
-
-```bash
-streamlit run frontend/main.py
-```
+### Launch Screen
 
 ![listening-comp_01.png](screenshots/listening-comp_01.png)
 *Caption: Launch screen showing the Putonghua Learning Assistant*
 
-### Home Screen
-
-The application features a modern, wide-layout interface with:
-- Clean, intuitive design
-- Clear navigation sidebar
-- Development stage indicators
-- Welcome message and feature overview
-
 ### Navigation
 
-The app is organized into six main development stages:
-1. Chat with Nova
-2. Raw Transcript
-3. Structured Data
-4. RAG Implementation
-5. Interactive Learning
-6. Interactive Response Audio
+The app provides six main learning modules:
+1. Chat with Nova - Your AI Language Tutor
+2. Video Transcripts - Learn from YouTube Content
+3. Structured Lessons - Organized Learning Materials
+4. Smart Learning - Context-Aware Practice
+5. Interactive Practice - Custom Exercises
+6. Audio Learning - Pronunciation Practice
 
 ![listening-comp_02.png](screenshots/listening-comp_02.png)
-*Caption: Launch screen highlighting the welcome message and sidebar navigation showing all six development stages with descriptions*
+*Caption: Welcome screen and navigation sidebar showing all learning modules*
 
-### Key Features in Action
+### Learning Modules in Action
 
 #### 1. Chat with Nova
-Engage with an AI tutor for Putonghua learning:
-- Natural language interaction
+Your personal AI tutor helps with:
 - Grammar explanations
-- Vocabulary assistance
+- Vocabulary practice
 - Cultural insights
-- Example questions provided in sidebar
+- Pronunciation tips
 
 ![listening-comp_03.png](screenshots/listening-comp_03.png)
-*Caption: Chat interface showing conversation with Nova about Chinese grammar (part 1)*
-
-![listening-comp_04.png](screenshots/listening-comp_04.png)
-*Caption: Chat interface showing conversation with Nova about Chinese grammar (part 2)*
-
-![listening-comp_05.png](screenshots/listening-comp_05.png)
-*Caption: Chat interface showing conversation with Nova about Chinese grammar (part 3)*
+*Caption: Chat with Nova about Chinese grammar*
 
 #### 2. YouTube Transcript Processing
 Transform YouTube content into learning materials:
@@ -125,34 +102,32 @@ Listen to clear pronunciations:
 ![listening-comp_12.png](screenshots/listening-comp_14.png)
 *Caption: Audio interface showing generated audio with identifying details highlighted*
 
-## User Experience Guidance
+## Learning Tips
 
-### Pro Tips
+### Best Practices for Learners
 
-1. **Effective Learning**:
-   - Start with Nova for basic concepts
+1. **Start Smart**:
+   - Begin with Nova for foundational concepts
    - Use YouTube content for real-world practice
    - Combine listening and speaking exercises
-   - Review generated content regularly
+   - Review materials regularly
 
-2. **Feature Integration**:
-   - Mix different learning modes
-   - Use RAG for context-aware practice
-   - Save audio for offline review
-   - Track progress across topics
+2. **Maximize Your Learning**:
+   - Practice with varied content types
+   - Use audio support consistently
+   - Save useful materials for review
+   - Track your progress regularly
 
-### Best Practices
+## Getting Started
 
-- Begin with familiar topics
-- Gradually increase difficulty
-- Use audio support consistently
-- Practice with varied content
-- Review generated exercises
-- Combine different learning modes
-- Save useful materials for later review
+1. Choose your preferred learning module from the sidebar
+2. Start with basic conversations with Nova
+3. Progress to YouTube content for authentic language exposure
+4. Practice with interactive exercises
+5. Use audio tools for pronunciation practice
 
 ## Conclusion
 
-The Putonghua Learning Assistant transforms traditional language learning by combining AI technology with practical learning tools. Whether you're a beginner starting with basic concepts or an advanced learner seeking to improve listening comprehension, the application provides a comprehensive platform for enhancing your Putonghua skills.
+The Putonghua Learning Assistant offers a modern approach to language learning, combining AI tutoring with practical exercises. Whether you're just starting with Putonghua or looking to improve your skills, the application provides all the tools you need for effective learning.
 
-The integration of AI chat, YouTube content, interactive exercises, and audio support creates a dynamic learning environment that adapts to your needs and helps you progress effectively in your language learning journey.
+For technical details and setup instructions, please refer to the [README](README.md).

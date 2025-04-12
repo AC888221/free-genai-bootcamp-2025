@@ -16,39 +16,16 @@ Writing Practice offers a rich set of features for language learners:
 - **Progress Tracking**: Review and grade your writing attempts
 - **Bilingual Support**: English and Chinese translations with Pinyin
 
+## Getting Started
+
+To begin using Writing Practice:
+
+1. Launch the application following the setup instructions in the README
+2. Navigate to the Word Collection section to explore vocabulary
+3. Move to Writing Practice to generate sentences and practice writing
+4. Use the Review section to get feedback on your handwriting
+
 ## Feature Tour
-
-### Launch the App
-
-#### Prerequisites
-
-Before starting Writing Practice, you must first launch the Lang Portal backend service which provides access to the main vocabulary database:
-
-1. Navigate to the Lang Portal directory:
-```bash
-cd path/to/lang-portal/backend-flask
-```
-
-2. Start the Lang Portal service:
-```bash
-python app.py
-```
-
-3. Wait for the service to start (it will run on http://localhost:5000)
-
-#### Starting Writing Practice
-
-1. Navigate to the writing-practice directory:
-```bash
-cd path/to/writing/practice
-```
-
-2. Run Writing Practice app:
-```bash
-streamlit run app.py
-```
-
-> **Important**: If you see a "Connection refused" error, make sure the Lang Portal service is running on port 5000 before starting Writing Practice.
 
 ### Home Screen
 

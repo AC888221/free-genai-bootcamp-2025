@@ -1,8 +1,9 @@
 # OPEA-Comps: Megaservice
 
-[Jump to Bootcamp Week 3: OPEA Megaservice Implementation Report](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps-w3/README.md#bootcamp-week-3-opea-megaservice-implementation-report)
-
-[Jump to LLM Megaservice Glossory](https://github.com/AC888221/free-genai-bootcamp-2025/blob/main/opea-comps/README.md#llm-megaservice-glossory)
+## Quick Links
+- [Visual Feature Showcase](Showcase_Megaservice.md) - See the service in action with screenshots and usage examples
+- [Bootcamp Week 3: Implementation Report](#bootcamp-week-3-opea-megaservice-implementation-report)
+- [LLM Megaservice Glossary](#llm-megaservice-glossory)
 
 ## MegaService
 
@@ -128,7 +129,7 @@ For quick updates to the Streamlit frontend during development, use the provided
 
 ```bash
 ./update_megatalk.sh
-``` 
+```
 
 ## Bootcamp Week 3: OPEA Megaservice Implementation Report
 
@@ -204,7 +205,6 @@ This is a table of the supported vLLM models (from 08/03/2025, source: https://d
 - Robust error handling and detailed logging were essential for debugging distributed services
 - Environment variable consolidation improved consistency and maintainability
 - Developing scripts to automate the deployment and development workflow was a great way to streamline the development process and reduce the amount of time it took to make changes
-
 
 ## Appendices
 

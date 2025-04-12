@@ -56,7 +56,7 @@ MegaTalk enhances language learning through natural conversation by combining:
 ## Getting Started
 
 1. **Start Lang Portal Backend**
-   ```bash
+```bash
    cd path/to/lang-portal/backend-flask
    python app.py
    ```

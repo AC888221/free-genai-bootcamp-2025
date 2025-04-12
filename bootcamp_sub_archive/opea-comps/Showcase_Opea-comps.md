@@ -1,35 +1,30 @@
-# OPEA Comps Showcase
+# OPEA Comps Implementation Showcase
 
-## Introduction
+This showcase demonstrates the practical implementation of the OPEA Comps microservices architecture, showing how the system works in practice through screenshots and examples.
 
-OPEA Comps (Open-source Protocol for Extensible AI Components) is a sophisticated microservices architecture for AI applications. It provides a standardized way to build, deploy, and orchestrate AI services, with a particular focus on language models and embeddings. The system is designed to make AI services more modular, scalable, and easier to maintain.
+## Implementation Highlights
 
-## Overview of Features
+- Successfully deployed Ollama LLM service using Docker containers
+- Integrated FastAPI server for request handling
+- Implemented text generation capabilities using llama3.2:1b model
+- Set up streaming response handling for real-time AI interactions
 
-OPEA Comps offers a comprehensive set of features for AI service orchestration:
+## Visual Demonstration
 
-- **Service Orchestration**: Coordinate multiple AI services seamlessly
-- **Standardized Protocols**: Consistent API interfaces across services
-- **LLM Integration**: Built-in support for language models via Ollama
-- **Streaming Support**: Real-time response streaming capabilities
-- **Service Discovery**: Automatic service registration and discovery
-- **Error Handling**: Robust error management and logging
-- **Extensible Architecture**: Easy addition of new AI services
+### Service Deployment
 
-## Feature Tour
-
-### Launch the App
-
-Start the OPEA Comps services using Docker Compose:
+Starting the OPEA Comps services using Docker Compose:
 
 ```bash
 docker-compose up
 ```
 
 ![opea-comps_00.png](screenshots/opea-comps_00.png)
-*Caption: OPEA Comps services starting up in Docker containers*
+*Docker containers initializing and starting up*
 
-Download (pull) a model:
+### Model Setup
+
+Downloading and setting up the llama3.2:1b model:
 
 ```bash
 curl http://localhost:8008/api/pull -d '{
@@ -37,15 +32,19 @@ curl http://localhost:8008/api/pull -d '{
 }'
 ```
 
-Launch the FastAPI server:
+### API Server Launch
+
+FastAPI server initialization:
 ```bash
 python mega-service/app.py
 ```
 
 ![opea-comps_01.png](screenshots/opea-comps_01.png)
-*Caption: FastAPI server starting*
+*FastAPI server successfully started and ready to handle requests*
 
-### Generate a Request
+### Text Generation Demo
+
+Example of text generation using the API:
 
 ```bash
 curl http://localhost:8008/api/generate -d '{
@@ -55,10 +54,13 @@ curl http://localhost:8008/api/generate -d '{
 ```
 
 ![opea-comps_02.png](screenshots/opea-comps_02.png)
-*Caption: Megaservice was not completed but the Ollama AI and FastAPI server were successfully implemented for text generation*
+*Successful text generation through the Ollama AI service*
 
-## Conclusion
+## Implementation Status
 
-OPEA Comps provides a robust foundation for building AI-powered applications through its microservices architecture. The standardized protocols and service orchestration capabilities make it easier to develop, deploy, and maintain complex AI systems.
+- ✅ Ollama AI service deployment
+- ✅ FastAPI server integration
+- ✅ Basic text generation functionality
+- ⚠️ Megaservice integration (in progress)
 
-Whether you're building a chat application, an embedding service, or a complete AI platform, OPEA Comps offers the infrastructure and tools needed to create reliable and scalable AI services.
+For technical details, architecture, and setup instructions, please refer to the [README](README.md).
