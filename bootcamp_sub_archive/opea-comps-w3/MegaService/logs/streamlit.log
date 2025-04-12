@@ -1,0 +1,10 @@
+
+Collecting usage statistics. To deactivate, set browser.gatherUsageStats to false.
+
+
+  You can now view your Streamlit app in your browser.
+
+  URL: http://0.0.0.0:8501
+
+2025-04-11 23:40:25,019 - __main__ - INFO - Starting MegaTalk application
+2025-04-11 23:40:25,020 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500

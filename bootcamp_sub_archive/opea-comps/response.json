@@ -1,0 +1,1 @@
+{"id":"chatcmpl-W4CBEwb3QvteaUSzaaKwYu","object":"chat.completion","created":1744425356,"model":"llama3.2:1b","choices":[{"index":0,"message":{"role":"assistant","content":"I'll respond as if we're in a real conversation. How's your day going so far?"},"finish_reason":"stop","metadata":null}],"usage":{"prompt_tokens":0,"total_tokens":0,"completion_tokens":0}}

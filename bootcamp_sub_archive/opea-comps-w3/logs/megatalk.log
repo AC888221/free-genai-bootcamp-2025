@@ -1,0 +1,38 @@
+2025-04-12 09:01:08,806 - __main__ - INFO - Starting MegaTalk application
+2025-04-12 09:01:08,809 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-04-12 09:03:25,868 - __main__ - INFO - Starting MegaTalk application
+2025-04-12 09:03:25,870 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-04-12 09:20:26,146 - __main__ - INFO - Starting MegaTalk application
+2025-04-12 09:20:26,152 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-04-12 09:20:26,341 - __main__ - INFO - Starting MegaTalk application
+2025-04-12 09:20:26,344 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-04-12 09:20:26,346 - __main__ - INFO - Sending request to megaservice: Hi, how are you?...
+2025-04-12 09:20:26,356 - __main__ - INFO - [frontend_1744413626_-3059139021904308051] Sending request to megaservice
+2025-04-12 09:20:36,827 - __main__ - ERROR - [frontend_1744413626_-3059139021904308051] Service error: LLM service error: [Errno -3] Temporary failure in name resolution
+2025-04-12 09:26:55,327 - __main__ - INFO - Starting MegaTalk application
+2025-04-12 09:26:55,329 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-04-12 09:27:04,150 - __main__ - INFO - Starting MegaTalk application
+2025-04-12 09:27:04,150 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-04-12 09:27:04,263 - __main__ - INFO - Starting MegaTalk application
+2025-04-12 09:27:04,267 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-04-12 09:27:04,268 - __main__ - INFO - Sending request to megaservice: Hi, how are you?
+...
+2025-04-12 09:27:04,269 - __main__ - INFO - [frontend_1744414024_-4037277177212740220] Sending request to megaservice
+2025-04-12 09:27:34,208 - __main__ - INFO - [frontend_1744414024_-4037277177212740220] Requesting audio from GPT-SoVITS for text: 你好，我很好，谢谢。...
+2025-04-12 09:27:44,217 - __main__ - ERROR - [frontend_1744414024_-4037277177212740220] TTS request failed: HTTPConnectionPool(host='gpt-sovits-service', port=9880): Max retries exceeded with url: /v1/audio/speech (Caused by NameResolutionError("<urllib3.connection.HTTPConnection object at 0x7f79ced471d0>: Failed to resolve 'gpt-sovits-service' ([Errno -3] Temporary failure in name resolution)"))
+2025-04-12 09:27:44,217 - __main__ - INFO - [frontend_1744414024_-4037277177212740220] Request completed successfully in 29.94s
+2025-04-12 09:27:44,219 - __main__ - INFO - Successfully received response from megaservice
+2025-04-12 09:30:11,882 - __main__ - INFO - Starting MegaTalk application
+2025-04-12 09:30:11,883 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-04-12 09:32:02,360 - __main__ - INFO - Starting MegaTalk application
+2025-04-12 09:32:02,361 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-04-12 09:32:15,123 - __main__ - INFO - Starting MegaTalk application
+2025-04-12 09:32:15,124 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-04-12 09:32:15,299 - __main__ - INFO - Starting MegaTalk application
+2025-04-12 09:32:15,300 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-04-12 09:32:15,301 - __main__ - INFO - Sending request to megaservice: Hi, how are you?...
+2025-04-12 09:32:15,302 - __main__ - INFO - [frontend_1744414335_-8535432072481416964] Sending request to megaservice
+2025-04-12 09:32:24,042 - __main__ - INFO - [frontend_1744414335_-8535432072481416964] Requesting audio from GPT-SoVITS for text: 你好！我很好，谢谢。...
+2025-04-12 09:32:30,799 - __main__ - INFO - [frontend_1744414335_-8535432072481416964] Successfully saved audio to audio/response_20250412_093230_frontend.wav
+2025-04-12 09:32:30,799 - __main__ - INFO - [frontend_1744414335_-8535432072481416964] Request completed successfully in 8.74s
+2025-04-12 09:32:30,803 - __main__ - INFO - Successfully received response from megaservice

@@ -1,0 +1,67 @@
+/app/server.py:407: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+INFO:     Started server process [7]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:9500 (Press CTRL+C to quit)
+INFO:     127.0.0.1:42340 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55600 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45546 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43794 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53332 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54294 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45100 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46452 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48562 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44386 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38048 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54832 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39158 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52846 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37850 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56248 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40458 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38036 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43548 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45138 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44218 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34830 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52536 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39146 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36666 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52438 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60756 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35948 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60368 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36992 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60994 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41920 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60376 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50964 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33176 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57190 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39836 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39898 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37364 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50240 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43468 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56064 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36110 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36160 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43584 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43212 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42990 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56458 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33072 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39602 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53152 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33524 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39452 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48684 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52154 - "GET /health HTTP/1.1" 200 OK

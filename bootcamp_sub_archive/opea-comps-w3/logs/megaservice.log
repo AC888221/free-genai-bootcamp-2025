@@ -1,0 +1,16 @@
+2025-04-12 09:20:26 [INFO] megaservice: [req_1744413626] Received megaservice request
+2025-04-12 09:20:26 [INFO] megaservice: [req_1744413626] Received megaservice request
+2025-04-12 09:27:04 [INFO] megaservice: [req_1744414024] Received megaservice request
+2025-04-12 09:27:04 [INFO] megaservice: [req_1744414024] Received megaservice request
+2025-04-12 09:27:09 [INFO] megaservice: [req_1744414024] Starting TTS generation
+2025-04-12 09:27:09 [INFO] megaservice: [req_1744414024] Starting TTS generation
+2025-04-12 09:27:34 [INFO] megaservice: [req_1744414024] Request completed successfully
+2025-04-12 09:27:34 [INFO] megaservice: [req_1744414024] Request completed successfully
+2025-04-12 09:30:11 [ERROR] megaservice: TTS health check failed with status 500
+2025-04-12 09:30:11 [ERROR] megaservice: TTS health check failed with status 500
+2025-04-12 09:32:15 [INFO] megaservice: [req_1744414335] Received megaservice request
+2025-04-12 09:32:15 [INFO] megaservice: [req_1744414335] Received megaservice request
+2025-04-12 09:32:17 [INFO] megaservice: [req_1744414335] Starting TTS generation
+2025-04-12 09:32:17 [INFO] megaservice: [req_1744414335] Starting TTS generation
+2025-04-12 09:32:24 [INFO] megaservice: [req_1744414335] Request completed successfully
+2025-04-12 09:32:24 [INFO] megaservice: [req_1744414335] Request completed successfully

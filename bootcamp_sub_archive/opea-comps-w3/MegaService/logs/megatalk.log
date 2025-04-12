@@ -1,0 +1,171 @@
+2025-03-12 03:14:47,524 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:14:47,525 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:14:54,948 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:14:54,949 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:14:55,101 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:14:55,103 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:14:55,104 - __main__ - INFO - Sending request to megaservice: hi there...
+2025-03-12 03:14:55,105 - __main__ - INFO - [frontend_1741749295_109009296511599025] Sending request to megaservice
+2025-03-12 03:15:05,151 - __main__ - INFO - [frontend_1741749295_109009296511599025] Requesting audio from GPT-SoVITS for text: Hello! How may I assist you today?...
+2025-03-12 03:15:10,014 - __main__ - INFO - [frontend_1741749295_109009296511599025] Successfully received audio response (162604 bytes)
+2025-03-12 03:15:10,015 - __main__ - INFO - [frontend_1741749295_109009296511599025] Request completed successfully in 10.05s
+2025-03-12 03:15:10,018 - __main__ - INFO - Successfully received response from megaservice
+2025-03-12 03:28:12,792 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:28:12,794 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:28:24,398 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:28:24,399 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:28:24,549 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:28:24,551 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:28:24,553 - __main__ - INFO - Sending request to megaservice: hi there...
+2025-03-12 03:28:24,554 - __main__ - INFO - [frontend_1741750104_659938272738237347] Sending request to megaservice
+2025-03-12 03:28:34,440 - __main__ - INFO - [frontend_1741750104_659938272738237347] Requesting audio from GPT-SoVITS for text: Hello! How can I assist you today?...
+2025-03-12 03:28:39,444 - __main__ - INFO - [frontend_1741750104_659938272738237347] Successfully received audio response (172844 bytes)
+2025-03-12 03:28:39,444 - __main__ - INFO - [frontend_1741750104_659938272738237347] Request completed successfully in 9.89s
+2025-03-12 03:28:39,447 - __main__ - INFO - Successfully received response from megaservice
+2025-03-12 03:29:02,178 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:29:02,179 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:29:04,914 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:29:04,915 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:29:04,917 - __main__ - INFO - Sending request to megaservice: hi there...
+2025-03-12 03:29:04,919 - __main__ - INFO - [frontend_1741750144_659938272738237347] Sending request to megaservice
+2025-03-12 03:29:14,567 - __main__ - INFO - [frontend_1741750144_659938272738237347] Requesting audio from GPT-SoVITS for text: Hello! How can I help you today?...
+2025-03-12 03:29:18,803 - __main__ - INFO - [frontend_1741750144_659938272738237347] Successfully received audio response (162604 bytes)
+2025-03-12 03:29:18,804 - __main__ - INFO - [frontend_1741750144_659938272738237347] Request completed successfully in 9.65s
+2025-03-12 03:29:18,808 - __main__ - INFO - Successfully received response from megaservice
+2025-03-12 03:33:13,591 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:33:13,592 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:33:20,895 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:33:20,897 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:33:25,864 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:33:25,865 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:33:26,008 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:33:26,008 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:33:26,010 - __main__ - INFO - Sending request to megaservice: 语提问，也请用普通话回答。
+保持你的回答简短、友善、自然。...
+2025-03-12 03:33:26,011 - __main__ - INFO - [frontend_1741750406_-4940484835868244781] Sending request to megaservice
+2025-03-12 03:33:35,869 - __main__ - INFO - [frontend_1741750406_-4940484835868244781] Requesting audio from GPT-SoVITS for text: 你好，有什么我可以帮助你的吗？...
+2025-03-12 03:33:39,503 - __main__ - INFO - [frontend_1741750406_-4940484835868244781] Successfully received audio response (172844 bytes)
+2025-03-12 03:33:39,504 - __main__ - INFO - [frontend_1741750406_-4940484835868244781] Request completed successfully in 9.86s
+2025-03-12 03:33:39,507 - __main__ - INFO - Successfully received response from megaservice
+2025-03-12 03:33:51,543 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:33:51,545 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:33:51,727 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:33:51,730 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:33:51,732 - __main__ - INFO - Sending request to megaservice: I like speaking in English...
+2025-03-12 03:33:51,733 - __main__ - INFO - [frontend_1741750431_-1127980398364200758] Sending request to megaservice
+2025-03-12 03:34:02,309 - __main__ - INFO - [frontend_1741750431_-1127980398364200758] Requesting audio from GPT-SoVITS for text: 你好，我想和你谈谈你的英语水平。...
+2025-03-12 03:34:10,091 - __main__ - INFO - [frontend_1741750431_-1127980398364200758] Successfully received audio response (257324 bytes)
+2025-03-12 03:34:10,092 - __main__ - INFO - [frontend_1741750431_-1127980398364200758] Request completed successfully in 10.58s
+2025-03-12 03:34:10,095 - __main__ - INFO - Successfully received response from megaservice
+2025-03-12 03:34:17,017 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:34:17,019 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:34:17,021 - __main__ - INFO - Sending request to megaservice: I like speaking in English...
+2025-03-12 03:34:17,024 - __main__ - INFO - [frontend_1741750457_-1127980398364200758] Sending request to megaservice
+2025-03-12 03:34:27,772 - __main__ - INFO - [frontend_1741750457_-1127980398364200758] Requesting audio from GPT-SoVITS for text: 你好，你想用英语说些什么？...
+2025-03-12 03:34:33,217 - __main__ - INFO - [frontend_1741750457_-1127980398364200758] Successfully received audio response (165164 bytes)
+2025-03-12 03:34:33,218 - __main__ - INFO - [frontend_1741750457_-1127980398364200758] Request completed successfully in 10.75s
+2025-03-12 03:34:33,219 - __main__ - INFO - Successfully received response from megaservice
+2025-03-12 03:34:39,040 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:34:39,040 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:34:42,429 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:34:42,430 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:34:42,431 - __main__ - INFO - Sending request to megaservice: I like speaking in English...
+2025-03-12 03:34:42,432 - __main__ - INFO - [frontend_1741750482_-1127980398364200758] Sending request to megaservice
+2025-03-12 03:34:53,129 - __main__ - INFO - [frontend_1741750482_-1127980398364200758] Requesting audio from GPT-SoVITS for text: 喜欢说英语。...
+2025-03-12 03:34:55,048 - __main__ - INFO - [frontend_1741750482_-1127980398364200758] Successfully received audio response (78124 bytes)
+2025-03-12 03:34:55,049 - __main__ - INFO - [frontend_1741750482_-1127980398364200758] Request completed successfully in 10.70s
+2025-03-12 03:34:55,051 - __main__ - INFO - Successfully received response from megaservice
+2025-03-12 03:35:34,163 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:35:34,164 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:35:34,307 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:35:34,308 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:35:34,312 - __main__ - INFO - Sending request to megaservice: Can you tell me about your house?...
+2025-03-12 03:35:34,314 - __main__ - INFO - [frontend_1741750534_-4600523153083438199] Sending request to megaservice
+2025-03-12 03:35:52,345 - __main__ - INFO - [frontend_1741750534_-4600523153083438199] Requesting audio from GPT-SoVITS for text: 您好！我的家位于城市的中心，拥有宽敞的客厅和一个精致的厨房。客厅中央摆放着一个大大的电视，是家庭娱乐的好去处。厨房里，我用上等的材料制作了一款现代化的烤肉炉，烤肉的香味扑鼻，让人垂涎欲滴。此外，我还有...
+2025-03-12 03:36:23,033 - __main__ - ERROR - [frontend_1741750534_-4600523153083438199] TTS request failed: HTTPConnectionPool(host='gpt-sovits-service', port=9880): Read timed out.
+2025-03-12 03:36:23,035 - __main__ - INFO - [frontend_1741750534_-4600523153083438199] Request completed successfully in 18.03s
+2025-03-12 03:36:23,037 - __main__ - INFO - Successfully received response from megaservice
+2025-03-12 03:39:24,677 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:39:24,679 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:39:27,826 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:39:27,828 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:39:32,498 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:39:32,499 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:39:39,319 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:39:39,320 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:39:39,418 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:39:39,420 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:39:39,422 - __main__ - INFO - Sending request to megaservice: can you tell me about your house?...
+2025-03-12 03:39:39,422 - __main__ - INFO - [frontend_1741750779_-4278384298367528834] Sending request to megaservice
+2025-03-12 03:39:53,249 - __main__ - INFO - [frontend_1741750779_-4278384298367528834] Requesting audio from GPT-SoVITS for text: 我住在中国的北京。...
+2025-03-12 03:39:56,733 - __main__ - INFO - [frontend_1741750779_-4278384298367528834] Successfully received audio response (101164 bytes)
+2025-03-12 03:39:56,734 - __main__ - INFO - [frontend_1741750779_-4278384298367528834] Request completed successfully in 13.83s
+2025-03-12 03:39:56,738 - __main__ - INFO - Successfully received response from megaservice
+2025-03-12 03:40:10,896 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:40:10,897 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:40:13,098 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:40:13,100 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:40:13,101 - __main__ - INFO - Sending request to megaservice: can you tell me about your house?...
+2025-03-12 03:40:13,102 - __main__ - INFO - [frontend_1741750813_-4278384298367528834] Sending request to megaservice
+2025-03-12 03:40:24,365 - __main__ - INFO - [frontend_1741750813_-4278384298367528834] Requesting audio from GPT-SoVITS for text: 我叫Qwen，是一个AI助手。...
+2025-03-12 03:40:31,419 - __main__ - INFO - [frontend_1741750813_-4278384298367528834] Successfully received audio response (218924 bytes)
+2025-03-12 03:40:31,420 - __main__ - INFO - [frontend_1741750813_-4278384298367528834] Request completed successfully in 11.26s
+2025-03-12 03:40:31,422 - __main__ - INFO - Successfully received response from megaservice
+2025-03-12 03:43:16,033 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:43:16,034 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:43:39,306 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:43:39,309 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:43:39,457 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:43:39,458 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:43:39,464 - __main__ - INFO - Sending request to megaservice: CAn you tell me something special about yourself?...
+2025-03-12 03:43:39,466 - __main__ - INFO - [frontend_1741751019_-6140748200131912645] Sending request to megaservice
+2025-03-12 03:43:51,723 - __main__ - INFO - [frontend_1741751019_-6140748200131912645] Requesting audio from GPT-SoVITS for text: 当然可以！我是一个AI助手，用于帮助用户。请问有什么我可以为你介绍的吗？...
+2025-03-12 03:44:04,866 - __main__ - INFO - [frontend_1741751019_-6140748200131912645] Successfully saved audio to audio/response_20250312_034404_frontend.wav
+2025-03-12 03:44:04,867 - __main__ - INFO - [frontend_1741751019_-6140748200131912645] Request completed successfully in 12.26s
+2025-03-12 03:44:04,870 - __main__ - INFO - Successfully received response from megaservice
+2025-03-12 03:44:17,247 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:44:17,248 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:44:18,840 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:44:18,841 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:44:18,842 - __main__ - INFO - Sending request to megaservice: CAn you tell me something special about yourself?...
+2025-03-12 03:44:18,843 - __main__ - INFO - [frontend_1741751058_-6140748200131912645] Sending request to megaservice
+2025-03-12 03:44:31,306 - __main__ - INFO - [frontend_1741751058_-6140748200131912645] Requesting audio from GPT-SoVITS for text: 当然可以，我是Qwen，由阿里云创建的。...
+2025-03-12 03:44:39,025 - __main__ - INFO - [frontend_1741751058_-6140748200131912645] Successfully saved audio to audio/response_20250312_034439_frontend.wav
+2025-03-12 03:44:39,026 - __main__ - INFO - [frontend_1741751058_-6140748200131912645] Request completed successfully in 12.46s
+2025-03-12 03:44:39,029 - __main__ - INFO - Successfully received response from megaservice
+2025-03-12 03:46:32,615 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:46:32,616 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:46:42,220 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:46:42,222 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:46:42,379 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:46:42,380 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:46:42,382 - __main__ - INFO - Sending request to megaservice: tel me your favorite thing...
+2025-03-12 03:46:42,383 - __main__ - INFO - [frontend_1741751202_6769218776630868043] Sending request to megaservice
+2025-03-12 03:46:52,759 - __main__ - INFO - [frontend_1741751202_6769218776630868043] Requesting audio from GPT-SoVITS for text: 你好，我最喜欢的动物是熊猫。...
+2025-03-12 03:46:59,158 - __main__ - INFO - [frontend_1741751202_6769218776630868043] Successfully saved audio to audio/response_20250312_034659_frontend.wav
+2025-03-12 03:46:59,158 - __main__ - INFO - [frontend_1741751202_6769218776630868043] Request completed successfully in 10.38s
+2025-03-12 03:46:59,160 - __main__ - INFO - Successfully received response from megaservice
+2025-03-12 03:49:06,439 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:49:06,440 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:49:15,917 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:49:15,919 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:49:16,060 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:49:16,061 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:49:16,062 - __main__ - INFO - Sending request to megaservice: is thsiworking ...
+2025-03-12 03:49:16,063 - __main__ - INFO - [frontend_1741751356_-4886484679342031215] Sending request to megaservice
+2025-03-12 03:49:26,586 - __main__ - INFO - [frontend_1741751356_-4886484679342031215] Requesting audio from GPT-SoVITS for text: 正在工作。...
+2025-03-12 03:49:29,672 - __main__ - INFO - [frontend_1741751356_-4886484679342031215] Successfully saved audio to audio/response_20250312_034929_frontend.wav
+2025-03-12 03:49:29,673 - __main__ - INFO - [frontend_1741751356_-4886484679342031215] Request completed successfully in 10.52s
+2025-03-12 03:49:29,676 - __main__ - INFO - Successfully received response from megaservice
+2025-03-12 03:49:49,809 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:49:49,812 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:49:49,930 - __main__ - INFO - Starting MegaTalk application
+2025-03-12 03:49:49,931 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
+2025-03-12 03:49:49,932 - __main__ - INFO - Sending request to megaservice: I want your babies...
+2025-03-12 03:49:49,932 - __main__ - INFO - [frontend_1741751389_5993545132836603485] Sending request to megaservice
+2025-03-12 03:50:00,420 - __main__ - INFO - [frontend_1741751389_5993545132836603485] Requesting audio from GPT-SoVITS for text: 宝宝，我来抱抱你。...
+2025-03-12 03:50:04,242 - __main__ - INFO - [frontend_1741751389_5993545132836603485] Successfully saved audio to audio/response_20250312_035004_frontend.wav
+2025-03-12 03:50:04,244 - __main__ - INFO - [frontend_1741751389_5993545132836603485] Request completed successfully in 10.49s
+2025-03-12 03:50:04,246 - __main__ - INFO - Successfully received response from megaservice
+2025-04-11 23:40:25,019 - __main__ - INFO - Starting MegaTalk application
+2025-04-11 23:40:25,020 - __main__ - INFO - MEGASERVICE_URL: http://localhost:9500
